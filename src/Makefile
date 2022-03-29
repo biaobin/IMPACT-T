@@ -6,24 +6,24 @@
 #**************************************************************************
 # Macros defining the Fortran, C/C++ compiler and linker.
 
-CC = ifort
-LINK = ifort
+CC = gfortran
+LINK = gfortran
 FFLAGS = -O3
 
 #**************************************************************************
 # List of .o files that EXENAME depends on.  Edit as appropriate for MP.
 
 OBJS = \
-	mpistub.o DataStruct/NumConst.o DataStruct/PhysConst.o DataStruct/Pgrid.o \
-	DataStruct/Data.o \
-	Func/Timer.o Func/Transpose.o Func/Fldmger.o Func/Ptclmger.o  \
-	Func/FFT.o \
-        Appl/BPM.o Appl/CCL.o Appl/CCDTL.o Appl/DTL.o Appl/SC.o Appl/Multipole.o \
-	Appl/DriftTube.o Appl/Quadrupole.o Appl/ConstFoc.o Appl/SolRF.o \
-	Appl/Sol.o Appl/Dipole.o Appl/EMfld.o Appl/EMfldCart.o Appl/EMfldCyl.o Appl/EMfldAna.o \
-	Appl/BeamLineElem.o \
-	Appl/CompDom.o Appl/BeamBunch.o Appl/Depositor.o Appl/Ranger.o Appl/Field.o Appl/Distribution.o \
-	Contrl/Input.o Contrl/Output.o Contrl/AccSimulator.o Contrl/main.o
+	src/mpistub.o src/DataStruct/NumConst.o src/DataStruct/PhysConst.o src/DataStruct/Pgrid.o \
+	src/DataStruct/Data.o \
+	src/Func/Timer.o src/Func/Transpose.o src/Func/Fldmger.o src/Func/Ptclmger.o  \
+	src/Func/FFT.o \
+        src/Appl/BPM.o src/Appl/CCL.o src/Appl/CCDTL.o src/Appl/DTL.o src/Appl/SC.o src/Appl/Multipole.o \
+	src/Appl/DriftTube.o src/Appl/Quadrupole.o src/Appl/ConstFoc.o src/Appl/SolRF.o \
+	src/Appl/Sol.o src/Appl/Dipole.o src/Appl/EMfld.o src/Appl/EMfldCart.o src/Appl/EMfldCyl.o src/Appl/EMfldAna.o \
+	src/Appl/BeamLineElem.o \
+	src/Appl/CompDom.o src/Appl/BeamBunch.o src/Appl/Depositor.o src/Appl/Ranger.o src/Appl/Field.o src/Appl/Distribution.o \
+	src/Contrl/Input.o src/Contrl/Output.o src/Contrl/AccSimulator.o src/Contrl/main.o
 
 OBJS2 = \
 	mpistub.o NumConst.o PhysConst.o Pgrid.o Data.o \
@@ -35,7 +35,7 @@ OBJS2 = \
 #**************************************************************************
 # Change this line if you don't like 'a.out'.
 
-EXENAME = ImpactTexe
+EXENAME = ImpactT.exe
 
 #************************************************************************
 # disable predefined suffixes and define your own set of allowed suffixes
@@ -64,13 +64,13 @@ $(EXENAME):  $(OBJS)
 #Timer.o: Timer.f90
 #	$(CC) -c -O3 Timer.f90
 
-	cp  AccSimulator.o main.o Input.o Output.o Contrl
+	cp  AccSimulator.o main.o Input.o Output.o src/Contrl
 	cp  BPM.o CCL.o CCDTL.o DTL.o SC.o DriftTube.o Quadrupole.o \
 	    ConstFoc.o BeamLineElem.o BeamBunch.o Field.o CompDom.o \
 	    Distribution.o SolRF.o Sol.o Dipole.o Multipole.o EMfld.o \
-	    EMfldCart.o EMfldCyl.o EMfldAna.o Depositor.o Ranger.o Appl
-	cp  Timer.o Transpose.o Fldmger.o Ptclmger.o FFT.o Func	
-	cp  NumConst.o PhysConst.o Data.o Pgrid.o DataStruct 
+	    EMfldCart.o EMfldCyl.o EMfldAna.o Depositor.o Ranger.o src/Appl
+	cp  Timer.o Transpose.o Fldmger.o Ptclmger.o FFT.o src/Func	
+	cp  NumConst.o PhysConst.o Data.o Pgrid.o src/DataStruct 
 #***********************************************************************
 clean:
-	-rm *.o $(EXENAME) *.mod */*.o
+	-rm -f *.o *.mod src/*/*.o 
