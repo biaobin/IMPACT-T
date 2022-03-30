@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# comment "use mpistub" for para-core version
+sed -i 's/use mpistub/!use mpistub/g' ../src/src/Contrl/Input.f90
+sed -i 's/use mpistub/!use mpistub/g' ../src/src/DataStruct/Data.f90
+sed -i 's/use mpistub/!use mpistub/g' ../src/src/DataStruct/PhysConst.f90
+sed -i 's/use mpistub/!use mpistub/g' ../src/src/DataStruct/Pgrid.f90
+sed -i 's/use mpistub/!use mpistub/g' ../src/src/Func/Timer.f90
+
+rm ../src/src/Appl/mpif.h 
+rm ../src/src/Contrl/mpif.h 
+rm ../src/src/DataStruct/mpif.h 
+rm ../src/src/Func/mpif.h 
+
+# rm mpistub.o in makefile
+# move makefile position for debug in eclipse
+sed -i 's/OBJS =  src\/mpistub.o \\/OBJS = \\/g' ../src/Makefile
+sed -i 's/OBJS2 =  mpistub.o \\/OBJS2 = \\/g' ../src/Makefile
+
+# change gfortran compiller to mpif90
+sed -i 's/gfortran/mpif90/g' ../src/Makefile
