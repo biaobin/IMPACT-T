@@ -2,158 +2,11 @@ Author: Biaobin Li
 
 Email: biaobin@ustc.edu.cn
 
-# Introduction
-
-This python script could transform string-type input file into `ImpactZ.in` file. Users have experiences with `ELEGANT` will enjoy this tool. Right now, not all `IMPACT-Z` elements are added in the code. Users could go to the python scipts: `impactz_parser.py/__default_lattice()` and `impactz_parser.py/impactzin_lattice()` to add the new elements you want to use. 
-
-
-
-# How to run it
-
-Add `genimpactzin` into your `PATH`, for my  case, add the following line to your `.bashrc`:
-
-```bash
-export PATH=/mnt/d/githubProj/IMPACT-Z/utilities/lattice_parser:$PATH
-```
-
-Given the `lte.impz` input file:
-
-```bash
-genimpactzin lte.impz line
-```
-
-which will generate the `ImpactZ.in` file. Now you can run the `ImpactZexe` in parallel version as:
-
-```
-mpirun -np 4 ImpactZexe
-```
-
-4 processes are used as $core\_num\_T\times core\_num\_L=4$.
-
-If you are using the single process version, `core_num_T=1,core_num_L=1` should be given. Then just type:
-
-```
-ImpactZ.exe
-```
-
-`ImpactZ.in` is automatically read.
-
-The user is encouraged to have a look in `utilities/lattice_parser/examples`, one example is given to show how this work.
-
-
-
-# A simple example
-
-For the convenience of illustration, `lte.impz` refers to the python level read-in file, `ImpactZ.in` refers to `ImpactZexe` read-in file. You can rename `lte.impz`  any other names you like.
-
-The `lte.impz` file mainly consists of three sections, `control, beam and lattice` sections. The detailed mapping relationships between`ImpactZ.in` and `lte.impz` are listed in the following section. Here we give a simple example for the  usage of `lte.impz` :
-
-```python
-!control section
-!===============
-&control
-
-core_num_T = 2;
-core_num_L = 2;
-meshx = 32;
-meshy = 32;
-meshz = 64;
-kinetic_energy = 300e6;
-freq_scale = 1.3e9;
-
-&end
-
-!beam section
-!==============
-&beam
-mass = 0.511001e6;
-charge = -1.0;
-
-distribution_type = 2;
-Np = 5000;
-total_charge = 1e-9;
-
-emit_nx=0.176e-6, beta_x=12.73, alpha_x=-0.85;
-emit_ny=0.176e-6, beta_y=12.73, alpha_y=-0.85;
-
-sigz=1e-3, sigE=5e3;
-
-&end
-
-!lattice section
-!=====================
-&lattice
-
-!rpn expression is supported,
-!only a few mathematical operator are added, please see 
-!lattice_parser.py/rpn_cal() for more details.
-!------------------------------------------------------
-% 0.2 sto LB1
-% -4.410 pi * 180 / sto AB1  ! Bend angle
-
-BCX11: BEND,L= LB1,ANGLE=AB1,       E2=AB1,       steps=1, pipe_radius=2.1640E-02, fint=0.3893
-BCX12: BEND,L= LB1,ANGLE= "0 AB1 -",E1= "0 AB1 -",steps=1, pipe_radius=2.1640E-02, fint=0.3893
-BCX13: BEND,L= LB1,ANGLE= "0 AB1 -",E2= "0 AB1 -",steps=1, pipe_radius=2.1640E-02, fint=0.3893
-BCX14: BEND,L= LB1,ANGLE=AB1,       E1=AB1,       steps=1, pipe_radius=2.1640E-02, fint=0.3893
-
-D1  : DRIF, L=5.0
-Dm  : DRIF, L=0.5
-
-BC1 : LINE=(BCX11,D1,BCX12,Dm,BCX13,D1,BCX14)
-
-W0:   watch, filename_ID=1000
-W1:   watch, filename_ID=1001
-
-Line : LINE=(W0,BC1,W1)
-
-&end
-```
-
-
-
-# Control and beam section
-
-The mapping relationship between `ImpactZ.in` and `lte.impz` in `control` sections are listed as following:
-
-```bash
-line1: 
-core_num_T core_num_L
-
-line2:
-6 Np integrator error output_ratio
-
-line3：
-meshx meshy meshz flagbc x_pipe_width y_pipe_width period_len
-
-line4:
-distribution_type restart sub_cycle 1
-
-line5:
-Np
-
-line6:
-current  #Q*f_scale
-
-line7:
-# value defined automatically by charge/mass in the code; 
-# the definition of charge and mass, see beam section.
-
-line8-line10:
-# defined by beam section
-alpha_x beta_x emit_x mismatchx mismatchpx offsetX     offsetPx
-alpha_y beta_y emit_y mismatchy mismatchpy offsetY     offsetPy
-alpha_z beta_z emit_z mismatchz mismatchE  offsetPhase offsetEnergy
-
-line11:
-current kinetic_energy mass charge freq_scale ini_phase 
-
-```
-
 
 
 ## Control parameters
 
-All control parameters in `lte.impz` are listed:
+All control parameters in `lte.impt` are listed:
 
 
 
@@ -165,8 +18,6 @@ All control parameters in `lte.impz` are listed:
 | max_step       |       | int    | 1e6     | maximum number of time steps                                 |
 | nbunch         |       | int    | 1       | see manual for details.                                      |
 | Dim            |       | int    | 6       | random seed integer                                          |
-|                |       |        |         |                                                              |
-|                |       |        |         |                                                              |
 | error          |       | int    | 0       | Error study?                                                 |
 | diag           |       | int    | 1       | see manual for details.                                      |
 | image_sc       |       | int    | 1       | Image charge flag.                                           |
@@ -174,11 +25,9 @@ All control parameters in `lte.impz` are listed:
 | meshx          |       | int    | 32      | number of mesh points in x direction.                        |
 | meshy          |       | int    | 32      | number of mesh points in y direction.                        |
 | meshz          |       | int    | 32      | number of mesh points in z direction.                        |
-|                |       |        |         |                                                              |
 | Xrad           | m     | double | 0.015   | size of computational domain. Transverse size.               |
 | Yrad           | m     | double | 0.015   | size of computational domain. Transverse size.               |
 | PerdLen        | m     | double | 10.0    | PerdLen should be greater than the beam line lattice length. |
-|                |       |        |         |                                                              |
 | Restart        |       | int    | 0       |                                                              |
 | Nemission      |       | int    | 400     | the number of numerical emission steps.                      |
 | Temission      | s     | double | 1e-9    | Laser pulse emission time.                                   |
@@ -190,7 +39,7 @@ All control parameters in `lte.impz` are listed:
 
 ## Beam parameters
 
-All beam section parameters in `lte.impz` are listed:
+All beam section parameters in `lte.impt` are listed:
 
 | Parameter Name    | Units | Type   | Default | Description                                                |
 | ----------------- | ----- | ------ | ------- | ---------------------------------------------------------- |
@@ -220,7 +69,6 @@ All beam section parameters in `lte.impz` are listed:
 | alpha_z           |       | double | 0.0     | twiss para.                                                |
 | sigz              | m     | double | 0.0     | rms bunch length.                                          |
 | sigpz             | eV    | double | 0.0     | rms value of $\gamma\beta_z/\gamma_0\beta_0$               |
-|                   |       |        |         |                                                            |
 
 Users could either use twiss parameters to define initial beam distribution, or use rms values. For $\sigma_{ij}\neq0$ cases, please use twiss-para. 
 
@@ -232,7 +80,7 @@ In the definition: $z=ct$.
 
 # Lattice section
 
-Right now, only a few frequently used elements in `ImpactZ.in` are added into the python parser.
+Right now, only a few frequently used elements in `ImpactT.in` are added into the python parser.
 
 
 
@@ -259,7 +107,6 @@ Right now, only a few frequently used elements in `ImpactZ.in` are added into th
 | L              | m     | double     | 0.0     | length                                                                             |
 | grad           | T/m   | double     | 0.0     | quadrupole strength, $gradient=\frac{\partial B_y}{\partial x}$ |
 | fileid        |       | int/double | 1.0     | use minus x to refer rfdatax; when fileid=1.0, use Enge function for fringe field, fileid is changed to quad length in python scripts. |
-|                |       |            |         |                                                              |
 | Dx             | m     | double     | 0.0     | x misalignment error                                         |
 | Dy             | m     | double     | 0.0     | y misalignment error                                         |
 | rotate_x       | rad   | double     | 0.0     | rotation error in x direction                                |
@@ -299,15 +146,10 @@ Right now, only a few frequently used elements in `ImpactZ.in` are added into th
 | rotate_y       | rad   | double | 0.0     | rotation error in y direction |
 | ratate_z       | rad   | double | 0.0     | rotation error in y direction |
 | scaleB         |       | double | 0.0     | scale of solenoid B field.    |
-|  | |  |  |  |
 | fileid | | int | None | file ID |
 | z1 | m | double | None | rfdatax second line. Distance before the zedge. `None`, no update. |
 | z2 | m | double | None | rfdatax third line. Distance after the zedge. `None`, no update. |
 | L_fourier_exp | m | double | None | rfdatax fourth line. The length of the reconstructed field using the fourier coefficients given in rfdatax. (z1,z2,L_fourier_exp) will be used to update rfdatax line2-line4. `None`, no update. |
-
-
-
-
 
 
 
@@ -318,15 +160,14 @@ Right now, only a few frequently used elements in `ImpactZ.in` are added into th
 | Parameter Name | Units | Type   | Default | Description      |
 | -------------- | ----- | ------ | ------- | ---------------- |
 | zedge          | m     | double | 0.0     | global position  |
-|                |       |        |         |                  |
 | filename_id    |       | int    | 80      | fort.80          |
 | sample_freq    |       | int    | 1       | sample out freq. |
 
 
 
-
-
 ### TWS
+
+NOT added yet.
 
 Traveling wave structure, without entrance and exit coupler included.
 
