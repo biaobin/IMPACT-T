@@ -116,6 +116,24 @@
       enddo
       close(8)
 
+      open(8,file="rfdatax_solrf",status="unknown")
+      write(8,*)ncoefreal*2+1
+      write(8,*)-zhalf
+      write(8,*) zhalf
+      write(8,*) 2*zhalf
+      write(8,*)Fcoef(1)
+      do j = 2, ncoefreal
+        write(8,*)Fcoef(j)
+        write(8,*)Fcoef2(j)
+      enddo
+      !following lines for B field
+      write(8,*) 1.0
+      do j=1,4
+        write(8,*) 0.0
+      enddo
+
+      close(8)
+
       open(8,file="rfdata.out",status="unknown")
       do i = 1, ndatareal
         zz = zdata(i) - zmid
