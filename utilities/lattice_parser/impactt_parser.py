@@ -164,22 +164,26 @@ class impactt_parser(lattice_parser):
         self.lattice['SOLRF']['Z2'] = None
         self.lattice['SOLRF']['L_FOURIER_EXP'] = None
         
-        # TRWAVE
-        self.lattice['TRWAVE']['ZEDGE']=0.0
-        self.lattice['TRWAVE']['LPERD']=0.105
-        self.lattice['TRWAVE']['NPERD']=1
-        self.lattice['TRWAVE']['PHASESHIFT']=2*pi/3
-        self.lattice['TRWAVE']['EMAX']=0.0
-        self.lattice['TRWAVE']['FREQ']=2856E6
-        self.lattice['TRWAVE']['PHASE']=0.0
-        self.lattice['TRWAVE']['FILEID_1']=None
-        self.lattice['TRWAVE']['FILEID_2']=None
-        self.lattice['TRWAVE']['DX'] = 0.0
-        self.lattice['TRWAVE']['DY'] = 0.0
-        self.lattice['TRWAVE']['ROTATE_X'] = 0.0 #[rad]
-        self.lattice['TRWAVE']['ROTATE_Y'] = 0.0
-        self.lattice['TRWAVE']['ROTATE_Z'] = 0.0
- 
+        # TWS
+        self.lattice['TWS']['ZEDGE']=0.0
+        self.lattice['TWS']['L']=0.0
+        self.lattice['TWS']['CAV_MODE']=2*pi/3
+        self.lattice['TWS']['LCOUP']=0.052464
+        self.lattice['TWS']['LCAV']=0.104926
+        self.lattice['TWS']['EMAX']=0.0
+        self.lattice['TWS']['FREQ']=2856E6
+        self.lattice['TWS']['PHASE']=0.0
+        self.lattice['TWS']['FILEID_1']=None
+        self.lattice['TWS']['FILEID_2']=None
+        self.lattice['TWS']['FILEID_3']=None
+        self.lattice['TWS']['FILEID_4']=None
+        self.lattice['TWS']['DX'] = 0.0
+        self.lattice['TWS']['DY'] = 0.0
+        self.lattice['TWS']['ROTATE_X'] = 0.0 #[rad]
+        self.lattice['TWS']['ROTATE_Y'] = 0.0
+        self.lattice['TWS']['ROTATE_Z'] = 0.0
+        self.lattice['TWS']['SCALEB']   = 0.0
+
         # -2 element
         self.lattice['WATCH']['ZEDGE'] = 0.0
         self.lattice['WATCH']['FILENAME_ID'] = 80
@@ -414,11 +418,16 @@ class impactt_parser(lattice_parser):
         control_lines.append( str(sigPy) )
         control_lines.append( str(sigyyp) )
         control_lines.append( '1.0 1.0 0.0 0.0 \n' )
-       
+        
+        zscale =1.0
+        if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
+            zscale=1e-9
+        
         control_lines.append( self.beam['SIGZ']    )
         control_lines.append( str(sigPz) ) 
         control_lines.append( str(sigzzp)  )  
-        control_lines.append( '1.0 1.0 0.0' )
+        control_lines.append( str(zscale)  )  
+        control_lines.append( '1.0 0.0' )
         control_lines.append( str(gambet0) )
         control_lines.append(' \n')
 
@@ -427,7 +436,7 @@ class impactt_parser(lattice_parser):
         current = abs(current)
 
         control_lines.append(str(current))
-        control_lines.append( '1.0e3' )  #1keV
+        control_lines.append( '1.0' )  #1eV
         control_lines.append( self.beam['MASS'] )
         control_lines.append( self.beam['CHARGE'] )
         control_lines.append( self.control['FREQ_RF_SCALE'] )
@@ -458,7 +467,7 @@ class impactt_parser(lattice_parser):
                     elem['FILEID']=str(float(elem['L']))
                 
                 lte_lines.append(elem['L'])
-                lte_lines.append('1 1 1')
+                lte_lines.append('10 20 1')
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append(elem['GRAD'])
                 lte_lines.append(elem['FILEID'])
@@ -477,7 +486,7 @@ class impactt_parser(lattice_parser):
                     print("ERROR: please give the SOL field ID.")
                     sys.exit()
                 lte_lines.append(elem['L'])
-                lte_lines.append('1 1 3')
+                lte_lines.append('10 20 3')
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append('0')
                 lte_lines.append(elem['FILEID'])
@@ -491,7 +500,7 @@ class impactt_parser(lattice_parser):
                 self.update_rfdatax(elem) 
 
                 lte_lines.append(elem['L'])
-                lte_lines.append('1 1 105')
+                lte_lines.append('10 20 105')
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append(elem['EMAX'])
                 lte_lines.append(elem['FREQ'])
@@ -506,31 +515,124 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['SCALEB'])
                 lte_lines.append('/ \n')
 
-            elif elem['TYPE'] == 'TRWAVE':
-                if elem['FILEID_1']=='None' or elem['FILEID_2']=='None':
-                    print("ERROR: please give the TRWAVE field ID.")
+            elif elem['TYPE'] == 'TWS':
+                if elem['FILEID_1']=='None':
+                    print("ERROR: please give the TWS field ID.")
                     sys.exit()
 
-                #phi=float(elem['PHASE'])
-                #dphi=float(elem['PHASESHIFT'])
-                #fac=1/sin(dphi)
-                #dphi1=dphi/pi*180-90
-                #dphi2=90
+                x=int(float(elem['FILEID_1']))
+                if elem['FILEID_2']=='None':
+                    elem['FILEID_2'] = str(x+1)
+                if elem['FILEID_3']=='None':
+                    elem['FILEID_3'] = str(x+2)
+                if elem['FILEID_4']=='None':
+                    elem['FILEID_4'] = str(x+3)
 
-                #phi1=phi+dphi1
-                #phi2=phi+dphi2
+                amp=float(elem['EMAX'])
+                phi=float(elem['PHASE'])
+                dphi=float(elem['CAV_MODE'])
+                fac=1/math.sin(dphi)
+                dphi1=dphi/pi*180-90
+                dphi2=90
 
-                #Lperd=float(elem['LPERD'])
-                #TolLen=Lperd*float(elem['NPERD'])
-                ##update rfdatax
-                #f = open('rfdata'+elem['FILEID_1'],'r+')
-                #file=f.readlines()
-                #file[2] = str(Lperd)+'\n'
-                #file[3] = str(TolLen)+'\n'
-                #for j in file:
-                #    f.write(j)
-                #f.close()
+                amp12=amp*fac
+                phi1 =phi+dphi1
+                phi2 =phi+dphi2
+               
+                tmp=nest_dict()
+                tmp['FILEID']=elem['FILEID_1']
+                tmp['Z1']='-'+elem['LCOUP']
+                tmp['Z2']=elem['LCOUP']
+                tmp['L_FOURIER_EXP']=str(2*float(elem['LCOUP']))
+                self.update_rfdatax(tmp) 
 
+                tmp['FILEID']=elem['FILEID_2']
+                tmp['Z1']='0'
+                tmp['Z2']=elem['L']
+                tmp['L_FOURIER_EXP']=elem['LCAV']
+                self.update_rfdatax(tmp) 
+
+                tmp['FILEID']=elem['FILEID_3']
+                tmp['Z1']='0'
+                tmp['Z2']=elem['L']
+                tmp['L_FOURIER_EXP']=elem['LCAV']
+                self.update_rfdatax(tmp) 
+
+                tmp['FILEID']=elem['FILEID_4']
+                tmp['Z1']='-'+elem['LCOUP']
+                tmp['Z2']=elem['LCOUP']
+                tmp['L_FOURIER_EXP']=str(2*float(elem['LCOUP']))
+                self.update_rfdatax(tmp) 
+
+                #entrance coupler
+                lte_lines.append(elem['LCOUP'])
+                lte_lines.append('10 20 105')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append(elem['EMAX'])
+                lte_lines.append(elem['FREQ'])
+                lte_lines.append(elem['PHASE'])
+                lte_lines.append(elem['FILEID_1'])
+                lte_lines.append('1.01')
+                lte_lines.append(elem['DX'])
+                lte_lines.append(elem['DY'])
+                lte_lines.append(elem['ROTATE_X'])
+                lte_lines.append(elem['ROTATE_Y'])
+                lte_lines.append(elem['ROTATE_Z'])
+                lte_lines.append(elem['SCALEB'])
+                lte_lines.append('/ \n')
+
+                #cav1
+                pos = float(elem['ZEDGE']) + float(elem['LCOUP'])
+                lte_lines.append(elem['L'])
+                lte_lines.append('10 20 105')
+                lte_lines.append(str(pos))
+                lte_lines.append(str(amp12))
+                lte_lines.append(elem['FREQ'])
+                lte_lines.append(str(phi1))
+                lte_lines.append(elem['FILEID_2'])
+                lte_lines.append('1.01')
+                lte_lines.append(elem['DX'])
+                lte_lines.append(elem['DY'])
+                lte_lines.append(elem['ROTATE_X'])
+                lte_lines.append(elem['ROTATE_Y'])
+                lte_lines.append(elem['ROTATE_Z'])
+                lte_lines.append(elem['SCALEB'])
+                lte_lines.append('/ \n')
+
+                #cav1
+                lte_lines.append(elem['L'])
+                lte_lines.append('10 20 105')
+                lte_lines.append(str(pos))
+                lte_lines.append(str(amp12))
+                lte_lines.append(elem['FREQ'])
+                lte_lines.append(str(phi2))
+                lte_lines.append(elem['FILEID_3'])
+                lte_lines.append('1.01')
+                lte_lines.append(elem['DX'])
+                lte_lines.append(elem['DY'])
+                lte_lines.append(elem['ROTATE_X'])
+                lte_lines.append(elem['ROTATE_Y'])
+                lte_lines.append(elem['ROTATE_Z'])
+                lte_lines.append(elem['SCALEB'])
+                lte_lines.append('/ \n')
+
+                #entrance coupler
+                pos=pos+float(elem['L'])
+                lte_lines.append(elem['LCOUP'])
+                lte_lines.append('10 20 105')
+                lte_lines.append(str(pos))
+                lte_lines.append(elem['EMAX'])
+                lte_lines.append(elem['FREQ'])
+                lte_lines.append(elem['PHASE'])
+                lte_lines.append(elem['FILEID_4'])
+                lte_lines.append('1.01')
+                lte_lines.append(elem['DX'])
+                lte_lines.append(elem['DY'])
+                lte_lines.append(elem['ROTATE_X'])
+                lte_lines.append(elem['ROTATE_Y'])
+                lte_lines.append(elem['ROTATE_Z'])
+                lte_lines.append(elem['SCALEB'])
+                lte_lines.append('/ \n')
              
             
             elif elem['TYPE']=='WATCH':
@@ -711,7 +813,7 @@ class impactt_parser(lattice_parser):
             lines[3] = elem['L_FOURIER_EXP'] + '\n'
             
         if elem['Z1'] !='None' or elem['Z2'] !='None' or elem['L_FOURIER_EXP'] !='None':
-            copyfile('rfdata'+elem['FILEID'],'rfdata'+elem['FILEID']+'.bk')
+            #copyfile('rfdata'+elem['FILEID'],'rfdata'+elem['FILEID']+'.bk')
             
             f=open('rfdata'+elem['FILEID'],'w')
             for line in lines:
