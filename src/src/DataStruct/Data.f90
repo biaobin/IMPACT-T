@@ -1273,7 +1273,6 @@
         character*7 name2
         character*8 name3
         double precision :: tmpmax
-
         name1 = '1Tx.T7'
         name2 = '1Txx.T7'
         name3 = '1Txxx.T7'
@@ -1362,7 +1361,8 @@
             if(tmpmax.lt.tmp3) then
               tmpmax = tmp3
             endif
-            write(15,100)float(i-1),this%brdatat(1,i),this%brdatat(2,i),&
+            write(15,100)this%ZminRft+float(i-1)*(this%ZmaxRft-this%ZminRft)/this%NzIntvRft,&
+                         this%brdatat(1,i),this%brdatat(2,i),&
                          this%bzdatat(1,i),this%bzdatat(2,i)
           enddo
           print*,"maximum B field on axix: ",tmpmax
