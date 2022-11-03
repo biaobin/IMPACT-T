@@ -70,7 +70,7 @@ class impactt_parser(lattice_parser):
         self.control['DIM'] = 6 
         self.control['ERROR'] = 0
         self.control['DIAG'] = 1
-        self.control['IMAGE_SC'] = 1
+        self.control['IMAGE_SC'] = 0
         self.control['IMAGE_STOP_POS'] = 0.02
         self.control['MESHX'] = 32
         self.control['MESHY'] = 32
@@ -79,8 +79,8 @@ class impactt_parser(lattice_parser):
         self.control['YRAD'] = 0.015
         self.control['PERDLEN'] = 10.0
         self.control['RESTART'] = 0
-        self.control['NEMISSION'] = 400
-        self.control['TEMISSION'] = 1e-9
+        self.control['NEMISSION'] = -1
+        self.control['TEMISSION'] = 0.0
         self.control['KINETIC_ENERGY'] = 0;  # kinetic energy W, E=W+E0
         self.control['FREQ_RF_SCALE'] = 2.856e9
         self.control['INI_T'] = 0.0

@@ -20,7 +20,7 @@ All control parameters in `lte.impt` are listed:
 | Dim            |       | int    | 6       | random seed integer                                          |
 | error          |       | int    | 0       | Error study?                                                 |
 | diag           |       | int    | 1       | see manual for details.                                      |
-| image_sc       |       | int    | 1       | Image charge flag.                                           |
+| image_sc       |       | int    | 0       | 0/1, Image charge OFF or ON.                                 |
 | image_stop_pos | m     | double | 0.02    | position image charge forces are neglected.                  |
 | meshx          |       | int    | 32      | number of mesh points in x direction.                        |
 | meshy          |       | int    | 32      | number of mesh points in y direction.                        |
@@ -29,11 +29,25 @@ All control parameters in `lte.impt` are listed:
 | Yrad           | m     | double | 0.015   | size of computational domain. Transverse size.               |
 | PerdLen        | m     | double | 10.0    | PerdLen should be greater than the beam line lattice length. |
 | Restart        |       | int    | 0       |                                                              |
-| Nemission      |       | int    | 400     | the number of numerical emission steps.                      |
-| Temission      | s     | double | 1e-9    | Laser pulse emission time.                                   |
+| Nemission      |       | int    | -1      | the number of numerical emission steps.  `Nemission=-1` no cathode model.`Nemission=400` means it will take 400 steps for emission process, and the emission time step is `Temission/Nemission`. |
+| Temission      | s     | double | 0.0     | Laser pulse emission time. `Temission=1e-9` means laser pulse is 1ns. |
 | kinetic_energy | eV    | double | 0       | The real kinetic energy of the beam. NOT Bkenergy in line9.  |
 | freq_rf_scale  | Hz    | double | 2856e6  | scale frequency $f_{scal}$,  $Scxl=c/(2\pi f_{scal}) $.      |
 | ini_t          | s     | double | 0.0     | initial reference time.                                      |
+
+
+
+`Nemission` is the total steps for emission process, `Temission` is the emission time. 
+
+```
+dt=1e-12
+max_step=1e3
+
+Nemission=100
+Temission=1e-9
+```
+
+Then the emission process of 1ns would only takes 100 steps, and another 900 steps for `dt=1e-12`. When `Nemission=-1`, no cathode model, The particles are assumed to start in a vacuum. The emission process is also `dt=1e-12s`, and emission steps are 1000. 
 
 
 
@@ -72,9 +86,9 @@ All beam section parameters in `lte.impt` are listed:
 
 Users could either use twiss parameters to define initial beam distribution, or use rms values. For $\sigma_{ij}\neq0$ cases, please use twiss-para. 
 
-
-
 In the definition: $z=ct$.
+
+For ijk, like `distribution_type=112`, the `sigx,sigy` actually is beam radius `r`, and `sigz` is `Lbunch` full length, which in transverse direction is circle uniform, in longitudinal direction is flat-top, and z is in $[-Lbunch, 0]$ range. `zscale` is automatically given `1e-9` value in the python code as the manual said.
 
 
 
@@ -127,6 +141,18 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | L              | m     | double | 0.0     | length          |
 | fileid        |       | int    | None    | file ID         |
 
+For `fileid=3`, the B field file `1T3.T7`, unit is [cm] and [gauss]. It is
+
+`1T3.T7out` would be generated, five columns data:
+
+```bash
+s[m], Br(r=0) [gauss], Br(r=0+dr) [gauss], Bz(r=0) [gauss], Bz(r=dr) [gauss]
+```
+
+
+
+
+
 
 
 ### SOLRF
@@ -151,45 +177,53 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | z2 | m | double | None | rfdatax third line. Distance after the zedge. `None`, no update. |
 | L_fourier_exp | m | double | None | rfdatax fourth line. The length of the reconstructed field using the fourier coefficients given in rfdatax. (z1,z2,L_fourier_exp) will be used to update rfdatax line2-line4. `None`, no update. |
 
+The traveling wave structure is modeled by two standing wave, one should use `RFcoeflcls` to get the fourier coefficients of the standing wave and the shifted standing wave, i.e. `rfdatax`. Only profile information are given for the fourier coefficients. 
 
-
-### WATCH
-
--2 element.
-
-| Parameter Name | Units | Type   | Default | Description      |
-| -------------- | ----- | ------ | ------- | ---------------- |
-| zedge          | m     | double | 0.0     | global position  |
-| filename_id    |       | int    | 80      | fort.80          |
-| sample_freq    |       | int    | 1       | sample out freq. |
+The `z1,z2` and `length` in rfdatax will be updated according to `Lcell` and `Ncell`.
 
 
 
 ### TWS
 
-NOT added yet.
-
-Traveling wave structure, without entrance and exit coupler included.
+Traveling wave structure. 
 
 | Parameter Name | Units | Type   | Default  | Description                                                  |
 | -------------- | ----- | ------ | -------- | ------------------------------------------------------------ |
 | zedge          | m     | double | 0.0      | global position.                                             |
-| Lperd          | m     | double | 0.105    | one period length of the field, for $2\pi/3$ cavity, `Lperd` is the length of 3 cells. |
-| Nperd          |       | double | 1.0      | how many periods to repeat. `Blength` and 4th line in `rfdatax` will be updated with $Lperd\times Nperd$. |
-| phaseshift     | rad   | double | $2\pi/3$ | phase shift of one cell.                                     |
+| L              | m     | double | 0.0      | length of the whole TWS structure linac with couplers excluded. L should be $n\times Lcav$ |
+| cav_mode       | rad   | double | $2\pi/3$ | to get $Amp=Emax/sin(\beta_0d)$                              |
+| Lcoup          | m     | double | 0.052464 | entrance and exit coupler field length. Default is SLAC-S-band values. To set the global position, rfdatax will also be updated. |
+| Lcav           | m     | double | 0.104926 | one period length of the trwave. For $2\pi/3$  mode S-band, `Lcav=0.104926 m`. rfdatax will be updated using this value. |
 | Emax           | V/m   | double | 0.0      | the absolute maximum values of on-axis Ez field.             |
 | freq           | Hz    | double | 2856e6   | RF frequency                                                 |
-| phase          | deg   | double | 0.0      | RF design phase, it should be same with the entrance coupler. |
-| fileid_1       |       | int    | None     | file ID for the standing wave.                               |
-| fileid_2       |       | int    | None     | file ID for the shifted standing wave.                       |
+| phase          | deg   | double | 0.0      | RF design phase.                                             |
+| fileid_1       |       | int    | None     | file ID for the entrance coupler.                            |
+| fileid_2       |       | int    | None     | Auto update to `fileid_1+1` in python code.                  |
+| fileid_3       |       | int    | None     | Auto update to `fileid_1+2 in python code.                   |
+| fileid_4       |       | int    | None     | Auto update to `fileid_1+3 in python code. file ID for the exit coupler. |
 | Dx             | m     | double | 0.0      | x misalignment error                                         |
 | Dy             | m     | double | 0.0      | y misalignment error                                         |
 | rotate_x       | rad   | double | 0.0      | rotation error in x direction                                |
 | rotate_y       | rad   | double | 0.0      | rotation error in y direction                                |
 | ratate_z       | rad   | double | 0.0      | rotation error in y direction                                |
 
-The traveling wave structure is modeled by two standing wave, one should use `RFcoeflcls` to get the fourier coefficients of the standing wave and the shifted standing wave, i.e. `rfdatafieldid_1` and `rfdatafileid_2`. Only profile information are given for the fourier coefficients.
+usage:
+
+```
+tws: tws, zedge=0.0, L=3*0.104926,Emax=25.5e6,freq=2856e6,phase=0.0,fileid_1=4, Lcoup=5.2464e-2,Lcav=0.104926
+```
+
+rfdata4, rfdata5, rfdata6, rfdata7 should be given.
 
 
 
-The `z1,z2` and `length` in rfdatax will be updated according to `Lcell` and `Ncell`.
+### WATCH
+
+-2 element.
+
+| Parameter Name | Units | Type   | Default | Description                                         |
+| -------------- | ----- | ------ | ------- | --------------------------------------------------- |
+| zedge          | m     | double | 0.0     | global position                                     |
+| filename_id    |       | int    | 80      | fort.80, should < 100. But avoid using 40,50,60,70. |
+| sample_freq    |       | int    | 1       | sample out freq.                                    |
+
