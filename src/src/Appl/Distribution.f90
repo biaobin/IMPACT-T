@@ -90,6 +90,9 @@
         else if(flagdist.eq.5) then
           !transverse KV distribution and longitudinal uniform distribution
           call KV3d_Dist(this,nparam,distparam,grid)
+        else if(flagdist.eq.6) then
+          !uniform cylinder in (x,y,z), px=py=0
+          call cylinder_Dist(this,nparam,distparam,grid)
         else if(flagdist.eq.16) then
           !read in an initial distribution with format from IMPACT-T
           call read_Dist(this,nparam,distparam,ib)
@@ -199,6 +202,7 @@
           r2 = (2*r2 - 1.0d0)*sqrt(3.0d0)
           this%Pts1(5,ii) = xmu5 + sig5*r1/sq56
           this%Pts1(6,ii) = xmu6 + sig6*(-muzpz*r2/sq56+r2)
+
         enddo
 
         this%Nptlocal = numpts0
@@ -207,6 +211,117 @@
         t_kvdist = t_kvdist + elapsedtime_Timer(t0)
 
         end subroutine Uniform_Dist
+
+        !cylinder uniform dist in (x,y,z), px=py=0
+        subroutine cylinder_Dist(this,nparam,distparam,grid)
+        implicit none
+        include 'mpif.h'
+        type (BeamBunch), intent(inout) :: this
+        integer, intent(in) :: nparam
+        double precision, dimension(nparam) :: distparam
+        type (Pgrid2d), intent(in) :: grid
+        double precision :: sigx,sigpx,muxpx,xscale,sigy,&
+        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale
+        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6
+        double precision, dimension(6,1) :: a
+        double precision, dimension(2) :: x1, x2
+        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,sq56
+        double precision :: r1, r2, r3
+        integer :: totnp,npy,npx,myid,myidy,myidx,comm2d, &
+                   commcol,commrow,ierr
+        integer :: avgpts,numpts0,i,ii,i0,j,jj
+        double precision :: t0,gamma,x11,twopi
+
+        call starttime_Timer(t0)
+        
+        twopi = 4.0*asin(1.00d0)
+
+        sigx = distparam(1)
+        sigpx = distparam(2)
+        muxpx = distparam(3)
+        xscale = distparam(4)
+        pxscale = distparam(5)
+        xmu1 = distparam(6)
+        xmu2 = distparam(7)
+        sigy = distparam(8)
+        sigpy = distparam(9)
+        muypy = distparam(10)
+        yscale = distparam(11)
+        pyscale = distparam(12)
+        xmu3 = distparam(13)
+        xmu4 = distparam(14)
+        sigz = distparam(15)
+        sigpz = distparam(16)
+        muzpz = distparam(17)
+        zscale = distparam(18)
+        pzscale = distparam(19)
+        xmu5 = distparam(20)
+        xmu6 = distparam(21)
+
+        call getsize_Pgrid2d(grid,totnp,npy,npx)
+        call getpost_Pgrid2d(grid,myid,myidy,myidx)
+        call getcomm_Pgrid2d(grid,comm2d,commcol,commrow)
+        call random_number(x11)
+        print*,"x11: ",x11
+
+        avgpts = this%Npt/(npx*npy)
+
+        sig1 = sigx*xscale
+        sig2 = sigpx*pxscale
+        sig3 = sigy*yscale
+        sig4 = sigpy*pyscale
+        sig5 = sigz*zscale
+        sig6 = sigpz*pzscale
+
+        sq12=sqrt(1.-muxpx*muxpx)
+        sq34=sqrt(1.-muypy*muypy)
+        sq56=sqrt(1.-muzpz*muzpz)
+
+        numpts0 = avgpts
+
+        ! initial allocate 'avgpts' particles on each processor.
+        allocate(this%Pts1(6,avgpts))
+        this%Pts1 = 0.0
+!        print*,"avgpts: ",avgpts
+    
+        do ii = 1, avgpts
+          call random_number(r1)
+          r1 = (2*r1 - 1.0d0)*sqrt(3.0d0)
+          call random_number(r2)
+          r2 = (2*r2 - 1.0d0)*sqrt(3.0d0)
+          !this%Pts1(1,ii) = xmu1 + sig1*r1/sq12
+          this%Pts1(2,ii) = xmu2 + sig2*(-muxpx*r2/sq12+r2)
+          call random_number(r1)
+          r1 = (2*r1 - 1.0d0)*sqrt(3.0d0)
+          call random_number(r2)
+          r2 = (2*r2 - 1.0d0)*sqrt(3.0d0)
+          !this%Pts1(3,ii) = xmu3 + sig3*r1/sq34
+          this%Pts1(4,ii) = xmu4 + sig4*(-muypy*r2/sq34+r2)
+          call random_number(r1)
+          r1 = (2*r1 - 1.0d0)*sqrt(3.0d0)
+          call random_number(r2)
+          r2 = (2*r2 - 1.0d0)*sqrt(3.0d0)
+          !this%Pts1(5,ii) = xmu5 + sig5*r1/sq56
+          this%Pts1(6,ii) = xmu6 + sig6*(-muzpz*r2/sq56+r2)
+
+          !redefine (x,y), cylinder uniform
+          !sig1 => rx, sig3 => ry, sig5 => Lbunch
+          !--------------------------------
+          call random_number(r1)
+          call random_number(r2)
+          call random_number(r3)
+          this%Pts1(1,ii) = xmu1 + sig1*sqrt(r1)*cos(twopi*r2)
+          this%Pts1(3,ii) = xmu3 + sig3*sqrt(r1)*sin(twopi*r2)
+          this%Pts1(5,ii) = xmu5 - sig5*r3
+
+        enddo
+
+        this%Nptlocal = numpts0
+
+!        call MPI_BARRIER(comm2d,ierr)
+        t_kvdist = t_kvdist + elapsedtime_Timer(t0)
+
+        end subroutine cylinder_Dist
 
         !--------------------------------------------------------------------------------------
         !> @brief
