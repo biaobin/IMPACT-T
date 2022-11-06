@@ -120,6 +120,10 @@ class impactt_parser(lattice_parser):
         self.beam['BETA_Z'] = 1.0
         self.beam['ALPHA_Z']= 0.0
 
+        self.beam['DX']= 0.0
+        self.beam['DY']= 0.0
+        self.beam['DZ']= 0.0
+
         # turn all para values to str data type
         for key in self.beam:
             self.beam[key] = str(self.beam[key])
@@ -183,6 +187,13 @@ class impactt_parser(lattice_parser):
         self.lattice['TWS']['ROTATE_Y'] = 0.0
         self.lattice['TWS']['ROTATE_Z'] = 0.0
         self.lattice['TWS']['SCALEB']   = 0.0
+        
+        # 112, EMfldCy1
+        self.lattice['EMFLDCYL']['ZEDGE'] = 0.0
+        self.lattice['EMFLDCYL']['L'] = 0.0
+        self.lattice['EMFLDCYL']['FREQ'] = 2856e6
+        self.lattice['EMFLDCYL']['PHASE'] = 0.0
+        self.lattice['EMFLDCYL']['FILEID'] = None
 
         # -2 element
         self.lattice['WATCH']['ZEDGE'] = 0.0
@@ -412,13 +423,17 @@ class impactt_parser(lattice_parser):
         control_lines.append( self.beam['SIGX'] )
         control_lines.append( str(sigPx) )
         control_lines.append( str(sigxxp) )
-        control_lines.append( '1.0 1.0 0.0 0.0 \n' )
+        control_lines.append( '1.0 1.0' )
+        control_lines.append(self.beam['DX'])
+        control_lines.append( '0.0 \n' )
 
         control_lines.append( self.beam['SIGY'] )
         control_lines.append( str(sigPy) )
         control_lines.append( str(sigyyp) )
-        control_lines.append( '1.0 1.0 0.0 0.0 \n' )
-        
+        control_lines.append( '1.0 1.0' )
+        control_lines.append(self.beam['DY'])
+        control_lines.append( '0.0 \n' )
+
         zscale =1.0
         if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
             zscale=1e-9
@@ -427,7 +442,8 @@ class impactt_parser(lattice_parser):
         control_lines.append( str(sigPz) ) 
         control_lines.append( str(sigzzp)  )  
         control_lines.append( str(zscale)  )  
-        control_lines.append( '1.0 0.0' )
+        control_lines.append( '1.0' )
+        control_lines.append(self.beam['DZ'])
         control_lines.append( str(gambet0) )
         control_lines.append(' \n')
 
@@ -514,6 +530,20 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['ROTATE_Z'])
                 lte_lines.append(elem['SCALEB'])
                 lte_lines.append('/ \n')
+
+            elif elem['TYPE'] == 'EMFLDCYL':
+                if elem['FILEID']=='None':
+                    print("ERROR: please give the EMFLDCYL field ID.")
+                    sys.exit()
+                lte_lines.append(elem['L'])
+                lte_lines.append('10 20 112')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('1.01')
+                lte_lines.append(elem['FREQ'])
+                lte_lines.append(elem['PHASE'])
+                lte_lines.append(elem['FILEID'])
+                lte_lines.append('1.01 0 0 0 0 0 / \n')
+
 
             elif elem['TYPE'] == 'TWS':
                 if elem['FILEID_1']=='None':
