@@ -81,7 +81,8 @@ class impactt_parser(lattice_parser):
         self.control['RESTART'] = 0
         self.control['NEMISSION'] = -1
         self.control['TEMISSION'] = 0.0
-        self.control['KINETIC_ENERGY'] = 0;  # kinetic energy W, E=W+E0
+        self.control['KINETIC_ENERGY'] = 0  # kinetic energy W, E=W+E0
+        self.control['BKENERGY'] = None     
         self.control['FREQ_RF_SCALE'] = 2.856e9
         self.control['INI_T'] = 0.0
 
@@ -438,21 +439,30 @@ class impactt_parser(lattice_parser):
         if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
             zscale=1e-9
         
+        if self.beam['DISTRIBUTION_TYPE']=='16':
+            xmu6 = '0.0'  #xmu6 is used for setting beam energy,
+                          #avoid xmu6 being added into the read-in dis.
+        else:
+            xmu6 = str(gambet0)
+        
         control_lines.append( self.beam['SIGZ']    )
         control_lines.append( str(sigPz) ) 
         control_lines.append( str(sigzzp)  )  
         control_lines.append( str(zscale)  )  
         control_lines.append( '1.0' )
         control_lines.append(self.beam['DZ'])
-        control_lines.append( str(gambet0) )
+        control_lines.append( xmu6 )
         control_lines.append(' \n')
 
         # line-9
         current = float(self.beam['TOTAL_CHARGE'])*float(self.control['FREQ_RF_SCALE'])
         current = abs(current)
 
+        if self.control['BKENERGY']=='None':
+            self.control['BKENERGY']=self.control['KINETIC_ENERGY']
+
         control_lines.append(str(current))
-        control_lines.append( '1.0' )  #1eV
+        control_lines.append( self.control['BKENERGY'])  
         control_lines.append( self.beam['MASS'] )
         control_lines.append( self.beam['CHARGE'] )
         control_lines.append( self.control['FREQ_RF_SCALE'] )
