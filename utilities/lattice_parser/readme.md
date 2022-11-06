@@ -189,10 +189,6 @@ s[m], Br(r=0) [gauss], Br(r=0+dr) [gauss], Bz(r=0) [gauss], Bz(r=dr) [gauss]
 
 
 
-
-
-
-
 ### SOLRF
 
 105 element.
@@ -273,6 +269,12 @@ close(33)
 
 The units of the `1T1.T7` is [cm] and [V/cm]. Units are changed to [m] and [V/m] in the T source code.
 
+`1T1.T7out` would be generated, three columns data:
+
+```bash
+s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m] 
+```
+
 
 
 | Parameter Name | Units | Type   | Default | Description                                                  |
@@ -284,9 +286,6 @@ The units of the `1T1.T7` is [cm] and [V/cm]. Units are changed to [m] and [V/m]
 | fileid         |       | int    | None    | `fileid=1`,  field file is `1T1.T7`.                         |
 
 For static field, set `freq=0.0` and `phase=0.0`.
-
-
-
 
 
 
