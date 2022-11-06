@@ -31,7 +31,8 @@ All control parameters in `lte.impt` are listed:
 | Restart        |       | int    | 0       |                                                              |
 | Nemission      |       | int    | -1      | the number of numerical emission steps.  `Nemission=-1` no cathode model.`Nemission=400` means it will take 400 steps for emission process, and the emission time step is `Temission/Nemission`. |
 | Temission      | s     | double | 0.0     | Laser pulse emission time. `Temission=1e-9` means laser pulse is 1ns. |
-| kinetic_energy | eV    | double | 0       | The real kinetic energy of the beam. NOT Bkenergy in line9.  |
+| kinetic_energy | eV    | double | 0       | The real kinetic energy of the beam.                         |
+| Bkenergy       | eV    | double | None    | If None, `kinetic_energy` values will be set in the python level. Particles behind the cathod will use this beta for emission. ==Question==: Under what situation would this value differs with `kinetic_energy`? |
 | freq_rf_scale  | Hz    | double | 2856e6  | scale frequency $f_{scal}$,  $Scxl=c/(2\pi f_{scal}) $.      |
 | ini_t          | s     | double | 0.0     | initial reference time.                                      |
 
@@ -69,26 +70,63 @@ All beam section parameters in `lte.impt` are listed:
 | alpha_x           |       | double | 0.0     | twiss para.                                                |
 | sigx              | m     | double | 0.0     | rms bunch size.                                            |
 | sigpx             |       | double | 0.0     | rms value of $\gamma\beta_x/\gamma_0\beta_0$               |
-|                   |       |        |         |                                                            |
+| dx                | m     | double | 0.0     | offset for x                                               |
 | emit_y            | m rad | double | 0.0     | emittance.                                                 |
 | emit_ny           | m rad | double | 0.0     | normalized emittance.                                      |
 | beta_y            | m     | double | 1.0     | twiss para.                                                |
 | alpha_y           |       | double | 0.0     | twiss para.                                                |
 | sigy              | m     | double | 0.0     | rms bunch size.                                            |
 | sigpy             |       | double | 0.0     | rms value of $\gamma\beta_y/\gamma_0\beta_0$               |
-|                   |       |        |         |                                                            |
+| dy                | m     | double | 0.0     | offset for y                                               |
 | emit_z            | m rad | double | 0.0     | emittance.                                                 |
 | emit_nz           | m rad | double | 0.0     | normalized emittance.                                      |
 | beta_z            | m     | double | 1.0     | twiss para.                                                |
 | alpha_z           |       | double | 0.0     | twiss para.                                                |
 | sigz              | m     | double | 0.0     | rms bunch length.                                          |
 | sigpz             | eV    | double | 0.0     | rms value of $\gamma\beta_z/\gamma_0\beta_0$               |
+| dz                | m     | double | 0.0     | offset for z                                               |
 
 Users could either use twiss parameters to define initial beam distribution, or use rms values. For $\sigma_{ij}\neq0$ cases, please use twiss-para. 
 
 In the definition: $z=ct$.
 
 For ijk, like `distribution_type=112`, the `sigx,sigy` actually is beam radius `r`, and `sigz` is `Lbunch` full length, which in transverse direction is circle uniform, in longitudinal direction is flat-top, and z is in $[-Lbunch, 0]$ range. `zscale` is automatically given `1e-9` value in the python code as the manual said.
+
+
+
+### Distribution
+
+#### 112, cylinder uniform
+
+112 could be used to generate cylinder uniform distribution.
+
+$\sigma_{i,j,k}$ are actually refers to:
+$$
+sigx=sigy \\
+r\equiv sigx \\
+L_{bunch}\equiv sigz
+$$
+
+
+
+
+#### 6, cylinder uniform
+
+New added:
+
+The following transformation is done in the Fortran source code:
+$$
+\sigma_x=\sigma_y \\
+r=2\times \sigma_x \\
+L_{bunch}=2\sqrt{3}\sigma_z
+$$
+So actually used definition of the input paras. are:
+$$
+sigx=sigy \\
+r\equiv sigx \\
+L_{bunch}\equiv sigz
+$$
+
 
 
 
@@ -214,6 +252,41 @@ tws: tws, zedge=0.0, L=3*0.104926,Emax=25.5e6,freq=2856e6,phase=0.0,fileid_1=4, 
 ```
 
 rfdata4, rfdata5, rfdata6, rfdata7 should be given.
+
+
+
+### EMFLDCYL
+
+112 element. Read in discrete EM field data in cylinder coordinates. I changed the source code,  the data formats are:
+
+```
+open(33,file=’1T1.T7’)
+write(33,*)rmin,rmax,nmr-1
+write(33,*)zmin,zmax,nmz-1
+do j=1,nmz
+	do i=1,nmr
+	write(33,*)Er(i,j),Ez(i,j)
+	enddo
+enddo
+close(33)
+```
+
+The units of the `1T1.T7` is [cm] and [V/cm]. Units are changed to [m] and [V/m] in the T source code.
+
+
+
+| Parameter Name | Units | Type   | Default | Description                                                  |
+| -------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
+| zedge          | m     | double | 0.0     | global position.                                             |
+| L              | m     | double | 0.0     | length of the whole TWS structure linac with couplers excluded. L should be $n\times Lcav$ |
+| freq           | Hz    | double | 2856e6  | RF frequency.                                                |
+| phase          | deg   | double | 0.0     | initial phase.                                               |
+| fileid         |       | int    | None    | `fileid=1`,  field file is `1T1.T7`.                         |
+
+For static field, set `freq=0.0` and `phase=0.0`.
+
+
+
 
 
 
