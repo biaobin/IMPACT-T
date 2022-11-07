@@ -748,6 +748,7 @@
         double precision, dimension(50,50,2) :: dky,amp
         double precision, dimension(50) :: dkx
         double precision :: dtype1,da1,db1,deps1,dLx1,dnkx1,dnky1,hx,xmi,ymi
+        double precision :: gamib
 
 
         twopi = 4*asin(1.0d0)
@@ -1165,8 +1166,9 @@
         do ib = 1, Nbunch
           call phase_Output(40+ib-1,Ebunch(ib),1)
           qchg = Ebunch(ib)%Current/Scfreq
+          gamib = -Ebunch(ib)%refptcl(6)
           call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
-                   Nz,qchg,Ebunch(ib)%Mass,60+ib-1)
+                   Nz,qchg,Ebunch(ib)%Mass,60+ib-1,gamib)
         enddo
         dzz = betazini*Clight*dtless*Dt
         zmin = 0.0d0
@@ -2427,8 +2429,9 @@
             islout = islout + 1
             do ib = 1, Nbunch
               qchg = Ebunch(ib)%Current/Scfreq
+              gamib = -Ebunch(ib)%refptcl(6)
               call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
-                   nslout(islout),qchg,Ebunch(ib)%Mass,nfileslout(islout)+ib-1)
+                   nslout(islout),qchg,Ebunch(ib)%Mass,nfileslout(islout)+ib-1,gamib)
             enddo
           endif
 
@@ -2509,8 +2512,9 @@
           i = 50+ib-1 
           call phase_Output(i,Ebunch(ib),1)
           qchg = Ebunch(ib)%Current/Scfreq
+          gamib = -Ebunch(ib)%refptcl(6)
           call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
-                   Nz,qchg,Ebunch(ib)%Mass,70+ib-1)
+                   Nz,qchg,Ebunch(ib)%Mass,70+ib-1,gamib)
         enddo
 !        call dens2d_Output(1,50,Ebunch(1),Np(1),0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,&
 !                           0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0)

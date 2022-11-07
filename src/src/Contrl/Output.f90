@@ -2108,7 +2108,7 @@
       !> This program calculate the current profile, slice emittance
       !> and uncorrelated energy spread using linear deposition.
       !--------------------------------------------------------------------------------------
-      subroutine sliceprocdep_Output(pts,innp,npt,nslice,qchg,pmass,nfile)
+      subroutine sliceprocdep_Output(pts,innp,npt,nslice,qchg,pmass,nfile,gamib)
       implicit none
       include 'mpif.h'
       integer :: nfile,innp,nslice,npt
@@ -2120,9 +2120,13 @@
       integer :: i,iz,iz1,nsend,ierr,my_rank
       real*8 :: zmin,zmax,hz,zz,zavg,detaabb,&
                 deltagamma,gammaz,ab,clite,sclcur,zmingl,zmaxgl
+      real*8 :: gamib,gambet,bet
 
       clite = 2.99792e8
       sclcur = clite*qchg/npt
+
+      gambet=sqrt(gamib**2-1.0d0)
+      bet=gambet/gamib
 
       zmin = 1.e12
       zmax = -1.e12
@@ -2285,7 +2289,7 @@
       if(my_rank.eq.0) then
         do i = 1, nslice
           zz = zmin + (i-1)*hz  - zavg
-          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur,epx(i)*scxlt,&
+          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
                   epy(i)*scxlt,gam(i)*pmass,gam2uncor2(i)*pmass
         enddo
       endif

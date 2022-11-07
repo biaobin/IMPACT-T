@@ -1333,6 +1333,7 @@ a	Appl/Dipole.f90	/^        double precision, dimension(nvar/;"	L	subroutine:rk6
 a	Appl/Distribution.f90	/^        double precision, dimension(6) :: lcran/;"	L	subroutine:readElegant_Dist	file:
 a	Appl/Distribution.f90	/^        double precision, dimension(6) :: lcran/;"	L	subroutine:readParmela_Dist	file:
 a	Appl/Distribution.f90	/^        double precision, dimension(6,1) :: a$/;"	L	subroutine:Uniform_Dist	file:
+a	Appl/Distribution.f90	/^        double precision, dimension(6,1) :: a$/;"	L	subroutine:cylinder_Dist	file:
 a	Appl/Distribution.f90	/^        double precision, dimension(6,2) :: a$/;"	L	subroutine:Semigauss_Dist	file:
 a	Appl/EMfld.f90	/^        double precision, dimension(nvar/;"	L	subroutine:rk6i_EMfld	file:
 a	Appl/EMfldAna.f90	/^        double precision, dimension(nvar/;"	L	subroutine:rk6i_EMfldAna	file:
@@ -1591,6 +1592,7 @@ avgpts	Appl/Distribution.f90	/^        integer :: avgpts,/;"	L	subroutine:KV3d_D
 avgpts	Appl/Distribution.f90	/^        integer :: avgpts,/;"	L	subroutine:Semigauss_Dist	file:
 avgpts	Appl/Distribution.f90	/^        integer :: avgpts,/;"	L	subroutine:Uniform_Dist	file:
 avgpts	Appl/Distribution.f90	/^        integer :: avgpts,/;"	L	subroutine:Waterbag_Dist	file:
+avgpts	Appl/Distribution.f90	/^        integer :: avgpts,/;"	L	subroutine:cylinder_Dist	file:
 avgpts	Appl/Distribution.f90	/^        integer :: i,j,jlow,jhigh,avgpts,/;"	L	subroutine:read_Dist	file:
 avgpts	Appl/Distribution.f90	/^        integer :: jlow,jhigh,nleft,avgpts$/;"	L	subroutine:readElegant_Dist	file:
 avgpts	Appl/Distribution.f90	/^        integer :: jlow,jhigh,nleft,avgpts$/;"	L	subroutine:readParmela_Dist	file:
@@ -1681,6 +1683,7 @@ bet	Contrl/Output.f90	/^        double precision:: gam,energy,bet$/;"	L	subrouti
 bet	Contrl/Output.f90	/^        double precision:: gam,energy,bet$/;"	L	subroutine:diagnostic1avgZtest_Output	file:
 bet	Contrl/Output.f90	/^        double precision:: gam,energy,bet$/;"	L	subroutine:diagnostic1avg_Output	file:
 bet	Contrl/Output.f90	/^        double precision:: gam,energy,bet,/;"	L	subroutine:diagnostic1_Output	file:
+bet	Contrl/Output.f90	/^      real*8 :: gamib,gambet,/;"	L	subroutine:sliceprocdep_Output	file:
 betC	Appl/BeamBunch.f90	/^        double precision :: beta0,qmcc,recpgamma,betC,/;"	L	subroutine:scatter2t_BeamBunch	file:
 betC	Appl/Field.f90	/^        double precision :: betC$/;"	L	subroutine:gradEB_FieldQuant	file:
 beta0	Appl/BeamBunch.f90	/^        double precision :: beta0,/;"	L	subroutine:scatter2t_BeamBunch	file:
@@ -2324,6 +2327,7 @@ comm2d	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,totnp,npy,npx
 comm2d	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,totnp,npy,npx,comm2d,/;"	L	subroutine:readParmela_Dist	file:
 comm2d	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,comm2d,/;"	L	subroutine:Semigauss_Dist	file:
 comm2d	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,comm2d,/;"	L	subroutine:Uniform_Dist	file:
+comm2d	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,comm2d,/;"	L	subroutine:cylinder_Dist	file:
 comm2d	Appl/Field.f90	/^                               comm2d$/;"	L	subroutine:greenf1tIntnew2	file:
 comm2d	Appl/Field.f90	/^                               comm2d$/;"	L	subroutine:greenf1tIntshift2	file:
 comm2d	Appl/Field.f90	/^                               comm2d,/;"	L	subroutine:openBC3Dnew	file:
@@ -2361,6 +2365,7 @@ commcol	Appl/Depositor.f90	/^                               nytot,commcol$/;"	L	
 commcol	Appl/Depositor.f90	/^           integer :: comm2d,commcol,/;"	L	subroutine:chgdenstest_Depositor	file:
 commcol	Appl/Distribution.f90	/^                   commcol,/;"	L	subroutine:Semigauss_Dist	file:
 commcol	Appl/Distribution.f90	/^                   commcol,/;"	L	subroutine:Uniform_Dist	file:
+commcol	Appl/Distribution.f90	/^                   commcol,/;"	L	subroutine:cylinder_Dist	file:
 commcol	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,totnp,npy,npx,comm2d,commcol,/;"	L	subroutine:readElegant_Dist	file:
 commcol	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,totnp,npy,npx,comm2d,commcol,/;"	L	subroutine:readParmela_Dist	file:
 commcol	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,npy,commrow,commcol,/;"	L	subroutine:greenf1tIntnew2	file:
@@ -2384,6 +2389,7 @@ commrow	Appl/CompDom.f90	/^        integer, intent(in) :: npz,npy,commrow,/;"	L	
 commrow	Appl/Depositor.f90	/^           integer :: comm2d,commcol,commrow$/;"	L	subroutine:chgdenstest_Depositor	file:
 commrow	Appl/Distribution.f90	/^                   commcol,commrow,/;"	L	subroutine:Semigauss_Dist	file:
 commrow	Appl/Distribution.f90	/^                   commcol,commrow,/;"	L	subroutine:Uniform_Dist	file:
+commrow	Appl/Distribution.f90	/^                   commcol,commrow,/;"	L	subroutine:cylinder_Dist	file:
 commrow	Appl/Distribution.f90	/^                   commrow,/;"	L	subroutine:readElegant_Dist	file:
 commrow	Appl/Distribution.f90	/^                   commrow,/;"	L	subroutine:readParmela_Dist	file:
 commrow	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,npy,commrow,/;"	L	subroutine:greenf1tIntnew2	file:
@@ -2569,6 +2575,7 @@ cuty	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,xmu1,xmu3,c
 cutz	Appl/Distribution.f90	/^        real*8 :: currtmp,zflat,zrise,zrisehalf,cutx,cuty,cutz$/;"	L	subroutine:Combine_Dist	file:
 cutz	Appl/Distribution.f90	/^        real*8, intent(in) :: sigz,xmu5,cutz$/;"	L	subroutine:LongGaussz_Dist	file:
 cx	Appl/Field.f90	/^      double precision :: dx,c1,c2,c3,x1,x2,sm,cx,/;"	L	subroutine:dispEqSlab_FieldQuant	file:
+cylinder_Dist	Appl/Distribution.f90	/^        subroutine cylinder_Dist(/;"	s	module:Distributionclass
 d	Appl/Dipole.f90	/^        do/;"	L	subroutine:rk6i_Dipole	file:
 d	Appl/EMfld.f90	/^        do/;"	L	subroutine:rk6i_EMfld	file:
 d	Appl/EMfldAna.f90	/^        do/;"	L	subroutine:rk6i_EMfldAna	file:
@@ -2733,6 +2740,7 @@ distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) ::
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:Semigauss_Dist	file:
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:Uniform_Dist	file:
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:Waterbag_Dist	file:
+distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:cylinder_Dist	file:
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:readElegant_Dist	file:
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:readParmela_Dist	file:
 distparam	Appl/Distribution.f90	/^        double precision, dimension(nparam) :: distparam$/;"	L	subroutine:read_Dist	file:
@@ -3768,6 +3776,7 @@ gamavg	Contrl/Output.f90	/^        real*8 :: gamavg,/;"	L	subroutine:diagnostic1
 gamavg	Contrl/Output.f90	/^        real*8 :: gamavg,/;"	L	subroutine:diagnostic1avg_Output	file:
 gambet	Appl/Distribution.f90	/^        real*8 :: epoint,fmax,hpi,r,rr1,rr2,fvalue,e1,gam,gambet,/;"	L	subroutine:PxPyPzStreakCam_Dist	file:
 gambet	Contrl/Output.f90	/^        double precision:: gam,energy,bet,gambet$/;"	L	subroutine:diagnostic1_Output	file:
+gambet	Contrl/Output.f90	/^      real*8 :: gamib,gambet,/;"	L	subroutine:sliceprocdep_Output	file:
 gambetmax	Contrl/AccSimulator.f90	/^               gambetmax,/;"	L	subroutine:rebin_Utility	file:
 gambetmaxlc	Contrl/AccSimulator.f90	/^        double precision :: gambetminlc,gambetmaxlc,/;"	L	subroutine:rebin_Utility	file:
 gambetmin	Contrl/AccSimulator.f90	/^        double precision :: gambetminl/;"	L	subroutine:rebin_Utility	file:
@@ -3783,6 +3792,8 @@ gamdel	Contrl/Output.f90	/^        double precision :: gamlc,gam2lc,gam2avg,tmpg
 gamgl	Contrl/Output.f90	/^        real*8 :: gamavg,gamgl$/;"	L	subroutine:diagnostic1avgB_Output	file:
 gamgl	Contrl/Output.f90	/^        real*8 :: gamavg,gamgl$/;"	L	subroutine:diagnostic1avg_Output	file:
 gami	Contrl/AccSimulator.f90	/^               gambetmax,gami,/;"	L	subroutine:rebin_Utility	file:
+gamib	Contrl/AccSimulator.f90	/^        double precision :: gamib$/;"	L	subroutine:run_AccSimulator	file:
+gamib	Contrl/Output.f90	/^      real*8 :: gamib,/;"	L	subroutine:sliceprocdep_Output	file:
 gamin	Appl/BeamBunch.f90	/^        double precision, intent(in) :: zorgin,gamin$/;"	L	subroutine:convEntr_BeamBunch	file:
 gamin	Contrl/AccSimulator.f90	/^        double precision :: zz,zorgin,zorgin2,vref,gamin,/;"	L	subroutine:run_AccSimulator	file:
 gamlc	Contrl/Output.f90	/^        double precision :: gamlc,/;"	L	subroutine:diagnostic1avgB_Output	file:
@@ -3793,6 +3804,7 @@ gamma	Appl/BeamBunch.f90	/^        double precision  :: cs,ss,gamma$/;"	L	subrou
 gamma	Appl/Distribution.f90	/^        double precision :: r,xl,gamma0/;"	L	subroutine:readElegant_Dist	file:
 gamma	Appl/Distribution.f90	/^        double precision :: r,xl,gamma0/;"	L	subroutine:readParmela_Dist	file:
 gamma	Appl/Distribution.f90	/^        double precision :: t0,gamma,/;"	L	subroutine:Uniform_Dist	file:
+gamma	Appl/Distribution.f90	/^        double precision :: t0,gamma,/;"	L	subroutine:cylinder_Dist	file:
 gamma	Appl/Field.f90	/^     double precision:: deltas,psi,term1,xxh,gamma,/;"	L	subroutine:funcd	file:
 gamma0	Appl/BeamBunch.f90	/^        double precision :: gamma0$/;"	L	subroutine:convExit_BeamBunch	file:
 gamma0	Appl/BeamBunch.f90	/^        double precision :: gamma0$/;"	L	subroutine:convExitold_BeamBunch	file:
@@ -4078,6 +4090,7 @@ grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:KV3d_Dist	file
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:Semigauss_Dist	file:
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:Uniform_Dist	file:
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:Waterbag_Dist	file:
+grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:cylinder_Dist	file:
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:readElegant_Dist	file:
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:readParmela_Dist	file:
 grid	Appl/Distribution.f90	/^        type (Pgrid2/;"	L	subroutine:sample_Dist	file:
@@ -4336,6 +4349,7 @@ i	Appl/Distribution.f90	/^        in/;"	L	subroutine:CylcoldZSob_Dist	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:Gauss3_Dist	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:Semigauss_Dist	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:Uniform_Dist	file:
+i	Appl/Distribution.f90	/^        in/;"	L	subroutine:cylinder_Dist	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:normVec	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:normVecCut	file:
 i	Appl/Distribution.f90	/^        in/;"	L	subroutine:normdv1d	file:
@@ -4542,6 +4556,7 @@ i0	Appl/CompDom.f90	/^        integer :: i0,/;"	L	subroutine:update_CompDom	file
 i0	Appl/CompDom.f90	/^        integer :: i0,/;"	L	subroutine:updateold_CompDom	file:
 i0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,/;"	L	subroutine:Semigauss_Dist	file:
 i0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,/;"	L	subroutine:Uniform_Dist	file:
+i0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,/;"	L	subroutine:cylinder_Dist	file:
 i0	Appl/Field.f90	/^        integer :: n,i0,/;"	L	subroutine:greenf1tIntnew2	file:
 i0	Appl/Field.f90	/^        integer :: n,i0,/;"	L	subroutine:greenf1tIntshift2	file:
 i0	Func/Transpose.f90	/^      integer :: tempi,ierr,i,j,i0,/;"	L	subroutine:trans3d_TRANSP	file:
@@ -4853,6 +4868,7 @@ ierr	Appl/DTL.f90	/^        integer :: my_rank,ierr$/;"	L	subroutine:getaxfldE_D
 ierr	Appl/Depositor.f90	/^        integer :: inxinz,ierr$/;"	L	subroutine:deposit1test_Depositor	file:
 ierr	Appl/Distribution.f90	/^                   commcol,commrow,ierr$/;"	L	subroutine:Semigauss_Dist	file:
 ierr	Appl/Distribution.f90	/^                   commcol,commrow,ierr$/;"	L	subroutine:Uniform_Dist	file:
+ierr	Appl/Distribution.f90	/^                   commcol,commrow,ierr$/;"	L	subroutine:cylinder_Dist	file:
 ierr	Appl/Distribution.f90	/^        integer :: i,j,jlow,jhigh,avgpts,myid,nproc,ierr,/;"	L	subroutine:read_Dist	file:
 ierr	Appl/Distribution.f90	/^        integer :: ierr,/;"	L	subroutine:readElegant_Dist	file:
 ierr	Appl/Distribution.f90	/^        integer :: ierr,/;"	L	subroutine:readParmela_Dist	file:
@@ -4941,6 +4957,7 @@ ii	Appl/BeamBunch.f90	/^        integer :: n,i,ii,/;"	L	subroutine:kick2t_BeamBu
 ii	Appl/BeamBunch.f90	/^        integer :: n,i,ii,/;"	L	subroutine:scatter2t_BeamBunch	file:
 ii	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,/;"	L	subroutine:Semigauss_Dist	file:
 ii	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,/;"	L	subroutine:Uniform_Dist	file:
+ii	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,/;"	L	subroutine:cylinder_Dist	file:
 ii	Appl/Distribution.f90	/^        integer :: ierr,i,j,k,ii,/;"	L	subroutine:readElegant_Dist	file:
 ii	Appl/Distribution.f90	/^        integer :: ierr,i,j,k,ii,/;"	L	subroutine:readParmela_Dist	file:
 ii	Appl/Distribution.f90	/^        integer :: iptgl,iptlc,npt0,ii,/;"	L	subroutine:Combine_Dist	file:
@@ -5518,6 +5535,7 @@ j	Appl/Depositor.f90	/^        integer :: ngood, i, j,/;"	L	subroutine:deposit1p
 j	Appl/Depositor.f90	/^        integer :: ngood, i, j,/;"	L	subroutine:deposit1test_Depositor	file:
 j	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,/;"	L	subroutine:Semigauss_Dist	file:
 j	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,/;"	L	subroutine:Uniform_Dist	file:
+j	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,/;"	L	subroutine:cylinder_Dist	file:
 j	Appl/Distribution.f90	/^        integer :: i,j,/;"	L	subroutine:read_Dist	file:
 j	Appl/Distribution.f90	/^        integer :: ierr,i,j,/;"	L	subroutine:readElegant_Dist	file:
 j	Appl/Distribution.f90	/^        integer :: ierr,i,j,/;"	L	subroutine:readParmela_Dist	file:
@@ -5637,6 +5655,7 @@ jhigh	Appl/Distribution.f90	/^        integer :: jlow,jhigh,/;"	L	subroutine:rea
 jhigh	Appl/Distribution.f90	/^        integer :: jlow,jhigh,/;"	L	subroutine:readParmela_Dist	file:
 jj	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,jj$/;"	L	subroutine:Semigauss_Dist	file:
 jj	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,jj$/;"	L	subroutine:Uniform_Dist	file:
+jj	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,i,ii,i0,j,jj$/;"	L	subroutine:cylinder_Dist	file:
 jj	Appl/Distribution.f90	/^        integer :: iptgl,iptlc,npt0,ii,jj,/;"	L	subroutine:Combine_Dist	file:
 jj	Appl/Field.f90	/^        integer :: Ni,il,i,Nmax,j,Nsup,islp,Nisup,jj0/;"	L	subroutine:csrwakeTr_FieldQuant	file:
 jj	Appl/Field.f90	/^        integer :: i,j,k,kk,ii,jj,/;"	L	subroutine:greenf1tIntnew2	file:
@@ -6604,6 +6623,7 @@ muxpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,/;"	
 muxpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,/;"	L	subroutine:Semigauss_Dist	file:
 muxpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,/;"	L	subroutine:Waterbag_Dist	file:
 muxpx	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,/;"	L	subroutine:Uniform_Dist	file:
+muxpx	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,/;"	L	subroutine:cylinder_Dist	file:
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:Combine_Dist	file:
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:CylcoldZSob_Dist	file:
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:Gauss3_Dist	file:
@@ -6611,6 +6631,7 @@ muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:KV3d_Dist	fil
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:Semigauss_Dist	file:
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:Uniform_Dist	file:
 muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:Waterbag_Dist	file:
+muypy	Appl/Distribution.f90	/^        sigpy,muypy,/;"	L	subroutine:cylinder_Dist	file:
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,/;"	L	subroutine:Combine_Dist	file:
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,/;"	L	subroutine:CylcoldZSob_Dist	file:
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,/;"	L	subroutine:Gauss3_Dist	file:
@@ -6618,6 +6639,7 @@ muzpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,/;"	L
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,/;"	L	subroutine:Waterbag_Dist	file:
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,/;"	L	subroutine:Semigauss_Dist	file:
 muzpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,/;"	L	subroutine:Uniform_Dist	file:
+muzpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,/;"	L	subroutine:cylinder_Dist	file:
 my_col	DataStruct/Pgrid.f90	/^          integer my_col /;"	k	type:Pgrid2d
 my_rank	Appl/CCDTL.f90	/^        integer :: my_rank,/;"	L	subroutine:getaxfldE_CCDTL	file:
 my_rank	Appl/CCL.f90	/^        integer :: my_rank,/;"	L	subroutine:getaxfldE_CCL	file:
@@ -6670,6 +6692,7 @@ myid	Appl/Distribution.f90	/^        integer :: myid,/;"	L	subroutine:readParmel
 myid	Appl/Distribution.f90	/^        integer :: myid,/;"	L	subroutine:sample_Dist	file:
 myid	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,/;"	L	subroutine:Semigauss_Dist	file:
 myid	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,/;"	L	subroutine:Uniform_Dist	file:
+myid	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,/;"	L	subroutine:cylinder_Dist	file:
 myid	Appl/Field.f90	/^        integer :: myid,/;"	L	subroutine:construct_FieldQuant	file:
 myid	Appl/Field.f90	/^        integer :: myid,/;"	L	subroutine:set_FieldQuant	file:
 myid	Appl/Field.f90	/^        integer :: totnp,nproccol,nprocrow,myid,/;"	L	subroutine:gradEB_FieldQuant	file:
@@ -6706,6 +6729,7 @@ myidx	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,/;"	L	subrouti
 myidx	Appl/Distribution.f90	/^        integer :: myid,myidy,myidx,/;"	L	subroutine:readParmela_Dist	file:
 myidx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,/;"	L	subroutine:Semigauss_Dist	file:
 myidx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,/;"	L	subroutine:Uniform_Dist	file:
+myidx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,myidx,/;"	L	subroutine:cylinder_Dist	file:
 myidx	Appl/Field.f90	/^        integer :: myid, myidx,/;"	L	subroutine:construct_FieldQuant	file:
 myidx	Appl/Field.f90	/^        integer :: myid, myidx,/;"	L	subroutine:set_FieldQuant	file:
 myidx	Appl/Field.f90	/^        integer :: totnp,nproccol,nprocrow,myid,myidx,/;"	L	subroutine:gradEB_FieldQuant	file:
@@ -6746,6 +6770,7 @@ myidy	Appl/Distribution.f90	/^        integer :: myid,myidy,/;"	L	subroutine:rea
 myidy	Appl/Distribution.f90	/^        integer :: myid,myidy,/;"	L	subroutine:readParmela_Dist	file:
 myidy	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,/;"	L	subroutine:Semigauss_Dist	file:
 myidy	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,/;"	L	subroutine:Uniform_Dist	file:
+myidy	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,myid,myidy,/;"	L	subroutine:cylinder_Dist	file:
 myidy	Appl/Field.f90	/^        integer :: myid, myidx, myidy$/;"	L	subroutine:set_FieldQuant	file:
 myidy	Appl/Field.f90	/^        integer :: myid, myidx, myidy,/;"	L	subroutine:construct_FieldQuant	file:
 myidy	Appl/Field.f90	/^        integer :: totnp,nproccol,nprocrow,myid,myidx,myidy$/;"	L	subroutine:gradEB_FieldQuant	file:
@@ -7147,6 +7172,7 @@ nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam$/;"	L	subro
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam$/;"	L	subroutine:KV3d_Dist	file:
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam$/;"	L	subroutine:Semigauss_Dist	file:
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam$/;"	L	subroutine:Uniform_Dist	file:
+nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam$/;"	L	subroutine:cylinder_Dist	file:
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam,/;"	L	subroutine:Combine_Dist	file:
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam,/;"	L	subroutine:Gauss3_Dist	file:
 nparam	Appl/Distribution.f90	/^        integer, intent(in) :: nparam,/;"	L	subroutine:Waterbag_Dist	file:
@@ -7270,6 +7296,7 @@ npx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx$/;"	L	subroutine:KV
 npx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx$/;"	L	subroutine:Waterbag_Dist	file:
 npx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,/;"	L	subroutine:Semigauss_Dist	file:
 npx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,/;"	L	subroutine:Uniform_Dist	file:
+npx	Appl/Distribution.f90	/^        integer :: totnp,npy,npx,/;"	L	subroutine:cylinder_Dist	file:
 npx	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,/;"	L	subroutine:greenf1tIntnew2	file:
 npx	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,/;"	L	subroutine:greenf1tIntshift2	file:
 npx	Contrl/AccSimulator.f90	/^        integer :: myid,myidx,myidy,comm2d,commcol,commrow,npx,/;"	L	subroutine:run_AccSimulator	file:
@@ -7301,6 +7328,7 @@ npy	Appl/Distribution.f90	/^        integer :: totnp,npy,/;"	L	subroutine:KV3d_D
 npy	Appl/Distribution.f90	/^        integer :: totnp,npy,/;"	L	subroutine:Semigauss_Dist	file:
 npy	Appl/Distribution.f90	/^        integer :: totnp,npy,/;"	L	subroutine:Uniform_Dist	file:
 npy	Appl/Distribution.f90	/^        integer :: totnp,npy,/;"	L	subroutine:Waterbag_Dist	file:
+npy	Appl/Distribution.f90	/^        integer :: totnp,npy,/;"	L	subroutine:cylinder_Dist	file:
 npy	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,npy,/;"	L	subroutine:greenf1tIntnew2	file:
 npy	Appl/Field.f90	/^        integer, intent(in) :: myidx,myidy,npx,npy,/;"	L	subroutine:greenf1tIntshift2	file:
 npy	Appl/Field.f90	/^        integer, intent(in) :: myidz,myidy,npz,npy,/;"	L	subroutine:openBC3Dnew	file:
@@ -7447,6 +7475,7 @@ numpts	Appl/Distribution.f90	/^        integer :: numpts,/;"	L	subroutine:PxPyPz
 numpts	Func/Ptclmger.f90	/^        integer :: nsmall,i,j,numpts,/;"	L	subroutine:ptsmv2_ptclmger	file:
 numpts0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,/;"	L	subroutine:Semigauss_Dist	file:
 numpts0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,/;"	L	subroutine:Uniform_Dist	file:
+numpts0	Appl/Distribution.f90	/^        integer :: avgpts,numpts0,/;"	L	subroutine:cylinder_Dist	file:
 numpts0	Appl/Distribution.f90	/^        integer :: ierr,i,j,k,ii,nset,nremain,numpts0$/;"	L	subroutine:readElegant_Dist	file:
 numpts0	Appl/Distribution.f90	/^        integer :: ierr,i,j,k,ii,nset,nremain,numpts0$/;"	L	subroutine:readParmela_Dist	file:
 numseg	Appl/BPM.f90	/^        integer, intent(in) :: numseg,/;"	L	subroutine:construct_BPM	file:
@@ -7969,6 +7998,7 @@ pxscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zsc
 pxscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zscale,pxscale,/;"	L	subroutine:Waterbag_Dist	file:
 pxscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,/;"	L	subroutine:Semigauss_Dist	file:
 pxscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,/;"	L	subroutine:Uniform_Dist	file:
+pxscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,/;"	L	subroutine:cylinder_Dist	file:
 pxscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,/;"	L	subroutine:readElegant_Dist	file:
 pxscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,/;"	L	subroutine:readParmela_Dist	file:
 py	Contrl/Output.f90	/^      px,px2,yy,yy2,py,/;"	L	subroutine:sliceprocdep_Output	file:
@@ -8024,6 +8054,7 @@ pyscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zsc
 pyscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,/;"	L	subroutine:Waterbag_Dist	file:
 pyscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,/;"	L	subroutine:Semigauss_Dist	file:
 pyscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,/;"	L	subroutine:Uniform_Dist	file:
+pyscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,/;"	L	subroutine:cylinder_Dist	file:
 pyscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,pyscale,/;"	L	subroutine:readElegant_Dist	file:
 pyscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,pyscale,/;"	L	subroutine:readParmela_Dist	file:
 pytable	Appl/Field.f90	/^        integer, dimension(0:npy-1), intent(in) :: pytable,/;"	L	subroutine:openBC3Dnew	file:
@@ -8084,6 +8115,7 @@ pzscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zsc
 pzscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale$/;"	L	subroutine:Waterbag_Dist	file:
 pzscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale$/;"	L	subroutine:Semigauss_Dist	file:
 pzscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale$/;"	L	subroutine:Uniform_Dist	file:
+pzscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale$/;"	L	subroutine:cylinder_Dist	file:
 pzscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,pyscale,pzscale,/;"	L	subroutine:readElegant_Dist	file:
 pzscale	Appl/Distribution.f90	/^        xmu5,xmu6,sumx,sumy,pxscale,pyscale,pzscale,/;"	L	subroutine:readParmela_Dist	file:
 pztable	Appl/Field.f90	/^        integer, dimension(0:npz-1), intent(in) :: pztable,/;"	L	subroutine:openBC3Dnew	file:
@@ -8155,6 +8187,7 @@ r0	Contrl/AccSimulator.f90	/^        double precision :: tmpcur,totchrg,r0$/;"	L
 r0bend	Contrl/AccSimulator.f90	/^        double precision :: eeff,ssll,r0bend,/;"	L	subroutine:run_AccSimulator	file:
 r1	Appl/Distribution.f90	/^        double precision :: r1,/;"	L	subroutine:Semigauss_Dist	file:
 r1	Appl/Distribution.f90	/^        double precision :: r1,/;"	L	subroutine:Uniform_Dist	file:
+r1	Appl/Distribution.f90	/^        double precision :: r1,/;"	L	subroutine:cylinder_Dist	file:
 r1	Appl/Distribution.f90	/^        double precision :: rootx,rooty,rootz,r1,/;"	L	subroutine:KV3d_Dist	file:
 r1	Appl/Distribution.f90	/^        double precision :: rootx,rooty,rootz,r1,/;"	L	subroutine:Waterbag_Dist	file:
 r1	Appl/Distribution.f90	/^        double precision, allocatable, dimension(:) :: r1,/;"	L	subroutine:CylcoldZSob_Dist	file:
@@ -8182,6 +8215,7 @@ r2	Appl/DTL.f90	/^        double precision:: bgrad,bgrad1,bgrad2,len1,len2,r2,/;
 r2	Appl/DTL.f90	/^        double precision:: bgrad,bgrad1,bgrad2,len1,len2,r2,/;"	L	subroutine:getfldt_DTL	file:
 r2	Appl/Distribution.f90	/^        double precision :: r1, r2$/;"	L	subroutine:Uniform_Dist	file:
 r2	Appl/Distribution.f90	/^        double precision :: r1, r2,/;"	L	subroutine:Semigauss_Dist	file:
+r2	Appl/Distribution.f90	/^        double precision :: r1, r2,/;"	L	subroutine:cylinder_Dist	file:
 r2	Appl/Distribution.f90	/^        double precision :: rootx,rooty,rootz,r1,r2,/;"	L	subroutine:KV3d_Dist	file:
 r2	Appl/Distribution.f90	/^        double precision :: rootx,rooty,rootz,r1,r2,/;"	L	subroutine:Waterbag_Dist	file:
 r2	Appl/Distribution.f90	/^        double precision, allocatable, dimension(:) :: r1,r2,/;"	L	subroutine:CylcoldZSob_Dist	file:
@@ -8209,6 +8243,7 @@ r2	Appl/SolRF.f90	/^                   zstart2,zend2,zlength2,zlen,f1p,r2,/;"	L	
 r2	Appl/SolRF.f90	/^                   zstart2,zend2,zlength2,zlen,f1p,r2,/;"	L	subroutine:getvecAt_SolRF	file:
 r2w	Func/FFT.f90	/^subroutine r2w /;"	s	module:FFTclass
 r3	Appl/Distribution.f90	/^        double precision :: r1, r2, r, r3$/;"	L	subroutine:Semigauss_Dist	file:
+r3	Appl/Distribution.f90	/^        double precision :: r1, r2, r3$/;"	L	subroutine:cylinder_Dist	file:
 r3	Appl/Distribution.f90	/^        double precision :: r3,/;"	L	subroutine:KV3d_Dist	file:
 r3	Appl/Distribution.f90	/^        double precision :: r3,/;"	L	subroutine:Waterbag_Dist	file:
 r3	Appl/Distribution.f90	/^        double precision, allocatable, dimension(:) :: r1,r2,r3,/;"	L	subroutine:CylcoldZSob_Dist	file:
@@ -8715,6 +8750,7 @@ sig1	Appl/Distribution.f90	/^        double precision :: sig1,/;"	L	subroutine:K
 sig1	Appl/Distribution.f90	/^        double precision :: sig1,/;"	L	subroutine:Semigauss_Dist	file:
 sig1	Appl/Distribution.f90	/^        double precision :: sig1,/;"	L	subroutine:Uniform_Dist	file:
 sig1	Appl/Distribution.f90	/^        double precision :: sig1,/;"	L	subroutine:Waterbag_Dist	file:
+sig1	Appl/Distribution.f90	/^        double precision :: sig1,/;"	L	subroutine:cylinder_Dist	file:
 sig11x	Appl/CompDom.f90	/^                zmin,zmax,sig11x,/;"	L	subroutine:init_CompDom	file:
 sig11y	Appl/CompDom.f90	/^                zmin,zmax,sig11x,sig22x,sig11y,/;"	L	subroutine:init_CompDom	file:
 sig11z	Appl/CompDom.f90	/^                zmin,zmax,sig11x,sig22x,sig11y,sig22y,sig11z,/;"	L	subroutine:init_CompDom	file:
@@ -8727,6 +8763,7 @@ sig2	Appl/Distribution.f90	/^        double precision :: sig1,sig2,/;"	L	subrout
 sig2	Appl/Distribution.f90	/^        double precision :: sig1,sig2,/;"	L	subroutine:Semigauss_Dist	file:
 sig2	Appl/Distribution.f90	/^        double precision :: sig1,sig2,/;"	L	subroutine:Uniform_Dist	file:
 sig2	Appl/Distribution.f90	/^        double precision :: sig1,sig2,/;"	L	subroutine:Waterbag_Dist	file:
+sig2	Appl/Distribution.f90	/^        double precision :: sig1,sig2,/;"	L	subroutine:cylinder_Dist	file:
 sig22x	Appl/CompDom.f90	/^                zmin,zmax,sig11x,sig22x,/;"	L	subroutine:init_CompDom	file:
 sig22y	Appl/CompDom.f90	/^                zmin,zmax,sig11x,sig22x,sig11y,sig22y,/;"	L	subroutine:init_CompDom	file:
 sig22z	Appl/CompDom.f90	/^                zmin,zmax,sig11x,sig22x,sig11y,sig22y,sig11z,sig22z$/;"	L	subroutine:init_CompDom	file:
@@ -8739,24 +8776,28 @@ sig3	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,/;"	L	su
 sig3	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,/;"	L	subroutine:Semigauss_Dist	file:
 sig3	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,/;"	L	subroutine:Uniform_Dist	file:
 sig3	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,/;"	L	subroutine:Waterbag_Dist	file:
+sig3	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,/;"	L	subroutine:cylinder_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:CylcoldZSob_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:Gauss3_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:KV3d_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:Semigauss_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:Uniform_Dist	file:
 sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:Waterbag_Dist	file:
+sig4	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,/;"	L	subroutine:cylinder_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:CylcoldZSob_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:Gauss3_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:KV3d_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:Semigauss_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:Uniform_Dist	file:
 sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:Waterbag_Dist	file:
+sig5	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,/;"	L	subroutine:cylinder_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6$/;"	L	subroutine:CylcoldZSob_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6$/;"	L	subroutine:Gauss3_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6$/;"	L	subroutine:KV3d_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6$/;"	L	subroutine:Waterbag_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,/;"	L	subroutine:Semigauss_Dist	file:
 sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,/;"	L	subroutine:Uniform_Dist	file:
+sig6	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,/;"	L	subroutine:cylinder_Dist	file:
 siggambetz	Contrl/AccSimulator.f90	/^        real*8, dimension(101) :: theat,siggambetz$/;"	L	subroutine:run_AccSimulator	file:
 sigpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,/;"	L	subroutine:Combine_Dist	file:
 sigpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,/;"	L	subroutine:CylcoldZSob_Dist	file:
@@ -8765,6 +8806,7 @@ sigpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,/;"	L	subr
 sigpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,/;"	L	subroutine:Semigauss_Dist	file:
 sigpx	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,/;"	L	subroutine:Waterbag_Dist	file:
 sigpx	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,/;"	L	subroutine:Uniform_Dist	file:
+sigpx	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,/;"	L	subroutine:cylinder_Dist	file:
 sigpx	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,/;"	L	subroutine:PxPyGaussPzSg_Dist	file:
 sigpx	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,/;"	L	subroutine:PxPyPzGauss3d_Dist	file:
 sigpy	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,sigpy,/;"	L	subroutine:PxPyGaussPzSg_Dist	file:
@@ -8776,6 +8818,7 @@ sigpy	Appl/Distribution.f90	/^        sigpy,/;"	L	subroutine:KV3d_Dist	file:
 sigpy	Appl/Distribution.f90	/^        sigpy,/;"	L	subroutine:Semigauss_Dist	file:
 sigpy	Appl/Distribution.f90	/^        sigpy,/;"	L	subroutine:Uniform_Dist	file:
 sigpy	Appl/Distribution.f90	/^        sigpy,/;"	L	subroutine:Waterbag_Dist	file:
+sigpy	Appl/Distribution.f90	/^        sigpy,/;"	L	subroutine:cylinder_Dist	file:
 sigpz	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,sigpy,sigpz,/;"	L	subroutine:PxPyGaussPzSg_Dist	file:
 sigpz	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,sigpy,sigpz,/;"	L	subroutine:PxPyPzGauss3d_Dist	file:
 sigpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,/;"	L	subroutine:Combine_Dist	file:
@@ -8785,6 +8828,7 @@ sigpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,/;"	L	subro
 sigpz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,/;"	L	subroutine:Waterbag_Dist	file:
 sigpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,/;"	L	subroutine:Semigauss_Dist	file:
 sigpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,/;"	L	subroutine:Uniform_Dist	file:
+sigpz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,/;"	L	subroutine:cylinder_Dist	file:
 sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:Combine_Dist	file:
 sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:CylcoldZSob_Dist	file:
 sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:Gauss3_Dist	file:
@@ -8792,6 +8836,7 @@ sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:
 sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:Semigauss_Dist	file:
 sigx	Appl/Distribution.f90	/^        double precision  :: sigx,/;"	L	subroutine:Waterbag_Dist	file:
 sigx	Appl/Distribution.f90	/^        double precision :: sigx,/;"	L	subroutine:Uniform_Dist	file:
+sigx	Appl/Distribution.f90	/^        double precision :: sigx,/;"	L	subroutine:cylinder_Dist	file:
 sigx	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,/;"	L	subroutine:TranGaussxy_Dist	file:
 sigx	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,/;"	L	subroutine:TranUnifxy_Dist	file:
 sigx	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,/;"	L	subroutine:Waterxyz_Dist	file:
@@ -8802,6 +8847,7 @@ sigy	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xscal
 sigy	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xscale,sigy,/;"	L	subroutine:Semigauss_Dist	file:
 sigy	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xscale,sigy,/;"	L	subroutine:Waterbag_Dist	file:
 sigy	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,xscale,sigy,/;"	L	subroutine:Uniform_Dist	file:
+sigy	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,xscale,sigy,/;"	L	subroutine:cylinder_Dist	file:
 sigy	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,/;"	L	subroutine:TranGaussxy_Dist	file:
 sigy	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,/;"	L	subroutine:TranUnifxy_Dist	file:
 sigy	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,/;"	L	subroutine:Waterxyz_Dist	file:
@@ -8814,6 +8860,7 @@ sigz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,/;"	L	subroutine:K
 sigz	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,/;"	L	subroutine:Waterbag_Dist	file:
 sigz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,/;"	L	subroutine:Semigauss_Dist	file:
 sigz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,/;"	L	subroutine:Uniform_Dist	file:
+sigz	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,/;"	L	subroutine:cylinder_Dist	file:
 sinft	Func/FFT.f90	/^subroutine sinft(/;"	s	module:FFTclass
 singlerange	Appl/Ranger.f90	/^      subroutine singlerange(/;"	s	module:Rangerclass
 sinphi	Appl/EMfld.f90	/^                            sinphi,/;"	L	subroutine:intfunc1_EMfld	file:
@@ -8879,12 +8926,15 @@ source	Appl/CompDom.f90	/^        double precision, dimension(:,:,:) :: source$/
 source	Appl/CompDom.f90	/^        double precision, dimension(:,:,:) :: source$/;"	L	subroutine:balance2_CompDom	file:
 sq12	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,/;"	L	subroutine:Semigauss_Dist	file:
 sq12	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,/;"	L	subroutine:Uniform_Dist	file:
+sq12	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,/;"	L	subroutine:cylinder_Dist	file:
 sq12	Appl/Distribution.f90	/^        double precision :: sq12,/;"	L	subroutine:Gauss3_Dist	file:
 sq34	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,/;"	L	subroutine:Semigauss_Dist	file:
 sq34	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,/;"	L	subroutine:Uniform_Dist	file:
+sq34	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,/;"	L	subroutine:cylinder_Dist	file:
 sq34	Appl/Distribution.f90	/^        double precision :: sq12,sq34,/;"	L	subroutine:Gauss3_Dist	file:
 sq56	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,sq56$/;"	L	subroutine:Semigauss_Dist	file:
 sq56	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,sq56$/;"	L	subroutine:Uniform_Dist	file:
+sq56	Appl/Distribution.f90	/^        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,sq56$/;"	L	subroutine:cylinder_Dist	file:
 sq56	Appl/Distribution.f90	/^        double precision :: sq12,sq34,sq56$/;"	L	subroutine:Gauss3_Dist	file:
 sqf3	Appl/Dipole.f90	/^        double precision :: dlti,thli,gf,betaf,uf,squf,sqf3$/;"	L	subroutine:maplinear_Dipole	file:
 sqf3	Appl/EMfld.f90	/^        double precision :: dlti,thli,gf,betaf,uf,squf,sqf3$/;"	L	subroutine:maplinear_EMfld	file:
@@ -9134,6 +9184,7 @@ t0	Appl/Distribution.f90	/^        double precision :: t0,/;"	L	subroutine:Gauss
 t0	Appl/Distribution.f90	/^        double precision :: t0,/;"	L	subroutine:KV3d_Dist	file:
 t0	Appl/Distribution.f90	/^        double precision :: t0,/;"	L	subroutine:Uniform_Dist	file:
 t0	Appl/Distribution.f90	/^        double precision :: t0,/;"	L	subroutine:Waterbag_Dist	file:
+t0	Appl/Distribution.f90	/^        double precision :: t0,/;"	L	subroutine:cylinder_Dist	file:
 t0	Appl/EMfld.f90	/^        double precision :: h,t0,/;"	L	subroutine:maplinear_EMfld	file:
 t0	Appl/EMfldAna.f90	/^        double precision :: h,t0,/;"	L	subroutine:maplinear_EMfldAna	file:
 t0	Appl/EMfldAna.f90	/^        double precision :: tt,t0,/;"	L	subroutine:getfldtTW_EMfldAna	file:
@@ -9534,6 +9585,7 @@ this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:Semigauss_Dist	file:
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:Uniform_Dist	file:
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:Waterbag_Dist	file:
+this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:cylinder_Dist	file:
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:readElegant_Dist	file:
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:readParmela_Dist	file:
 this	Appl/Distribution.f90	/^        type (BeamBunch), intent(inout) :: this$/;"	L	subroutine:read_Dist	file:
@@ -10374,6 +10426,7 @@ totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:KV3d_Dis
 totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:Semigauss_Dist	file:
 totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:Uniform_Dist	file:
 totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:Waterbag_Dist	file:
+totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:cylinder_Dist	file:
 totnp	Appl/Distribution.f90	/^        integer :: totnp,/;"	L	subroutine:sample_Dist	file:
 totnp	Appl/Field.f90	/^        integer :: totnp,/;"	L	subroutine:gradEB_FieldQuant	file:
 totnp	Contrl/AccSimulator.f90	/^                   totnp,/;"	L	subroutine:run_AccSimulator	file:
@@ -10534,6 +10587,7 @@ twkstart	Contrl/AccSimulator.f90	/^        double precision, dimension(100) :: a
 twonz	Appl/Field.f90	/^       integer :: kz,twonz,/;"	L	subroutine:dwakeConv_FieldQuant	file:
 twonz	Appl/Field.f90	/^       integer :: kz,twonz,/;"	L	subroutine:wakefield_FieldQuant	file:
 twonz	Appl/Field.f90	/^       integer :: kz,twonz,/;"	L	subroutine:wakereadin_FieldQuant	file:
+twopi	Appl/Distribution.f90	/^        double precision :: t0,gamma,x11,twopi$/;"	L	subroutine:cylinder_Dist	file:
 twopi	Appl/Distribution.f90	/^        double precision :: t0,x11,twopi$/;"	L	subroutine:KV3d_Dist	file:
 twopi	Appl/Distribution.f90	/^        double precision :: t0,x11,twopi,/;"	L	subroutine:CylcoldZSob_Dist	file:
 twopi	Appl/Distribution.f90	/^        double precision :: twopi,/;"	L	subroutine:normVec	file:
@@ -11079,6 +11133,7 @@ x1	Appl/Distribution.f90	/^        double precision :: twopi,x1,/;"	L	subroutine
 x1	Appl/Distribution.f90	/^        double precision, allocatable, dimension(:,:) :: x1,/;"	L	subroutine:Gauss3_Dist	file:
 x1	Appl/Distribution.f90	/^        double precision, dimension(10*num) :: x1,/;"	L	subroutine:normVecCut	file:
 x1	Appl/Distribution.f90	/^        double precision, dimension(2) :: x1,/;"	L	subroutine:Uniform_Dist	file:
+x1	Appl/Distribution.f90	/^        double precision, dimension(2) :: x1,/;"	L	subroutine:cylinder_Dist	file:
 x1	Appl/Distribution.f90	/^        double precision, dimension(3) :: x1,/;"	L	subroutine:Semigauss_Dist	file:
 x1	Appl/Distribution.f90	/^        double precision, dimension(num) :: x1,/;"	L	subroutine:normVec	file:
 x1	Appl/Distribution.f90	/^        real*8 :: x1,/;"	L	subroutine:TranUnifxy_Dist	file:
@@ -11096,6 +11151,7 @@ x1	Func/FFT.f90	/^  real ( kind = 8 ) x1$/;"	L	subroutine:cosq1b	file:
 x1	Func/FFT.f90	/^  real ( kind = 8 ) x1$/;"	L	subroutine:cosqmb	file:
 x1	Func/Fldmger.f90	/^        double precision, dimension(innx,inny,innz), intent(inout) :: x1,/;"	L	subroutine:boundint4_Fldmger	file:
 x11	Appl/Distribution.f90	/^        double precision :: t0,gamma,x11$/;"	L	subroutine:Uniform_Dist	file:
+x11	Appl/Distribution.f90	/^        double precision :: t0,gamma,x11,/;"	L	subroutine:cylinder_Dist	file:
 x11	Appl/Distribution.f90	/^        double precision :: t0,x11$/;"	L	subroutine:Combine_Dist	file:
 x11	Appl/Distribution.f90	/^        double precision :: t0,x11$/;"	L	subroutine:Gauss3_Dist	file:
 x11	Appl/Distribution.f90	/^        double precision :: t0,x11$/;"	L	subroutine:Waterbag_Dist	file:
@@ -11115,6 +11171,7 @@ x2	Appl/Distribution.f90	/^        double precision :: twopi,x1,x2,/;"	L	subrout
 x2	Appl/Distribution.f90	/^        double precision, allocatable, dimension(:,:) :: x1,x2,/;"	L	subroutine:Gauss3_Dist	file:
 x2	Appl/Distribution.f90	/^        double precision, dimension(10*num) :: x1,x2$/;"	L	subroutine:normVecCut	file:
 x2	Appl/Distribution.f90	/^        double precision, dimension(2) :: x1, x2$/;"	L	subroutine:Uniform_Dist	file:
+x2	Appl/Distribution.f90	/^        double precision, dimension(2) :: x1, x2$/;"	L	subroutine:cylinder_Dist	file:
 x2	Appl/Distribution.f90	/^        double precision, dimension(3) :: x1, x2$/;"	L	subroutine:Semigauss_Dist	file:
 x2	Appl/Distribution.f90	/^        double precision, dimension(num) :: x1,x2$/;"	L	subroutine:normVec	file:
 x2	Appl/Field.f90	/^           double precision:: psi,psipxa,psipxb,psimax,x1,x2$/;"	L	function:IcsrCaseD	file:
@@ -11279,6 +11336,7 @@ xmu1	Appl/Distribution.f90	/^        double precision :: xmu1,/;"	L	subroutine:K
 xmu1	Appl/Distribution.f90	/^        double precision :: xmu1,/;"	L	subroutine:Semigauss_Dist	file:
 xmu1	Appl/Distribution.f90	/^        double precision :: xmu1,/;"	L	subroutine:Uniform_Dist	file:
 xmu1	Appl/Distribution.f90	/^        double precision :: xmu1,/;"	L	subroutine:Waterbag_Dist	file:
+xmu1	Appl/Distribution.f90	/^        double precision :: xmu1,/;"	L	subroutine:cylinder_Dist	file:
 xmu1	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,/;"	L	subroutine:readElegant_Dist	file:
 xmu1	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,/;"	L	subroutine:readParmela_Dist	file:
 xmu1	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,sigz,xmu1,/;"	L	subroutine:Waterxyz_Dist	file:
@@ -11292,6 +11350,7 @@ xmu2	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,/;"	L	subrout
 xmu2	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,/;"	L	subroutine:Semigauss_Dist	file:
 xmu2	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,/;"	L	subroutine:Uniform_Dist	file:
 xmu2	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,/;"	L	subroutine:Waterbag_Dist	file:
+xmu2	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,/;"	L	subroutine:cylinder_Dist	file:
 xmu2	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,/;"	L	subroutine:readElegant_Dist	file:
 xmu2	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,/;"	L	subroutine:readParmela_Dist	file:
 xmu2	Appl/Distribution.f90	/^        real*8, intent(in) :: Ef,Eph,Tem,emass,Ewk,xmu2,/;"	L	subroutine:PxPyPz3step_Dist	file:
@@ -11306,6 +11365,7 @@ xmu3	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,/;"	L	su
 xmu3	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,/;"	L	subroutine:Semigauss_Dist	file:
 xmu3	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,/;"	L	subroutine:Uniform_Dist	file:
 xmu3	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,/;"	L	subroutine:Waterbag_Dist	file:
+xmu3	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,/;"	L	subroutine:cylinder_Dist	file:
 xmu3	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,yscale,xmu3,/;"	L	subroutine:readElegant_Dist	file:
 xmu3	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,yscale,xmu3,/;"	L	subroutine:readParmela_Dist	file:
 xmu3	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,sigz,xmu1,xmu3,/;"	L	subroutine:Waterxyz_Dist	file:
@@ -11319,6 +11379,7 @@ xmu4	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,/;"
 xmu4	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,/;"	L	subroutine:Semigauss_Dist	file:
 xmu4	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,/;"	L	subroutine:Uniform_Dist	file:
 xmu4	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,/;"	L	subroutine:Waterbag_Dist	file:
+xmu4	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,/;"	L	subroutine:cylinder_Dist	file:
 xmu4	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,yscale,xmu3,xmu4,/;"	L	subroutine:readElegant_Dist	file:
 xmu4	Appl/Distribution.f90	/^        double precision :: xscale,xmu1,xmu2,yscale,xmu3,xmu4,/;"	L	subroutine:readParmela_Dist	file:
 xmu4	Appl/Distribution.f90	/^        real*8, intent(in) :: Ef,Eph,Tem,emass,Ewk,xmu2,xmu4,/;"	L	subroutine:PxPyPz3step_Dist	file:
@@ -11333,6 +11394,7 @@ xmu5	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu
 xmu5	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,/;"	L	subroutine:Semigauss_Dist	file:
 xmu5	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,/;"	L	subroutine:Uniform_Dist	file:
 xmu5	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,/;"	L	subroutine:Waterbag_Dist	file:
+xmu5	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,/;"	L	subroutine:cylinder_Dist	file:
 xmu5	Appl/Distribution.f90	/^        real*8, intent(in) :: sigx,sigy,sigz,xmu1,xmu3,xmu5$/;"	L	subroutine:Waterxyz_Dist	file:
 xmu5	Appl/Distribution.f90	/^        real*8, intent(in) :: sigz,xmu5,/;"	L	subroutine:LongGaussz_Dist	file:
 xmu5	Appl/Distribution.f90	/^        real*8, intent(in) :: xmu5,/;"	L	subroutine:LongFlattopGasz_Dist	file:
@@ -11347,6 +11409,7 @@ xmu6	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu
 xmu6	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6$/;"	L	subroutine:Semigauss_Dist	file:
 xmu6	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6$/;"	L	subroutine:Uniform_Dist	file:
 xmu6	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6$/;"	L	subroutine:Waterbag_Dist	file:
+xmu6	Appl/Distribution.f90	/^        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6$/;"	L	subroutine:cylinder_Dist	file:
 xmu6	Appl/Distribution.f90	/^        real*8, intent(in) :: Ef,Eph,Tem,emass,Ewk,xmu2,xmu4,xmu6$/;"	L	subroutine:PxPyPz3step_Dist	file:
 xmu6	Appl/Distribution.f90	/^        real*8, intent(in) :: emax,wkf,xmu2,xmu4,xmu6,/;"	L	subroutine:PxPyPzStreakCam_Dist	file:
 xmu6	Appl/Distribution.f90	/^        real*8, intent(in) :: sigpx,sigpy,sigpz,xmu2,xmu4,xmu6$/;"	L	subroutine:PxPyGaussPzSg_Dist	file:
@@ -11400,6 +11463,7 @@ xscale	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xsc
 xscale	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xscale,/;"	L	subroutine:Semigauss_Dist	file:
 xscale	Appl/Distribution.f90	/^        double precision  :: sigx,sigpx,muxpx,xscale,/;"	L	subroutine:Waterbag_Dist	file:
 xscale	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,xscale,/;"	L	subroutine:Uniform_Dist	file:
+xscale	Appl/Distribution.f90	/^        double precision :: sigx,sigpx,muxpx,xscale,/;"	L	subroutine:cylinder_Dist	file:
 xscale	Appl/Distribution.f90	/^        double precision :: xscale,/;"	L	subroutine:readElegant_Dist	file:
 xscale	Appl/Distribution.f90	/^        double precision :: xscale,/;"	L	subroutine:readParmela_Dist	file:
 xslp	Appl/Field.f90	/^        real*8 :: aa,uuh,uuh24,xslp,/;"	L	subroutine:csrwakeTrIGF_FieldQuant	file:
@@ -11605,6 +11669,7 @@ yscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,/;"	L	subroutine:KV3d
 yscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,/;"	L	subroutine:Waterbag_Dist	file:
 yscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,/;"	L	subroutine:Semigauss_Dist	file:
 yscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,/;"	L	subroutine:Uniform_Dist	file:
+yscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,/;"	L	subroutine:cylinder_Dist	file:
 ystable	Appl/Field.f90	/^        integer, dimension(0:npy-1),intent(in) :: ystable,/;"	L	subroutine:greenf1tIntnew2	file:
 ystable	Appl/Field.f90	/^        integer, dimension(0:npy-1),intent(in) :: ystable,/;"	L	subroutine:greenf1tIntshift2	file:
 ystable	Func/FFT.f90	/^        integer,dimension(0:nproccol-1),intent(in) :: ystable,/;"	L	subroutine:fft3d1_FFT	file:
@@ -12022,6 +12087,7 @@ zscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zsca
 zscale	Appl/Distribution.f90	/^        sigpy,muypy, yscale,sigz,sigpz,muzpz,zscale,/;"	L	subroutine:Waterbag_Dist	file:
 zscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,/;"	L	subroutine:Semigauss_Dist	file:
 zscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,/;"	L	subroutine:Uniform_Dist	file:
+zscale	Appl/Distribution.f90	/^        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,/;"	L	subroutine:cylinder_Dist	file:
 zshift	Appl/Field.f90	/^        double precision, intent(in) :: hx, hy, hz, zshift$/;"	L	subroutine:greenf1tIntshift2	file:
 zshift	Appl/Field.f90	/^        double precision, intent(in) :: hx, hy, hz, zshift$/;"	L	subroutine:openBC3Dnew	file:
 zshift	Appl/Sol.f90	/^        double precision:: zz,bgrad,b0,bb,cc,zshift,/;"	L	subroutine:getfld_Sol	file:

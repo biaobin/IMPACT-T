@@ -52,43 +52,51 @@ Then the emission process of 1ns would only takes 100 steps, and another 900 ste
 
 
 
+### Nbunch
+
+For DC-GUN, since the bunch is really long, and large energy spread is induced. `Nbunch` should be set properly to accurately perform the Lorentz transformation from lab frame to beam frame.  
+
+The `total_charge` in each `ImpactTj.in` refers to the individual slice charge, not the total charge of the whole bunch. One can use `fort.60` and `fort.70`  3rd col (current [A]) to check whether you have set the proper values.
+
+
+
 ## Beam parameters
 
 All beam section parameters in `lte.impt` are listed:
 
-| Parameter Name    | Units | Type   | Default | Description                                                |
-| ----------------- | ----- | ------ | ------- | ---------------------------------------------------------- |
-| mass              | eV    | double | 0.511e6 | mass of the particle.                                      |
-| charge            |       | double | -1.0    | -1 for electron.                                           |
-| distribution_type |       | int    | 2       | 6D gaussian distribution. See more options in Ji’s manual. |
-| Np                |       | int    | 1e3     | particle number.                                           |
-| total_charge      | C     | double | 1e-9    | charge of the beam.                                        |
-|                   |       |        |         |                                                            |
-| emit_x            | m rad | double | 0.0     | emitance.                                                  |
-| emit_nx           | m rad | double | 0.0     | normalized emittance.                                      |
-| beta_x            | m     | double | 1.0     | twiss para.                                                |
-| alpha_x           |       | double | 0.0     | twiss para.                                                |
-| sigx              | m     | double | 0.0     | rms bunch size.                                            |
-| sigpx             |       | double | 0.0     | rms value of $\gamma\beta_x/\gamma_0\beta_0$               |
-| dx                | m     | double | 0.0     | offset for x                                               |
-| emit_y            | m rad | double | 0.0     | emittance.                                                 |
-| emit_ny           | m rad | double | 0.0     | normalized emittance.                                      |
-| beta_y            | m     | double | 1.0     | twiss para.                                                |
-| alpha_y           |       | double | 0.0     | twiss para.                                                |
-| sigy              | m     | double | 0.0     | rms bunch size.                                            |
-| sigpy             |       | double | 0.0     | rms value of $\gamma\beta_y/\gamma_0\beta_0$               |
-| dy                | m     | double | 0.0     | offset for y                                               |
-| emit_z            | m rad | double | 0.0     | emittance.                                                 |
-| emit_nz           | m rad | double | 0.0     | normalized emittance.                                      |
-| beta_z            | m     | double | 1.0     | twiss para.                                                |
-| alpha_z           |       | double | 0.0     | twiss para.                                                |
-| sigz              | m     | double | 0.0     | rms bunch length.                                          |
-| sigpz             | eV    | double | 0.0     | rms value of $\gamma\beta_z/\gamma_0\beta_0$               |
-| dz                | m     | double | 0.0     | offset for z                                               |
+| Parameter Name    | Units | Type   | Default | Description                                                  |
+| ----------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
+| mass              | eV    | double | 0.511e6 | mass of the particle.                                        |
+| charge            |       | double | -1.0    | -1 for electron.                                             |
+| distribution_type |       | int    | 2       | 6D gaussian distribution. See more options in Ji’s manual.   |
+| Np                |       | int    | 1e3     | particle number.                                             |
+| total_charge      | C     | double | 1e-9    | charge of the beam.                                          |
+|                   |       |        |         |                                                              |
+| emit_x            | m rad | double | 0.0     | emitance.                                                    |
+| emit_nx           | m rad | double | 0.0     | normalized emittance.                                        |
+| beta_x            | m     | double | 1.0     | twiss para.                                                  |
+| alpha_x           |       | double | 0.0     | twiss para.                                                  |
+| sigx              | m     | double | 0.0     | rms bunch size.                                              |
+| sigpx             |       | double | 0.0     | rms value of $\gamma\beta_x/\gamma_0\beta_0$                 |
+| dx                | m     | double | 0.0     | offset for x                                                 |
+| emit_y            | m rad | double | 0.0     | emittance.                                                   |
+| emit_ny           | m rad | double | 0.0     | normalized emittance.                                        |
+| beta_y            | m     | double | 1.0     | twiss para.                                                  |
+| alpha_y           |       | double | 0.0     | twiss para.                                                  |
+| sigy              | m     | double | 0.0     | rms bunch size.                                              |
+| sigpy             |       | double | 0.0     | rms value of $\gamma\beta_y/\gamma_0\beta_0$                 |
+| dy                | m     | double | 0.0     | offset for y                                                 |
+| emit_z            | m rad | double | 0.0     | emittance.                                                   |
+| emit_nz           | m rad | double | 0.0     | normalized emittance.                                        |
+| beta_z            | m     | double | 1.0     | twiss para.                                                  |
+| alpha_z           |       | double | 0.0     | twiss para.                                                  |
+| sigz              | m     | double | 0.0     | rms bunch length. $z=ct$, the actual value in `ImpactT.in` is $\beta_0 ct$, this is done in the python level. |
+| sigpz             | eV    | double | 0.0     | rms value of $\gamma\beta_z/\gamma_0\beta_0$                 |
+| dz                | m     | double | 0.0     | offset for z, $dz=cdt$. Value is transformed in the python level to $dz=\beta_0cdt$. |
 
 Users could either use twiss parameters to define initial beam distribution, or use rms values. For $\sigma_{ij}\neq0$ cases, please use twiss-para. 
 
-In the definition: $z=ct$.
+In the definition of python level: $z=ct$.
 
 For ijk, like `distribution_type=112`, the `sigx,sigy` actually is beam radius `r`, and `sigz` is `Lbunch` full length, which in transverse direction is circle uniform, in longitudinal direction is flat-top, and z is in $[-Lbunch, 0]$ range. `zscale` is automatically given `1e-9` value in the python code as the manual said.
 
@@ -298,4 +306,14 @@ For static field, set `freq=0.0` and `phase=0.0`.
 | zedge          | m     | double | 0.0     | global position                                     |
 | filename_id    |       | int    | 80      | fort.80, should < 100. But avoid using 40,50,60,70. |
 | sample_freq    |       | int    | 1       | sample out freq.                                    |
+
+
+
+# Output
+
+## slice info
+
+`fort.60` and `fort.70`, the initial 3rd col. is $I/\beta_0$, that’s why for low energy beam, it’s very large. Now the source code is updated, the 3rd col is [A] now.
+
+
 

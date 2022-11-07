@@ -413,6 +413,12 @@ class impactt_parser(lattice_parser):
             self.beam['SIGZ']  = str(sigz)
             self.beam['SIGPZ'] = str(sigzp)
 
+        # T-code's z=bet0*ct
+        sigz=float(self.beam['SIGZ'])
+        dz  =float(self.beam['DZ'])
+        self.beam['SIGZ'] = str(bet0*sigz) 
+        self.beam['DZ'] = str(bet0*dz)
+
         # change to IMPACT-T coordinates definition
         #sigX    = float(self.beam['SIGX'])/Scxl  
         #sigY    = float(self.beam['SIGY'])/Scxl  
