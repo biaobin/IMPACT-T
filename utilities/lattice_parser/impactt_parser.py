@@ -50,14 +50,31 @@ class impactt_parser(lattice_parser):
         '''
         generate ImpactT.in file.
         '''
-        control_file = self.impacttin_control()
         lattice_file = self.impacttin_lattice()
-        
-        with open('ImpactT.in','w') as f:
-            f.write(control_file)
-            f.write(lattice_file)
+         
+        nbunch = int(float(self.control['NBUNCH'])) 
+        Q      = float(self.beam['TOTAL_CHARGE']) 
+        Lbunch = float(self.beam['SIGZ'])
+        np     = float(self.beam['NP'])
+        dz     = Lbunch/nbunch
+        dq     = Q/nbunch
+        for j in range(nbunch): 
+            # update beam paras
+            self.beam['TOTAL_CHARGE']=str(dq)
+            self.beam['NP']=str(np/nbunch)
+            self.beam['SIGZ']=str(Lbunch/nbunch)            
+            self.beam['DZ']=str(-j*dz)            
 
-        f.close()     
+            control_file = self.impacttin_control()
+            if j==0:
+                name='ImpactT.in'
+            else:
+                name='ImpactT'+str(j+1)+'.in'
+
+            with open(name,'w') as f:
+                f.write(control_file)
+                f.write(lattice_file)
+            f.close()     
 
     # default control, beam, lattice dicts
     #==============================================================================
@@ -191,6 +208,7 @@ class impactt_parser(lattice_parser):
         
         # 112, EMfldCy1
         self.lattice['EMFLDCYL']['ZEDGE'] = 0.0
+        self.lattice['EMFLDCYL']['SCALE'] = 1.0
         self.lattice['EMFLDCYL']['L'] = 0.0
         self.lattice['EMFLDCYL']['FREQ'] = 2856e6
         self.lattice['EMFLDCYL']['PHASE'] = 0.0
@@ -554,7 +572,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['L'])
                 lte_lines.append('10 20 112')
                 lte_lines.append(elem['ZEDGE'])
-                lte_lines.append('1.01')
+                lte_lines.append(elem['SCALE'])
                 lte_lines.append(elem['FREQ'])
                 lte_lines.append(elem['PHASE'])
                 lte_lines.append(elem['FILEID'])
