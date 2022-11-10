@@ -168,6 +168,7 @@ class impactt_parser(lattice_parser):
         self.lattice['SOL']['ZEDGE']=0.0
         self.lattice['SOL']['L']=0.0
         self.lattice['SOL']['FILEID']= None
+        self.lattice['SOL']['SCALE']= 1.0
 
         # SolRF, 105 element
         self.lattice['SOLRF']['ZEDGE'] = 0.0
@@ -538,7 +539,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['L'])
                 lte_lines.append('10 20 3')
                 lte_lines.append(elem['ZEDGE'])
-                lte_lines.append('0')
+                lte_lines.append(elem['SCALE'])
                 lte_lines.append(elem['FILEID'])
                 lte_lines.append('1.0')
                 lte_lines.append('0 0 0 0 0 / \n')
