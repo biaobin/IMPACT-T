@@ -873,146 +873,11 @@
         print*,"Ndata: ",this%Ndatat
         end subroutine read1tdata_Data
 
-!        !J.Q. changed the format of inputs (7/28/2020) to the new
-!        !Superfilsh RF cavity output.
-!        ! read in discrete Ez(r,z), Er(r,z) and Btheta(r,z) rf data from
-!        ! files "1Tx.T7 or 1Txx.T7 or 1Txxx.T7. Here, the grid
-!        ! is uniform in r and z.
-!        subroutine read2t_Data(this,ifile)
-!        implicit none
-!        include 'mpif.h' 
-!        integer, intent(in) :: ifile
-!        type (fielddata), intent(inout) :: this
-!        integer :: myrank,ierr,i,ii,jj,kk,ll,n,nn,Ndatalc,j,tmpint
-!        double precision :: tmp1,tmp2,tmp3,tmp4,zdat1,mu0
-!        character*6 name1
-!        character*7 name2
-!        character*8 name3
-!        double precision :: tmpmax
-!
-!        name1 = '1Tx.T7'
-!        name2 = '1Txx.T7'
-!        name3 = '1Txxx.T7'
-!   
-!        mu0 = 4*2*asin(1.0d0)*1.0d-7
-!
-!        !call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-!        call MPI_COMM_RANK(MPI_COMM_WORLD,myrank,ierr) 
-!
-!        !print*,"into read: "
-!        if(myrank.eq.0) then
-!          if((ifile.ge.1).and.(ifile.le.9)) then
-!            name1(3:3) = char(ifile+48)
-!            open(14,file=name1,status='old')
-!            open(15,file=name1//"out",status='unknown')
-!          else if((ifile.ge.10).and.(ifile.le.99)) then
-!            ii = ifile/10
-!            jj = ifile - ii*10
-!            name2(3:3) = char(ii+48)
-!            name2(4:4) = char(jj+48)
-!            open(14,file=name2,status='old')
-!!            open(15,file=name2//"out",status='unknown')
-!          else if((ifile.ge.100).and.(ifile.le.999)) then
-!            ii = ifile/100
-!            jj = ifile - 100*ii
-!            kk = jj/10
-!            ll = jj - 10*kk
-!            name3(3:3) = char(ii+48)
-!            name3(4:4) = char(kk+48)
-!            name3(5:5) = char(ll+48)
-!            open(14,file=name3,status='old')
-!!            open(15,file=name3//"out",status='unknown')
-!          else
-!            print*,"out of the range of maximum 999 files!!!!"
-!          endif
-!
-!          ! the input range units are cm
-!          read(14,*,end=33)tmp1,tmp2,tmpint
-!          this%ZminRft = tmp1/100.0
-!          this%ZmaxRft = tmp2/100.0
-!          this%NzIntvRft = tmpint
-!          if(tmpint.ne.this%NzIntvRft) then
-!            print*,"input data wrong in Z: ",this%NzIntvRft,tmpint
-!            stop
-!          endif
-!          ! the input range units are cm
-!          read(14,*,end=33)tmp1
-!          read(14,*,end=33)tmp1,tmp2,tmpint
-!          this%RminRft = tmp1/100.0
-!          this%RmaxRft = tmp2/100.0
-!          this%NrIntvRft = tmpint
-!          if(tmpint.ne.this%NrIntvRft) then
-!            print*,"input data wrong in R: ",this%NrIntvRft,tmpint
-!            stop
-!          endif
-!          !print*,"Nz: ",NzIntvRft(ib),ZminRft(ib),ZmaxRft(ib)
-!          !print*,"Nr: ",NrIntvRft(ib),RminRft(ib),RmaxRft(ib)
-!        endif
-!33      continue
-!        call MPI_BCAST(this%NrIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%NzIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-!
-!        deallocate(this%ezdatat)
-!        deallocate(this%erdatat)
-!        deallocate(this%btdatat)
-!        allocate(this%ezdatat(this%NzIntvRft+1,this%NrIntvRft+1))
-!        allocate(this%erdatat(this%NzIntvRft+1,this%NrIntvRft+1))
-!        allocate(this%btdatat(this%NzIntvRft+1,this%NrIntvRft+1))
-!
-!        if(myrank.eq.0) then
-!          tmpmax = -1.0e10
-!          n = 1
-!50        continue
-!              read(14,*,end=77)tmp1,tmp2,tmp3,tmp4
-!              j  = (n-1)/(this%NzIntvRft+1) + 1
-!              i = mod((n-1),this%NzIntvRft+1) + 1
-!              this%ezdatat(i,j) = tmp1*1.0e6
-!              this%erdatat(i,j) = tmp2*1.0e6
-!              !convert from H (A/m) to Tesla
-!              this%btdatat(i,j) = tmp4*mu0
-!              n = n + 1
-!              write(15,100)float(i-1),this%ezdatat(i,j),this%erdatat(i,j)
-!          goto 50
-!77        continue
-!          close(14)
-!          close(15)
-!          Ndatalc = n - 1
-!          !print*,"Ndata in 0: ",Ndatalc
-!          do i = 1, this%NzIntvRft+1
-!            !find the max. of e field on axis
-!            tmp3 = sqrt(this%ezdatat(i,1)**2+this%erdatat(i,1)**2) 
-!            if(tmpmax.lt.abs(tmp3)) tmpmax = abs(tmp3)
-!          enddo
-!          print*,"maximum E field on axis: ",tmpmax
-!        endif
-!100     format(3(1x,1pe15.8))
-!
-!        call MPI_BCAST(Ndatalc,1,MPI_INTEGER,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%ZminRft,1,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%ZmaxRft,1,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%RminRft,1,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%RmaxRft,1,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%ezdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%erdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!        call MPI_BCAST(this%btdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
-!             MPI_COMM_WORLD,ierr)
-!
-!        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-!
-!        !print*,"Ndata: ",Ndatalc
-!        end subroutine read2t_Data
-
-        !Static DC-gun
-        !rmin rmax nmr-1
-        !zmin zmax nmz-1
-        !Er Ez
+        !J.Q. changed the format of inputs (7/28/2020) to the new
+        !Superfilsh RF cavity output.
+        ! read in discrete Ez(r,z), Er(r,z) and Btheta(r,z) rf data from
+        ! files "1Tx.T7 or 1Txx.T7 or 1Txxx.T7. Here, the grid
+        ! is uniform in r and z.
         subroutine read2t_Data(this,ifile)
         implicit none
         include 'mpif.h' 
@@ -1063,21 +928,21 @@
 
           ! the input range units are cm
           read(14,*,end=33)tmp1,tmp2,tmpint
-          this%RminRft = tmp1/100.0
-          this%RmaxRft = tmp2/100.0
-          this%NrIntvRft = tmpint
-          if(tmpint.ne.this%NrIntvRft) then
-            print*,"input data wrong in R: ",this%NrIntvRft,tmpint
-            stop
-          endif
-
-          ! the input range units are cm
-          read(14,*,end=33)tmp1,tmp2,tmpint
           this%ZminRft = tmp1/100.0
           this%ZmaxRft = tmp2/100.0
           this%NzIntvRft = tmpint
           if(tmpint.ne.this%NzIntvRft) then
             print*,"input data wrong in Z: ",this%NzIntvRft,tmpint
+            stop
+          endif
+          ! the input range units are cm
+          read(14,*,end=33)tmp1
+          read(14,*,end=33)tmp1,tmp2,tmpint
+          this%RminRft = tmp1/100.0
+          this%RmaxRft = tmp2/100.0
+          this%NrIntvRft = tmpint
+          if(tmpint.ne.this%NrIntvRft) then
+            print*,"input data wrong in R: ",this%NrIntvRft,tmpint
             stop
           endif
           !print*,"Nz: ",NzIntvRft(ib),ZminRft(ib),ZmaxRft(ib)
@@ -1098,28 +963,27 @@
           tmpmax = -1.0e10
           n = 1
 50        continue
-              read(14,*,end=77)tmp1,tmp2
-              j  = (n-1)/(this%NrIntvRft+1) + 1
-              i = mod((n-1),this%NrIntvRft+1) + 1
-              this%erdatat(j,i) = tmp1*100 !V/cm => V/m
-              this%ezdatat(j,i) = tmp2*100 !j:z, i:r
-              this%btdatat(j,i) = 0.0d0
+              read(14,*,end=77)tmp1,tmp2,tmp3,tmp4
+              j  = (n-1)/(this%NzIntvRft+1) + 1
+              i = mod((n-1),this%NzIntvRft+1) + 1
+              this%ezdatat(i,j) = tmp1*1.0e6
+              this%erdatat(i,j) = tmp2*1.0e6
+              !convert from H (A/m) to Tesla
+              this%btdatat(i,j) = tmp4*mu0
               n = n + 1
+              write(15,100)float(i-1),this%ezdatat(i,j),this%erdatat(i,j)
           goto 50
 77        continue
           close(14)
+          close(15)
           Ndatalc = n - 1
           !print*,"Ndata in 0: ",Ndatalc
           do i = 1, this%NzIntvRft+1
             !find the max. of e field on axis
             tmp3 = sqrt(this%ezdatat(i,1)**2+this%erdatat(i,1)**2) 
             if(tmpmax.lt.abs(tmp3)) tmpmax = abs(tmp3)
-
-            write(15,100)this%ZminRft+float(i-1)*(this%ZmaxRft-this%ZminRft)/this%NzIntvRft,&
-                         this%ezdatat(i,1),this%erdatat(i,this%NrIntvRft+1)
           enddo
           print*,"maximum E field on axis: ",tmpmax
-          close(15)
         endif
 100     format(3(1x,1pe15.8))
 
@@ -1287,6 +1151,275 @@
 
         !print*,"Ndata: ",Ndatalc
         end subroutine read2told_Data
+
+        !Static DC-gun
+        !rmin rmax nmr-1
+        !zmin zmax nmz-1
+        !Er Ez
+        subroutine read2t_poisson_parmela(this,ifile)
+        implicit none
+        include 'mpif.h' 
+        integer, intent(in) :: ifile
+        type (fielddata), intent(inout) :: this
+        integer :: myrank,ierr,i,ii,jj,kk,ll,n,nn,Ndatalc,j,tmpint
+        double precision :: tmp1,tmp2,tmp3,tmp4,zdat1,mu0
+        character*6 name1
+        character*7 name2
+        character*8 name3
+        double precision :: tmpmax
+
+        name1 = '1Tx.T7'
+        name2 = '1Txx.T7'
+        name3 = '1Txxx.T7'
+   
+        mu0 = 4*2*asin(1.0d0)*1.0d-7
+
+        !call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+        call MPI_COMM_RANK(MPI_COMM_WORLD,myrank,ierr) 
+
+        !print*,"into read: "
+        if(myrank.eq.0) then
+          if((ifile.ge.1).and.(ifile.le.9)) then
+            name1(3:3) = char(ifile+48)
+            open(14,file=name1,status='old')
+            open(15,file=name1//"out",status='unknown')
+          else if((ifile.ge.10).and.(ifile.le.99)) then
+            ii = ifile/10
+            jj = ifile - ii*10
+            name2(3:3) = char(ii+48)
+            name2(4:4) = char(jj+48)
+            open(14,file=name2,status='old')
+!            open(15,file=name2//"out",status='unknown')
+          else if((ifile.ge.100).and.(ifile.le.999)) then
+            ii = ifile/100
+            jj = ifile - 100*ii
+            kk = jj/10
+            ll = jj - 10*kk
+            name3(3:3) = char(ii+48)
+            name3(4:4) = char(kk+48)
+            name3(5:5) = char(ll+48)
+            open(14,file=name3,status='old')
+!            open(15,file=name3//"out",status='unknown')
+          else
+            print*,"out of the range of maximum 999 files!!!!"
+          endif
+
+          ! the input range units are cm
+          read(14,*,end=33)tmp1,tmp2,tmpint
+          this%RminRft = tmp1/100.0
+          this%RmaxRft = tmp2/100.0
+          this%NrIntvRft = tmpint
+          if(tmpint.ne.this%NrIntvRft) then
+            print*,"input data wrong in R: ",this%NrIntvRft,tmpint
+            stop
+          endif
+
+          ! the input range units are cm
+          read(14,*,end=33)tmp1,tmp2,tmpint
+          this%ZminRft = tmp1/100.0
+          this%ZmaxRft = tmp2/100.0
+          this%NzIntvRft = tmpint
+          if(tmpint.ne.this%NzIntvRft) then
+            print*,"input data wrong in Z: ",this%NzIntvRft,tmpint
+            stop
+          endif
+          !print*,"Nz: ",NzIntvRft(ib),ZminRft(ib),ZmaxRft(ib)
+          !print*,"Nr: ",NrIntvRft(ib),RminRft(ib),RmaxRft(ib)
+        endif
+33      continue
+        call MPI_BCAST(this%NrIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%NzIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+
+        deallocate(this%ezdatat)
+        deallocate(this%erdatat)
+        deallocate(this%btdatat)
+        allocate(this%ezdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+        allocate(this%erdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+        allocate(this%btdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+
+        if(myrank.eq.0) then
+          tmpmax = -1.0e10
+          n = 1
+50        continue
+              read(14,*,end=77)tmp1,tmp2
+              j  = (n-1)/(this%NrIntvRft+1) + 1
+              i = mod((n-1),this%NrIntvRft+1) + 1
+              this%erdatat(j,i) = tmp1*100 !V/cm => V/m
+              this%ezdatat(j,i) = tmp2*100 !j:z, i:r
+              this%btdatat(j,i) = 0.0d0
+              n = n + 1
+          goto 50
+77        continue
+          close(14)
+          Ndatalc = n - 1
+          !print*,"Ndata in 0: ",Ndatalc
+          do i = 1, this%NzIntvRft+1
+            !find the max. of e field on axis
+            tmp3 = sqrt(this%ezdatat(i,1)**2+this%erdatat(i,1)**2) 
+            if(tmpmax.lt.abs(tmp3)) tmpmax = abs(tmp3)
+
+            write(15,100)this%ZminRft+float(i-1)*(this%ZmaxRft-this%ZminRft)/this%NzIntvRft,&
+                         this%ezdatat(i,1),this%erdatat(i,this%NrIntvRft+1)
+          enddo
+          print*,"maximum E field on axis: ",tmpmax
+          close(15)
+        endif
+100     format(3(1x,1pe15.8))
+
+        call MPI_BCAST(Ndatalc,1,MPI_INTEGER,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ZminRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ZmaxRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%RminRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%RmaxRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ezdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%erdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%btdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+
+        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
+        !print*,"Ndata: ",Ndatalc
+        end subroutine read2t_poisson_parmela
+
+        subroutine read2t_cfield_parmela(this,ifile)
+        implicit none
+        include 'mpif.h' 
+        integer, intent(in) :: ifile
+        type (fielddata), intent(inout) :: this
+        integer :: myrank,ierr,i,ii,jj,kk,ll,n,nn,Ndatalc,j,tmpint
+        double precision :: tmp1,tmp2,tmp3,tmp4,zdat1,mu0
+        character*6 name1
+        character*7 name2
+        character*8 name3
+        double precision :: tmpmax
+
+        name1 = '1Tx.T7'
+        name2 = '1Txx.T7'
+        name3 = '1Txxx.T7'
+   
+        mu0 = 4*2*asin(1.0d0)*1.0d-7
+
+        !call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+        call MPI_COMM_RANK(MPI_COMM_WORLD,myrank,ierr) 
+
+        !print*,"into read: "
+        if(myrank.eq.0) then
+          if((ifile.ge.1).and.(ifile.le.9)) then
+            name1(3:3) = char(ifile+48)
+            open(14,file=name1,status='old')
+            open(15,file=name1//"out",status='unknown')
+          else if((ifile.ge.10).and.(ifile.le.99)) then
+            ii = ifile/10
+            jj = ifile - ii*10
+            name2(3:3) = char(ii+48)
+            name2(4:4) = char(jj+48)
+            open(14,file=name2,status='old')
+!            open(15,file=name2//"out",status='unknown')
+          else if((ifile.ge.100).and.(ifile.le.999)) then
+            ii = ifile/100
+            jj = ifile - 100*ii
+            kk = jj/10
+            ll = jj - 10*kk
+            name3(3:3) = char(ii+48)
+            name3(4:4) = char(kk+48)
+            name3(5:5) = char(ll+48)
+            open(14,file=name3,status='old')
+!            open(15,file=name3//"out",status='unknown')
+          else
+            print*,"out of the range of maximum 999 files!!!!"
+          endif
+
+          ! the input range units are cm
+          read(14,*,end=33)tmp1,tmp2,tmpint
+          this%ZminRft = tmp1/100.0
+          this%ZmaxRft = tmp2/100.0
+          this%NzIntvRft = tmpint
+          if(tmpint.ne.this%NzIntvRft) then
+            print*,"input data wrong in Z: ",this%NzIntvRft,tmpint
+            stop
+          endif
+          ! the input range units are cm
+          read(14,*,end=33)tmp1
+          read(14,*,end=33)tmp1,tmp2,tmpint
+          this%RminRft = tmp1/100.0
+          this%RmaxRft = tmp2/100.0
+          this%NrIntvRft = tmpint
+          if(tmpint.ne.this%NrIntvRft) then
+            print*,"input data wrong in R: ",this%NrIntvRft,tmpint
+            stop
+          endif
+          !print*,"Nz: ",NzIntvRft(ib),ZminRft(ib),ZmaxRft(ib)
+          !print*,"Nr: ",NrIntvRft(ib),RminRft(ib),RmaxRft(ib)
+        endif
+33      continue
+        call MPI_BCAST(this%NrIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%NzIntvRft,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+
+        deallocate(this%ezdatat)
+        deallocate(this%erdatat)
+        deallocate(this%btdatat)
+        allocate(this%ezdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+        allocate(this%erdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+        allocate(this%btdatat(this%NzIntvRft+1,this%NrIntvRft+1))
+
+        if(myrank.eq.0) then
+          tmpmax = -1.0e10
+          n = 1
+50        continue
+              read(14,*,end=77)tmp1,tmp2,tmp3,tmp4
+              j  = (n-1)/(this%NrIntvRft+1) + 1
+              i = mod((n-1),this%NrIntvRft+1) + 1
+              this%ezdatat(j,i) = tmp1*1.0e6
+              this%erdatat(j,i) = tmp2*1.0e6
+              !convert from H (A/m) to Tesla
+              this%btdatat(j,i) = tmp4*mu0
+              n = n + 1
+          goto 50
+77        continue
+          close(14)
+          Ndatalc = n - 1
+          !print*,"Ndata in 0: ",Ndatalc
+          do i = 1, this%NzIntvRft+1
+            !find the max. of e field on axis
+            tmp3 = sqrt(this%ezdatat(i,1)**2+this%erdatat(i,1)**2) 
+            if(tmpmax.lt.abs(tmp3)) tmpmax = abs(tmp3)
+
+            write(15,100)this%ZminRft+float(i-1)*(this%ZmaxRft-this%ZminRft)/this%NzIntvRft,&
+                         this%ezdatat(i,1),this%erdatat(i,this%NrIntvRft+1)
+          enddo
+          print*,"maximum E field on axis: ",tmpmax
+          close(15)
+        endif
+100     format(3(1x,1pe15.8))
+
+        call MPI_BCAST(Ndatalc,1,MPI_INTEGER,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ZminRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ZmaxRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%RminRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%RmaxRft,1,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%ezdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%erdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+        call MPI_BCAST(this%btdatat(1,1),Ndatalc,MPI_DOUBLE_PRECISION,0,&
+             MPI_COMM_WORLD,ierr)
+
+        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
+        !print*,"Ndata: ",Ndatalc
+        end subroutine read2t_cfield_parmela
 
         ! read in analytical function coefficients of 
         ! Ex(x,y,z), Ey(x,y,z), Ez(x,y,z), Bx(x,y,z), By(x,y,z),

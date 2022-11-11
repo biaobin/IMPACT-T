@@ -505,6 +505,7 @@
             tmp13(9) = val8(i)
             tmp13(10) = val9(i)
             tmp13(11) = val10(i)
+            tmp13(12) = val11(i)
             call setparam_EMfldCyl(beamln13(iemfldcyl),tmp13)
             Blnelem(i) = assign_BeamLineElem(beamln13(iemfldcyl))
           else if(bitype(i).eq.113) then
@@ -748,7 +749,7 @@
         double precision, dimension(50,50,2) :: dky,amp
         double precision, dimension(50) :: dkx
         double precision :: dtype1,da1,db1,deps1,dLx1,dnkx1,dnky1,hx,xmi,ymi
-        double precision :: gamib
+        double precision :: gamib,datafmt
 
 
         twopi = 4*asin(1.0d0)
@@ -893,9 +894,11 @@
 
         !idrfile is used to store the <element type>, <external data file name>,
         !and <id> for the internal data storage of each beamline element  
-        allocate(idrfile(3,Nblem))
+        !and datafmt for external data
+        allocate(idrfile(4,Nblem))
         idrfile = 1
         idrfile(2,:) = -10
+        idrfile(4,:) = 1
         do i = 1, Nblem
           call getparam_BeamLineElem(Blnelem(i),blength,bnseg,bmpstp,&
                                      bitype)
@@ -903,7 +906,9 @@
           !get external file id for each rf beam line element.
           if(bitype.gt.100) then
             call getparam_BeamLineElem(Blnelem(i),5,rfile)
+            call getparam_BeamLineElem(Blnelem(i),12,datafmt)
             idrfile(2,i) = int(rfile + 0.1)
+            idrfile(4,i) = int(datafmt+0.1)
           !get external file for solenoid.
           else if(bitype.eq.3) then
             call getparam_BeamLineElem(Blnelem(i),3,rfile)
@@ -1554,7 +1559,18 @@
               else if(idrfile(1,ii).eq.111) then !3D Cartesian coordinate of field
                 call read3t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
               else if(idrfile(1,ii).eq.112) then !azmuthal symmetric cylindrical coordinate
-                call read2t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
+                if     (idrfile(4,ii).eq.1) then
+                  call read2t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
+                else if(idrfile(4,ii).eq.2) then
+                  call read2told_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
+                else if(idrfile(4,ii).eq.3) then
+                  call read2t_poisson_parmela(fldmp(idrfile(3,ii)),idrfile(2,ii))
+                else if(idrfile(4,ii).eq.4) then
+                  call read2t_cfield_parmela(fldmp(idrfile(3,ii)),idrfile(2,ii))
+                else
+                  print*,"ERROR, wrong datafmt is given:",idrfile(4,ii)
+                  stop
+                endif
               else if(idrfile(1,ii).eq.113) then !analytical function description of field
                 if(idrfile(2,ii).eq.10) then
                   call read1t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))

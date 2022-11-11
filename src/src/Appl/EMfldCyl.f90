@@ -16,7 +16,7 @@
       module EMfldCylclass
         use PhysConstclass
         use Dataclass
-        integer, private, parameter :: Nparam = 11
+        integer, private, parameter :: Nparam = 12
         type EMfldCyl
           !Itype = 112
           integer :: Nseg,Mapstp,Itype
@@ -33,6 +33,7 @@
           !      (9) : rotation error x
           !      (10) : rotation error y
           !      (11) : rotation error z
+          !      (12) : datafmt
         end type EMfldCyl
         interface getparam_EMfldCyl
           module procedure getparam1_EMfldCyl,  &

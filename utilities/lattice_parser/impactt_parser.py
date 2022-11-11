@@ -214,6 +214,7 @@ class impactt_parser(lattice_parser):
         self.lattice['EMFLDCYL']['FREQ'] = 2856e6
         self.lattice['EMFLDCYL']['PHASE'] = 0.0
         self.lattice['EMFLDCYL']['FILEID'] = None
+        self.lattice['EMFLDCYL']['DATAFMT'] = "IMPT"
 
         # -2 element
         self.lattice['WATCH']['ZEDGE'] = 0.0
@@ -570,6 +571,19 @@ class impactt_parser(lattice_parser):
                 if elem['FILEID']=='None':
                     print("ERROR: please give the EMFLDCYL field ID.")
                     sys.exit()
+
+                if elem['DATAFMT'].upper()=='IMPT':
+                    datafmt='1'
+                elif elem['DATAFMT'].upper()=='IMPTOLD':
+                    datafmt='2'
+                elif elem['DATAFMT'].upper()=='POISSON':
+                    datafmt='3'
+                elif elem['DATAFMT'].upper()=='CFIELD':
+                    datafmt='4'
+                else:
+                    print("ERROR: unknown datafmt:",elem['DATAFMT'])
+                    sys.exit()
+
                 lte_lines.append(elem['L'])
                 lte_lines.append('10 20 112')
                 lte_lines.append(elem['ZEDGE'])
@@ -577,8 +591,9 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['FREQ'])
                 lte_lines.append(elem['PHASE'])
                 lte_lines.append(elem['FILEID'])
-                lte_lines.append('1.01 0 0 0 0 0 / \n')
-
+                lte_lines.append('1.01 0 0 0 0 0')
+                lte_lines.append(datafmt)
+                lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'TWS':
                 if elem['FILEID_1']=='None':

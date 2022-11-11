@@ -186,6 +186,7 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | zedge          | m     | double | 0.0     | global position |
 | L              | m     | double | 0.0     | length          |
 | fileid        |       | int    | None    | file ID         |
+| scale | | double | 1.0 | scale of the field strength. ==The manual is wrong, V2 is used in the code!== See `Sol.f90/getfldt_Sol()` for more details. |
 
 For `fileid=3`, the B field file `1T3.T7`, unit is [cm] and [gauss]. It is
 
@@ -194,6 +195,38 @@ For `fileid=3`, the B field file `1T3.T7`, unit is [cm] and [gauss]. It is
 ```bash
 s[m], Br(r=0) [gauss], Br(r=0+dr) [gauss], Bz(r=0) [gauss], Bz(r=dr) [gauss]
 ```
+
+
+
+Notes:
+
+- The manual said V2 is not used, actually it is used as the `scale` value:
+
+	```fortran
+	!see SOl.f90/getfldt_sol()
+	extfld(4) = scale*br*pos(1)/rr
+	extfld(5) = scale*br*pos(2)/rr
+	extfld(6) = scale*bz
+	```
+
+- If the field range in r-direction is not large enough, in case the particle is outside the B-field, program will stop:
+
+	```fortran
+	          !ir=r/hr+1, hr is dr 
+	          if(ir.gt.fldata%NrIntvRft) then
+	             print*,"ir: ",ir,rr,pos(1),pos(2),fldata%NzIntvRft,&
+	             fldata%NrIntvRft,fldata%ZmaxRft,fldata%ZminRft,fldata%RmaxRft,&
+	             fldata%RminRft
+	!             print*,"ir: ",ir,rr,pos(1),pos(2)
+	             stop
+	          endif
+	```
+
+	
+
+- Ji use `scale` to transform `Gauss` to `T`, I suggest have this done in `Data.f90/read2tSol_Data()`
+
+
 
 
 
@@ -261,9 +294,51 @@ rfdata4, rfdata5, rfdata6, rfdata7 should be given.
 
 ### EMFLDCYL
 
-112 element. Read in discrete EM field data in cylinder coordinates. I changed the source code,  the data formats are:
+112 element.
 
-```
+| Parameter Name | Units | Type   | Default | Description                                                  |
+| -------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
+| zedge          | m     | double | 0.0     | global position.                                             |
+| L              | m     | double | 0.0     | length of the whole TWS structure linac with couplers excluded. L should be $n\times Lcav$ |
+| freq           | Hz    | double | 2856e6  | RF frequency.                                                |
+| phase          | deg   | double | 0.0     | initial phase.                                               |
+| fileid         |       | int    | None    | `fileid=1`,  field file is `1T1.T7`.                         |
+| scale          |       | double | 1.0     | scale of the field strength.                                 |
+| datafmt        |       | str    | “impt”  | the value could be `impt, imptold, poisson, cfield `. In `ImpactT.in`, corresponding values are `1,2,3,4`. The last two are Parmela formats. |
+
+The data format for IMPACT-T is different from Parmela. The data format for `datafmt=impt,imptold,poisson,cfield` are listed as following:
+
+```fortran
+!datafmt=impt,  units are [cm,MHz,MV/m,A/m]
+!--------------------------------------------
+open(33,file=’1T1.T7’)
+write(33,*)zmin,zmax,nmz-1
+write(33,*)freq
+write(33,*)rmin,rmax,nmr-1
+do i=1,nmr
+	do j=1,nmz
+		write(33,*)Ez(j,i),Er(j,i),E(j,i),H(j,i)
+	enddo
+enddo
+close(33)
+
+!datafmt=imptold,  units are [cm,MHz,MV/m,A/m]
+!--------------------------------------------
+open(33,file=’1T1.T7’)
+write(33,*)zmin,zmax,nmz-1
+write(33,*)freq
+write(33,*)rmin,rmax,nmr-1
+do i=1,nmr
+	do j=1,nmz
+		write(33,*)Er(j,i),Ez(j,i),Etheta(j,i)
+		write(33,*)Htheta
+	enddo
+enddo
+close(33)
+
+!=============================================
+!datafmt=poisson, units are [cm,V/m]
+!-----------------------------------
 open(33,file=’1T1.T7’)
 write(33,*)rmin,rmax,nmr-1
 write(33,*)zmin,zmax,nmz-1
@@ -273,27 +348,32 @@ do j=1,nmz
 	enddo
 enddo
 close(33)
+
+!datafmt=cfield,  units are [cm,MHz,MV/m,A/m]
+!--------------------------------------------
+open(33,file=’1T1.T7’)
+write(33,*)zmin,zmax,nmz-1
+write(33,*)freq
+write(33,*)rmin,rmax,nmr-1
+do j=1,nmz
+	do i=1,nmr
+		write(33,*)Ez(i,j),Er(i,j),E(i,j),H(i,j)
+	enddo
+enddo
+close(33)
 ```
 
-The units of the `1T1.T7` is [cm] and [V/cm]. Units are changed to [m] and [V/m] in the T source code.
+Pay attention to that, for `impt,imptold`, it’s z-direction first, and then r-direction for data sampling. However, for `poisson, cfield`, which are Parmela formats, it’s r-direction first and then z-direction.
 
-`1T1.T7out` would be generated, three columns data:
+A new parameter `V12` is added for `112` element to determine the `datafmt`.
+
+
+
+`1T1.T7out` would be generated for `datafmt=poisson,cfield`, three columns data:
 
 ```bash
 s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m] 
 ```
-
-
-
-| Parameter Name | Units | Type   | Default | Description                                                  |
-| -------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
-| zedge          | m     | double | 0.0     | global position.                                             |
-| L              | m     | double | 0.0     | length of the whole TWS structure linac with couplers excluded. L should be $n\times Lcav$ |
-| freq           | Hz    | double | 2856e6  | RF frequency.                                                |
-| phase          | deg   | double | 0.0     | initial phase.                                               |
-| fileid         |       | int    | None    | `fileid=1`,  field file is `1T1.T7`.                         |
-
-For static field, set `freq=0.0` and `phase=0.0`.
 
 
 
