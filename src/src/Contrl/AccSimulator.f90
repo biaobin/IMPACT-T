@@ -1565,8 +1565,6 @@
                   call read2told_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
                 else if(idrfile(4,ii).eq.3) then
                   call read2t_poisson_parmela(fldmp(idrfile(3,ii)),idrfile(2,ii))
-                else if(idrfile(4,ii).eq.4) then
-                  call read2t_cfield_parmela(fldmp(idrfile(3,ii)),idrfile(2,ii))
                 else
                   print*,"ERROR, wrong datafmt is given:",idrfile(4,ii)
                   stop
