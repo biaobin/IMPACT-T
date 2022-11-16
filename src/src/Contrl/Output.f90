@@ -1330,6 +1330,14 @@
         integer :: i,j,sixnpt,mnpt
         integer, allocatable, dimension(:) :: nptlist
         double precision, allocatable,dimension(:,:) :: recvbuf
+        double precision :: gam,bet,gambet,twopi,fac
+
+        gam=-this%refptcl(6)
+        gambet = sqrt(gam**2-1.0)
+        bet = sqrt(gam**2-1.0)/gam
+
+        twopi = 4*asin(1.0d0)
+        fac=twopi*Scfreq/bet/clight/twopi*360
 
         if (samplePeriod .eq. 0) then
            samplePeriod = 1
@@ -1355,10 +1363,10 @@
           do i = 1, this%Nptlocal,samplePeriod
 !            write(nfile,100)this%Pts1(1,i),this%Pts1(2,i),this%Pts1(3,i),&
 !                            this%Pts1(4,i),this%Pts1(5,i),this%Pts1(6,i)
-            write(nfile,100)this%Pts1(1,i)*Scxlt,this%Pts1(2,i),&
+            write(nfile,101)this%Pts1(1,i)*Scxlt,this%Pts1(2,i),&
                             this%Pts1(3,i)*Scxlt,&
                             this%Pts1(4,i),this%Pts1(5,i)*Scxlt,&
-                            this%Pts1(6,i)
+                            this%Pts1(6,i),this%Pts1(5,i)*Scxlt*fac
           enddo
           do i = 1, np-1
             call MPI_RECV(recvbuf(1,1),nptlist(i),MPI_DOUBLE_PRECISION,&
@@ -1367,9 +1375,10 @@
             do j = 1, nptlist(i)/6,samplePeriod
 !              write(nfile,100)recvbuf(1,j),recvbuf(2,j),recvbuf(3,j),&
 !                              recvbuf(4,j),recvbuf(5,j),recvbuf(6,j)
-              write(nfile,100)recvbuf(1,j)*Scxlt,recvbuf(2,j),&
+              write(nfile,101)recvbuf(1,j)*Scxlt,recvbuf(2,j),&
                               recvbuf(3,j)*Scxlt,&
-                              recvbuf(4,j),recvbuf(5,j)*Scxlt,recvbuf(6,j)
+                              recvbuf(4,j),recvbuf(5,j)*Scxlt,recvbuf(6,j),&
+                              recvbuf(5,j)*Scxlt*fac
             enddo
           enddo
           close(nfile)
@@ -1381,6 +1390,7 @@
 
 !100     format(6(1x,e17.9))
 100     format(6(1x,e20.12))
+101     format(7(1x,e20.12))
 
         deallocate(nptlist)
         deallocate(recvbuf)
