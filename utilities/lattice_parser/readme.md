@@ -6,16 +6,10 @@ Email: biaobin@ustc.edu.cn
 
 # Recently added features
 
-- 112 `EMfldCyl` element, two new field formats are added: static electric field (Poisson) and RF field (CField) for Parmela is added. And the old field format is added back as `datafmt=imptold`.
+- 112 `EMfldCyl` element, one new field formats are added: static electric field (Poisson). The old field format is added back as `datafmt=imptold`.
 - distribution 6, cylinder uniform, one could use `nbunch=10` to divide the bunch to 10 slices.
 
 
-
-## to do
-
-- [ ] change all input field strength into `Emax [V/m]`, not `scale`. Normalize the field strength in the Fortran source code.
-
-	
 
 
 
@@ -402,8 +396,6 @@ s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m]
 | ymax           | m     | double | 1.0     | ymax for y direction.                              |
 | xmin           | m     | double | None    | By default, xmin=None, then xmin=-xmax is applied. |
 | ymin           | m     | double | None    | By default, ymin=None, then ymin=-ymax is applied. |
-
-
 
 
 
