@@ -1,20 +1,26 @@
 #!/bin/bash
 
-# add use mpistub for single-core version
-sed -i 's/!use mpistub/use mpistub/g' ../src/src/Contrl/Input.f90
-sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/Data.f90
-sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/PhysConst.f90
-sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/Pgrid.f90
-sed -i 's/!use mpistub/use mpistub/g' ../src/src/Func/Timer.f90
+if grep -q -wi "\!use mpistub" ../src/src/Contrl/Input.f90; then
+    # add use mpistub for single-core version
+    sed -i 's/!use mpistub/use mpistub/g' ../src/src/Contrl/Input.f90
+    sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/Data.f90
+    sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/PhysConst.f90
+    sed -i 's/!use mpistub/use mpistub/g' ../src/src/DataStruct/Pgrid.f90
+    sed -i 's/!use mpistub/use mpistub/g' ../src/src/Func/Timer.f90
+    
+    cp ../src/src/mpif.h ../src/src/Appl 
+    cp ../src/src/mpif.h ../src/src/Contrl
+    cp ../src/src/mpif.h ../src/src/DataStruct 
+    cp ../src/src/mpif.h ../src/src/Func 
+    
+    # add mpistub.o into makefile
+    sed -i 's/OBJS = \\/OBJS =  src\/mpistub.o \\/g' ../src/Makefile
+    sed -i 's/OBJS2 = \\/OBJS2 =  mpistub.o \\/g' ../src/Makefile
+    
+    # change mpif90 compiller to gfortran
+    sed -i 's/mpif90/gfortran/g' ../src/Makefile
 
-cp ../src/src/mpif.h ../src/src/Appl 
-cp ../src/src/mpif.h ../src/src/Contrl
-cp ../src/src/mpif.h ../src/src/DataStruct 
-cp ../src/src/mpif.h ../src/src/Func 
-
-# add mpistub.o into makefile
-sed -i 's/OBJS = \\/OBJS =  src\/mpistub.o \\/g' ../src/Makefile
-sed -i 's/OBJS2 = \\/OBJS2 =  mpistub.o \\/g' ../src/Makefile
-
-# change mpif90 compiller to gfortran
-sed -i 's/mpif90/gfortran/g' ../src/Makefile
+    echo "parallel2single finished."
+else
+    echo "Source code is already single process version."
+fi
