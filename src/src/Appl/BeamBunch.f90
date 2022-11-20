@@ -1169,8 +1169,8 @@
             ilost = ilost + 1
           else if(this%Pts1(5,i0).ge.ptrange(6)) then
             ilost = ilost + 1
-!          else if(this%Pts1(6,i0).lt.0.0) then !this does not allow particles move in negative direction
-!            ilost = ilost + 1
+          else if(this%Pts1(6,i0).lt.0.0) then !this does not allow particles move in negative direction
+            ilost = ilost + 1
           else
           endif
         enddo
