@@ -51,31 +51,41 @@ class impactt_parser(lattice_parser):
         generate ImpactT.in file.
         '''
         lattice_file = self.impacttin_lattice()
-         
+        
         nbunch = int(float(self.control['NBUNCH'])) 
-        Q      = float(self.beam['TOTAL_CHARGE']) 
-        Lbunch = float(self.beam['SIGZ'])
-        np     = float(self.beam['NP'])
-        dz     = Lbunch/nbunch
-        dq     = Q/nbunch
-        for j in range(nbunch): 
-            # update beam paras
-            self.beam['TOTAL_CHARGE']=str(dq)
-            self.beam['NP']=str(np/nbunch)
-            self.beam['SIGZ']=str(Lbunch/nbunch)            
-            self.beam['DZ']=str(-j*dz)            
-
+        
+        if nbunch > 1:          
+            #only dist=6, is tested, and is right
+            Q      = float(self.beam['TOTAL_CHARGE']) 
+            Lbunch = float(self.beam['SIGZ'])
+            np     = float(self.beam['NP'])
+            dz     = Lbunch/nbunch
+            dq     = Q/nbunch
+            for j in range(nbunch): 
+                # update beam paras
+                self.beam['TOTAL_CHARGE']=str(dq)
+                self.beam['NP']=str(np/nbunch)
+                self.beam['SIGZ']=str(Lbunch/nbunch)            
+                self.beam['DZ']=str(-j*dz)            
+    
+                control_file = self.impacttin_control()
+                if j==0:
+                    name='ImpactT.in'
+                else:
+                    name='ImpactT'+str(j+1)+'.in'
+    
+                with open(name,'w') as f:
+                    f.write(control_file)
+                    f.write(lattice_file)
+                f.close()    
+        else:
             control_file = self.impacttin_control()
-            if j==0:
-                name='ImpactT.in'
-            else:
-                name='ImpactT'+str(j+1)+'.in'
-
-            with open(name,'w') as f:
+            
+            with open("ImpactT.in",'w') as f:
                 f.write(control_file)
                 f.write(lattice_file)
-            f.close()     
-
+            f.close()    
+            
     # default control, beam, lattice dicts
     #==============================================================================
     def __default_control(self):    
@@ -176,6 +186,7 @@ class impactt_parser(lattice_parser):
         self.lattice['SOLRF']['EMAX'] = 1.0
         self.lattice['SOLRF']['FREQ']  = 2856e6
         self.lattice['SOLRF']['PHASE'] = 0.0
+        self.lattice['SOLRF']['RADIUS'] = 1.0
         self.lattice['SOLRF']['DX'] = 0.0
         self.lattice['SOLRF']['DY'] = 0.0
         self.lattice['SOLRF']['ROTATE_X'] = 0.0 #[rad]
@@ -220,6 +231,13 @@ class impactt_parser(lattice_parser):
         self.lattice['WATCH']['ZEDGE'] = 0.0
         self.lattice['WATCH']['FILENAME_ID'] = 80
         self.lattice['WATCH']['SAMPLE_FREQ'] = 1
+
+        # -11 element
+        self.lattice['RCOL']['ZEDGE'] = 0.0
+        self.lattice['RCOL']['XMAX'] = 1.0
+        self.lattice['RCOL']['YMAX'] = 1.0
+        self.lattice['RCOL']['XMIN'] = None
+        self.lattice['RCOL']['YMIN'] = None
 
         #turn all lattice elem values to string data type
         for elem in self.lattice.keys():
@@ -470,7 +488,7 @@ class impactt_parser(lattice_parser):
                           #avoid xmu6 being added into the read-in dis.
         else:
             xmu6 = str(gambet0)
-        
+       
         control_lines.append( self.beam['SIGZ']    )
         control_lines.append( str(sigPz) ) 
         control_lines.append( str(sigzzp)  )  
@@ -550,6 +568,17 @@ class impactt_parser(lattice_parser):
                     print("ERROR: please give the SOLRF field ID.")
                     sys.exit()
                 self.update_rfdatax(elem) 
+                
+                # add RCOL at the entrance
+                # ------------------------
+                #lte_lines.append('0 1 1 -11')
+                #lte_lines.append(elem['ZEDGE'])
+                #lte_lines.append(elem['ZEDGE'])
+                #lte_lines.append('-'+elem['RADIUS'])
+                #lte_lines.append(elem['RADIUS'])
+                #lte_lines.append('-'+elem['RADIUS'])
+                #lte_lines.append(elem['RADIUS'])
+                #lte_lines.append('/ \n')
 
                 lte_lines.append(elem['L'])
                 lte_lines.append('10 20 105')
@@ -558,7 +587,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['FREQ'])
                 lte_lines.append(elem['PHASE'])
                 lte_lines.append(elem['FILEID'])
-                lte_lines.append('1.01')
+                lte_lines.append(elem['RADIUS'])
                 lte_lines.append(elem['DX'])
                 lte_lines.append(elem['DY'])
                 lte_lines.append(elem['ROTATE_X'])
@@ -723,6 +752,21 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append('1.0')
                 lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('/ \n')
+
+            elif elem['TYPE']=='RCOL':
+                if elem['XMIN']=='None':
+                    elem['XMIN']=''.join(['-',elem['XMAX']])
+                if elem['YMIN']=='None':
+                    elem['YMIN']=''.join(['-',elem['YMAX']])                
+
+                lte_lines.append('0 1 1 -11')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append(elem['XMIN'])
+                lte_lines.append(elem['XMAX'])
+                lte_lines.append(elem['YMIN'])
+                lte_lines.append(elem['YMAX'])
                 lte_lines.append('/ \n')
 
             else:

@@ -4,7 +4,22 @@ Email: biaobin@ustc.edu.cn
 
 
 
-## Control parameters
+# Recently added features
+
+- 112 `EMfldCyl` element, two new field formats are added: static electric field (Poisson) and RF field (CField) for Parmela is added. And the old field format is added back as `datafmt=imptold`.
+- distribution 6, cylinder uniform, one could use `nbunch=10` to divide the bunch to 10 slices.
+
+
+
+## to do
+
+- [ ] change all input field strength into `Emax [V/m]`, not `scale`. Normalize the field strength in the Fortran source code.
+
+	
+
+
+
+# Control parameters
 
 All control parameters in `lte.impt` are listed:
 
@@ -52,7 +67,7 @@ Then the emission process of 1ns would only takes 100 steps, and another 900 ste
 
 
 
-### Nbunch
+## Nbunch
 
 For DC-GUN, since the bunch is really long, and large energy spread is induced. `Nbunch` should be set properly to accurately perform the Lorentz transformation from lab frame to beam frame.  
 
@@ -60,7 +75,7 @@ The `total_charge` in each `ImpactTj.in` refers to the individual slice charge, 
 
 
 
-## Beam parameters
+# Beam parameters
 
 All beam section parameters in `lte.impt` are listed:
 
@@ -102,9 +117,9 @@ For ijk, like `distribution_type=112`, the `sigx,sigy` actually is beam radius `
 
 
 
-### Distribution
+## Distribution
 
-#### 112, cylinder uniform
+### 112, cylinder uniform
 
 112 could be used to generate cylinder uniform distribution.
 
@@ -117,8 +132,7 @@ $$
 
 
 
-
-#### 6, cylinder uniform
+### 6, cylinder uniform
 
 New added:
 
@@ -134,6 +148,7 @@ sigx=sigy \\
 r\equiv sigx \\
 L_{bunch}\equiv sigz
 $$
+
 
 
 
@@ -186,7 +201,7 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | zedge          | m     | double | 0.0     | global position |
 | L              | m     | double | 0.0     | length          |
 | fileid        |       | int    | None    | file ID         |
-| scale | | double | 1.0 | scale of the field strength. ==The manual is wrong, V2 is used in the code!== See `Sol.f90/getfldt_Sol()` for more details. |
+| scale |  | double | 1.0 | When read in field in [Gauss], scale=1e-4. |
 
 For `fileid=3`, the B field file `1T3.T7`, unit is [cm] and [gauss]. It is
 
@@ -224,9 +239,7 @@ Notes:
 
 	
 
-- Ji use `scale` to transform `Gauss` to `T`, I suggest have this done in `Data.f90/read2tSol_Data()`
-
-
+- Ji use `scale` to transform `Gauss` to `T`.
 
 
 
@@ -241,6 +254,7 @@ Notes:
 | Emax       | V/m | double | 1.0     | the absolute maximum values of on-axis Ez field. |
 | freq           | Hz    | double | 2856e6  | frequency                     |
 | phase          | deg   | double | 0.0     | RF design phase               |
+| radius | m | double | 1.0 | pipe radius. |
 | Dx             | m     | double | 0.0     | x misalignment error          |
 | Dy             | m     | double | 0.0     | y misalignment error          |
 | rotate_x       | rad   | double | 0.0     | rotation error in x direction |
@@ -260,7 +274,7 @@ The `z1,z2` and `length` in rfdatax will be updated according to `Lcell` and `Nc
 
 ### TWS
 
-Traveling wave structure. 
+Traveling wave structure. Combined `SOLRF` elements.
 
 | Parameter Name | Units | Type   | Default  | Description                                                  |
 | -------------- | ----- | ------ | -------- | ------------------------------------------------------------ |
@@ -272,6 +286,7 @@ Traveling wave structure.
 | Emax           | V/m   | double | 0.0      | the absolute maximum values of on-axis Ez field.             |
 | freq           | Hz    | double | 2856e6   | RF frequency                                                 |
 | phase          | deg   | double | 0.0      | RF design phase.                                             |
+| radius         | m     | double | 1.0      | pipe radius.                                                 |
 | fileid_1       |       | int    | None     | file ID for the entrance coupler.                            |
 | fileid_2       |       | int    | None     | Auto update to `fileid_1+1` in python code.                  |
 | fileid_3       |       | int    | None     | Auto update to `fileid_1+2 in python code.                   |
@@ -304,7 +319,7 @@ rfdata4, rfdata5, rfdata6, rfdata7 should be given.
 | phase          | deg   | double | 0.0     | initial phase.                                               |
 | fileid         |       | int    | None    | `fileid=1`,  field file is `1T1.T7`.                         |
 | scale          |       | double | 1.0     | scale of the field strength.                                 |
-| datafmt        |       | str    | “impt”  | the value could be `impt, imptold, poisson, cfield `. In `ImpactT.in`, corresponding values are `1,2,3,4`. The last two are Parmela formats. |
+| datafmt        |       | str    | “impt”  | the value could be `impt, imptold, poisson`. In `ImpactT.in`, corresponding values are `1,2,3`. The last one is Parmela static E-field format. |
 
 The data format for IMPACT-T is different from Parmela. The data format for `datafmt=impt,imptold,poisson,cfield` are listed as following:
 
@@ -348,28 +363,15 @@ do j=1,nmz
 	enddo
 enddo
 close(33)
-
-!datafmt=cfield,  units are [cm,MHz,MV/m,A/m]
-!--------------------------------------------
-open(33,file=’1T1.T7’)
-write(33,*)zmin,zmax,nmz-1
-write(33,*)freq
-write(33,*)rmin,rmax,nmr-1
-do j=1,nmz
-	do i=1,nmr
-		write(33,*)Ez(i,j),Er(i,j),E(i,j),H(i,j)
-	enddo
-enddo
-close(33)
 ```
 
-Pay attention to that, for `impt,imptold`, it’s z-direction first, and then r-direction for data sampling. However, for `poisson, cfield`, which are Parmela formats, it’s r-direction first and then z-direction.
+Pay attention to that, for `impt,imptold`, it’s z-direction first, and then r-direction for data sampling. However, for `poisson`, which is Parmela static E-field format, it’s r-direction first and then z-direction.
 
 A new parameter `V12` is added for `112` element to determine the `datafmt`.
 
 
 
-`1T1.T7out` would be generated for `datafmt=poisson,cfield`, three columns data:
+`1T1.T7out` would be generated for `datafmt=poisson`, three columns data:
 
 ```bash
 s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m] 
@@ -386,6 +388,22 @@ s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m]
 | zedge          | m     | double | 0.0     | global position                                     |
 | filename_id    |       | int    | 80      | fort.80, should < 100. But avoid using 40,50,60,70. |
 | sample_freq    |       | int    | 1       | sample out freq.                                    |
+
+
+
+### RCOL
+
+-11 element, collimate particles with rectangular aperture.
+
+| Parameter Name | Units | Type   | Default | Description                                        |
+| -------------- | ----- | ------ | ------- | -------------------------------------------------- |
+| zedge          | m     | double | 0.0     | global position                                    |
+| xmax           | m     | double | 1.0     | xmax for x direction.                              |
+| ymax           | m     | double | 1.0     | ymax for y direction.                              |
+| xmin           | m     | double | None    | By default, xmin=None, then xmin=-xmax is applied. |
+| ymin           | m     | double | None    | By default, ymin=None, then ymin=-ymax is applied. |
+
+
 
 
 
