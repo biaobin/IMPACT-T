@@ -197,7 +197,25 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | fileid        |       | int    | None    | file ID         |
 | scale |  | double | 1.0 | When read in field in [Gauss], scale=1e-4. |
 
-For `fileid=3`, the B field file `1T3.T7`, unit is [cm] and [gauss]. It is
+File format:
+
+```matlab
+%[cm, Gauss]
+r1 r2 nr
+z1 z2 nz
+
+k=1;
+for j=1:nz+1
+    for i=1:nr+1
+        br(j,i)=B(k,1);
+        bz(j,i)=B(k,2);
+        k=k+1;
+    end
+end
+
+```
+
+For `fileid=3`, the B field file `1T3.T7`.
 
 `1T3.T7out` would be generated, five columns data:
 
@@ -233,7 +251,7 @@ Notes:
 
 	
 
-- Ji use `scale` to transform `Gauss` to `T`.
+- Unit in IMPACT-T fortran code, [T] is used, Ji use `scale` to transform `Gauss` to `T`, when readin file is [cm, gauss].
 
 
 
@@ -263,6 +281,52 @@ Notes:
 The traveling wave structure is modeled by two standing wave, one should use `RFcoeflcls` to get the fourier coefficients of the standing wave and the shifted standing wave, i.e. `rfdatax`. Only profile information are given for the fourier coefficients. 
 
 The `z1,z2` and `length` in rfdatax will be updated according to `Lcell` and `Ncell`.
+
+
+
+File format, unit is [m]:
+
+```
+39        /# of fourier coef. of Ez on axis, ncoefreal=20
+z0 
+z1        / z1-z0 could be N*Lfourier
+Lfourier  / one-period length
+a0
+a1
+b1
+a2
+b2
+...
+a19
+b19
+1.0       / in case B field is 0
+0.0
+0.0
+0.0
+0.0
+```
+
+In case only B field, like solenoid file:
+
+```
+1.0       / E field is 0
+0.0
+0.0
+0.0
+0.0
+39        /# of fourier coef. of Bz on axis, ncoefreal=20
+z0 
+z1        / z1-z0 could be N*Lfourier
+Lfourier  / one-period length
+a0
+a1
+b1
+a2
+b2
+...
+a19
+b19
+```
 
 
 
@@ -315,7 +379,7 @@ rfdata4, rfdata5, rfdata6, rfdata7 should be given.
 | scale          |       | double | 1.0     | scale of the field strength.                                 |
 | datafmt        |       | str    | “impt”  | the value could be `impt, imptold, poisson`. In `ImpactT.in`, corresponding values are `1,2,3`. The last one is Parmela static E-field format. |
 
-The data format for IMPACT-T is different from Parmela. The data format for `datafmt=impt,imptold,poisson,cfield` are listed as following:
+The data format for `datafmt=impt,imptold,poisson` are listed as following:
 
 ```fortran
 !datafmt=impt,  units are [cm,MHz,MV/m,A/m]
@@ -331,6 +395,7 @@ do i=1,nmr
 enddo
 close(33)
 
+!old version of IMPACT-T
 !datafmt=imptold,  units are [cm,MHz,MV/m,A/m]
 !--------------------------------------------
 open(33,file=’1T1.T7’)
@@ -346,7 +411,7 @@ enddo
 close(33)
 
 !=============================================
-!datafmt=poisson, units are [cm,V/m]
+!datafmt=poisson, units are [cm,V/cm]
 !-----------------------------------
 open(33,file=’1T1.T7’)
 write(33,*)rmin,rmax,nmr-1
@@ -359,7 +424,7 @@ enddo
 close(33)
 ```
 
-Pay attention to that, for `impt,imptold`, it’s z-direction first, and then r-direction for data sampling. However, for `poisson`, which is Parmela static E-field format, it’s r-direction first and then z-direction.
+Pay attention to that, for `impt,imptold`, it’s z-direction first, and then r-direction for data sampling. However, for `poisson`, which is Parmela static E-field or magnetic field format (`Poisson`), it’s r-direction first and then z-direction.
 
 A new parameter `V12` is added for `112` element to determine the `datafmt`.
 
@@ -370,6 +435,32 @@ A new parameter `V12` is added for `112` element to determine the `datafmt`.
 ```bash
 s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m] 
 ```
+
+
+
+For electron DC gun:
+
+```
+dcgun: emfldcyl,zedge=0.0,L=6.5e-2,freq=0,phase=0,fileid=1, datafmt="poisson",scale=1.0
+```
+
+Parmela DC gun `ELEGUN1.T7`  field could be directly imported.
+
+
+
+For 3D standing wave cavity, such as prebuncher:
+
+```
+!E0=0.19MV/m
+!Emax=0.19/0.15=1.27MV/m
+
+phipreb=93.46
+Emaxfile=6.6479
+Emaxpreb=0.19/0.150/Emaxfile
+preb: emfldcyl, zedge=45e-2, L=20e-2, freq=476e6, phase=phipreb, fileid=3, scale=Emaxpreb, datafmt="impt"
+```
+
+Parmela prebuncher `CField` file could be directly imported.
 
 
 
@@ -399,11 +490,38 @@ s(m), Ez(r=0)[V/m], Er(r=rmax)[V/m]
 
 
 
+### MergeBin
+
+-7 element
+
+| Parameter Name | Units | Type   | Default | Description     |
+| -------------- | ----- | ------ | ------- | --------------- |
+| zedge          | m     | double | 0.0     | global position |
+
+
+
+### SC2Dto3D
+
+-5 element
+
+| Parameter Name | Units | Type   | Default | Description     |
+| -------------- | ----- | ------ | ------- | --------------- |
+| zedge          | m     | double | 0.0     | global position |
+
+
+
+
+
+
+
+
 # Output
 
 ## slice info
 
 `fort.60` and `fort.70`, the initial 3rd col. is $I/\beta_0$, that’s why for low energy beam, it’s very large. Now the source code is updated, the 3rd col is [A] now.
+
+
 
 
 

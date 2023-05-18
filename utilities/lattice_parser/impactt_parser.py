@@ -238,6 +238,12 @@ class impactt_parser(lattice_parser):
         self.lattice['RCOL']['YMAX'] = 1.0
         self.lattice['RCOL']['XMIN'] = None
         self.lattice['RCOL']['YMIN'] = None
+        
+        # -7 element
+        self.lattice['MERGEBIN']['ZEDGE'] = 0.0
+
+        # -5 element
+        self.lattice['SC2DTO3D']['ZEDGE'] = 0.0
 
         #turn all lattice elem values to string data type
         for elem in self.lattice.keys():
@@ -767,6 +773,16 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['XMAX'])
                 lte_lines.append(elem['YMIN'])
                 lte_lines.append(elem['YMAX'])
+                lte_lines.append('/ \n')
+
+            elif elem['TYPE']=='MERGEBIN':
+                lte_lines.append('0 0 0 -7 0 0')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('/ \n')
+
+            elif elem['TYPE']=='SC2DTO3D':
+                lte_lines.append('0 0 0 -5 0 0')
+                lte_lines.append(elem['ZEDGE'])
                 lte_lines.append('/ \n')
 
             else:
