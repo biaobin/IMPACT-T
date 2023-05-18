@@ -117,7 +117,7 @@
       close(8)
 
       open(8,file="rfdatax_solrf",status="unknown")
-      write(8,*)ncoefreal*2+1
+      write(8,*)ncoefreal*2-1
       write(8,*)-zhalf
       write(8,*) zhalf
       write(8,*) 2*zhalf
