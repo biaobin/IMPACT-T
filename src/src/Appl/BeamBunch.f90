@@ -1139,10 +1139,14 @@
         ptrange(2) = xrad/Scxlt
         ptrange(3) = -yrad/Scxlt
         ptrange(4) = yrad/Scxlt
-        !ptrange(5) = zcent-0.5d0*zleng/Scxlt
-        !ptrange(6) = zcent+0.5d0*zleng/Scxlt
-        ptrange(5) = 0.0
-        ptrange(6) = zleng/Scxlt
+
+        !biaobin comments: Perdlen could be used to 
+        ! cutoff particles outsize (-0.5zleng,0.5zleng)
+        ptrange(5) = zcent-0.5d0*zleng/Scxlt
+        ptrange(6) = zcent+0.5d0*zleng/Scxlt
+        !ptrange(5) = 0.0
+        !ptrange(6) = zleng/Scxlt
+        
         rrap = ptrange(1)**2 
         ilost = 0
         do i0 = 1, this%Nptlocal
@@ -1164,9 +1168,11 @@
             ilost = ilost + 1
           else if(this%Pts1(3,i0).ge.ptrange(4)) then
             ilost = ilost + 1
-          else if(this%Pts1(5,i0).le.ptrange(5) .and. &
-                  this%Pts1(6,i0).lt.0.0) then
+          else if(this%Pts1(5,i0).le.ptrange(5)) then
             ilost = ilost + 1
+          !else if(this%Pts1(5,i0).le.ptrange(5) .and. &
+          !        this%Pts1(6,i0).lt.0.0) then
+          !  ilost = ilost + 1
           else if(this%Pts1(5,i0).ge.ptrange(6)) then
             ilost = ilost + 1
           else if(this%Pts1(6,i0).lt.0.0) then !this does not allow particles move in negative direction
