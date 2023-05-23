@@ -309,10 +309,16 @@
           !--------------------------------
           call random_number(r1)
           call random_number(r2)
-          call random_number(r3)
           this%Pts1(1,ii) = xmu1 + sig1*sqrt(r1)*cos(twopi*r2)
           this%Pts1(3,ii) = xmu3 + sig3*sqrt(r1)*sin(twopi*r2)
-          this%Pts1(5,ii) = xmu5 - sig5*r3
+
+          call random_number(r1)
+          call random_number(r2)
+          !longitudinal uniform distribution, minus for behind cathod
+          this%Pts1(5,ii) = xmu5 - sig5*r1
+
+          !longitudinal gauss dist
+          !this%Pts1(5,ii) = xmu5 +sig5*sqrt(-2*log(r1))*cos(twopi*r2)
 
         enddo
 
