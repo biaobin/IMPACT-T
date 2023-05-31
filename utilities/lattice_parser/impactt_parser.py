@@ -231,6 +231,7 @@ class impactt_parser(lattice_parser):
         self.lattice['WATCH']['ZEDGE'] = 0.0
         self.lattice['WATCH']['FILENAME_ID'] = 80
         self.lattice['WATCH']['SAMPLE_FREQ'] = 1
+        self.lattice['WATCH']['SLICE_BIN'] = 128
 
         # -11 element
         self.lattice['RCOL']['ZEDGE'] = 0.0
@@ -755,6 +756,17 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['SAMPLE_FREQ'])
                 lte_lines.append(elem['FILENAME_ID'])
                 lte_lines.append('-2')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('1.0')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('/ \n')
+
+                # at the same time add -9 element
+                slice_file=int(elem['FILENAME_ID'])+100
+                lte_lines.append('0')
+                lte_lines.append(elem['SLICE_BIN'])
+                lte_lines.append(str(slice_file))
+                lte_lines.append('-9')
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append('1.0')
                 lte_lines.append(elem['ZEDGE'])
