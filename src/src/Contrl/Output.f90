@@ -1951,7 +1951,8 @@
         !call system_stats()
 
         if(my_rank.eq.0) then
-          print*,"time: ",mtime
+          !change to min as unit
+          print*,"time: ",mtime/60.0,"min"
         endif
 
 !        call MPI_Finalize(ierr)
