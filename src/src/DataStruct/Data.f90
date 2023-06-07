@@ -971,7 +971,9 @@
               !convert from H (A/m) to Tesla
               this%btdatat(i,j) = tmp4*mu0
               n = n + 1
-              write(15,100)float(i-1),this%ezdatat(i,j),this%erdatat(i,j)
+              !comment the 1T*.T7out file output, for 112 EMfldCyl
+              !element
+              !write(15,100)float(i-1),this%ezdatat(i,j),this%erdatat(i,j)
           goto 50
 77        continue
           close(14)
