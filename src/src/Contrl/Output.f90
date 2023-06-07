@@ -1358,6 +1358,8 @@
 
         nptlist = 6*nptlist
 
+        !z [deg]: this%Pts1(5,i)*Scxlt*fac
+        !z [m]:   this%Pts1(5,i)*Scxlt
         if(my_rank.eq.0) then
           open(nfile,status='unknown')
           do i = 1, this%Nptlocal,samplePeriod
@@ -2298,7 +2300,10 @@
 
       if(my_rank.eq.0) then
         do i = 1, nslice
-          zz = zmin + (i-1)*hz  - zavg
+          !relative z
+          !zz = zmin + (i-1)*hz  - zavg
+          !global z
+          zz = zmin + (i-1)*hz
           write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
                   epy(i)*scxlt,gam(i)*pmass,gam2uncor2(i)*pmass
         enddo
