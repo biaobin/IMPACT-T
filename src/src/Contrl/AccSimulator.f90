@@ -750,6 +750,7 @@
         double precision, dimension(50) :: dkx
         double precision :: dtype1,da1,db1,deps1,dLx1,dnkx1,dnky1,hx,xmi,ymi
         double precision :: gamib,datafmt
+        integer :: kkk
 
 
         twopi = 4*asin(1.0d0)
@@ -2011,6 +2012,14 @@
                 print*,"not available in this version yet"
                 stop
               else
+
+                !output for phase evo movie
+                !if(mod(i,20).eq.0) then
+                !  !change 1 to sample_freq if you want less part. out
+                !  call phase_Output(1000+kkk,Ebunch(ib),10)
+                !  kkk = kkk+1
+                !endif
+
                 !Boris's 2nd order integrator
                 call kick2t_BeamBunch(Nplocal(ib),Nxlocal,Nylocal,Nzlocal,&
                 Ebunch(ib)%Pts1,exg,eyg,ezg,bxg,byg,bzg,Ageom,npx,npy,myidx,&
@@ -2023,6 +2032,7 @@
 
             do ib = 1, ibunch
               totchrg = Ebunch(ib)%Current/Bfreq
+
               call kickpt2ptImg_BeamBunch(nplocal0,Ebunch(ib)%Pts1,t,&
                  Ebunch(ib)%Charge,&
                  Ebunch(ib)%Mass,dtless,Blnelem,zBlnelem,idrfile,Nblem,&
@@ -2032,6 +2042,14 @@
             endif
           else !no space-charge fields, only external fields
             do ib = 1, ibunch
+
+              !output for phase evo movie
+              !if(mod(i,20).eq.0) then
+              !  !change 1 to sample_freq if you want less part. out
+              !  call phase_Output(1000+kkk,Ebunch(ib),10)
+              !  kkk = kkk+1
+              !endif
+
               call scatter20t_BeamBunch(Nplocal(ib),Ebunch(ib)%Pts1,t,&
                  Ebunch(ib)%Charge,&
                  Ebunch(ib)%Mass,dtless,Blnelem,zBlnelem,idrfile,Nblem,&
