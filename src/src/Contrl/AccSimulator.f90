@@ -2088,8 +2088,9 @@
           endif
           t = t + 0.5*dtless*Dt
  
-          !output for every 5 steps
-          if(mod(i,5).eq.0) then
+          !rms statistics output for every 5 steps, enlarge it to speed up the
+          !simulation
+          if(mod(i,40).eq.0) then
 
           if(Flagdiag.eq.1) then
             call diagnostic1avg_Output(t,Ebunch,Nbunch)
