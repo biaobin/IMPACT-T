@@ -200,7 +200,7 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 File format:
 
 ```matlab
-%[cm, Gauss]
+%[cm, Gauss ]
 r1 r2 nr
 z1 z2 nz
 
@@ -468,11 +468,25 @@ Parmela prebuncher `CField` file could be directly imported.
 
 -2 element.
 
+-9 element.
+
 | Parameter Name | Units | Type   | Default | Description                                         |
 | -------------- | ----- | ------ | ------- | --------------------------------------------------- |
 | zedge          | m     | double | 0.0     | global position                                     |
 | filename_id    |       | int    | 80      | fort.80, should < 100. But avoid using 40,50,60,70. |
 | sample_freq    |       | int    | 1       | sample out freq.                                    |
+| slice_bin      |       | int    | 128     | slice bin for -9 element.                           |
+
+
+
+For slice information:
+
+z(m), #, current(A), enx, eny, 
+
+```Fortran
+write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
+                epy(i)*scxlt,gam(i)*pmass,gam2uncor2(i)*pmass
+```
 
 
 
@@ -510,7 +524,14 @@ Parmela prebuncher `CField` file could be directly imported.
 
 
 
+### changedt
 
+-4 element
+
+| Parameter Name | Units | Type   | Default | Description     |
+| -------------- | ----- | ------ | ------- | --------------- |
+| zedge          | m     | double | 0.0     | global position |
+| dt             | s     | double | 1e-12   | time step size  |
 
 
 

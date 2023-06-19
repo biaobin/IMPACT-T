@@ -243,8 +243,13 @@ class impactt_parser(lattice_parser):
         # -7 element
         self.lattice['MERGEBIN']['ZEDGE'] = 0.0
 
+        # -4 element
+        self.lattice['CHANGEDT']['ZEDGE'] = 0.0
+        self.lattice['CHANGEDT']['DT'] = 1e-12
+
         # -5 element
         self.lattice['SC2DTO3D']['ZEDGE'] = 0.0
+
 
         #turn all lattice elem values to string data type
         for elem in self.lattice.keys():
@@ -795,6 +800,12 @@ class impactt_parser(lattice_parser):
             elif elem['TYPE']=='SC2DTO3D':
                 lte_lines.append('0 0 0 -5 0 0')
                 lte_lines.append(elem['ZEDGE'])
+                lte_lines.append('/ \n')
+
+            elif elem['TYPE']=='CHANGEDT':
+                lte_lines.append('0 0 0 -4 0 0')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append(elem['DT'])
                 lte_lines.append('/ \n')
 
             else:
