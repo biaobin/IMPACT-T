@@ -13,8 +13,13 @@
       integer, parameter :: Ncoef = 200
       double precision, dimension(Ndata) :: zdata,edata
       double precision, dimension(Ncoef) :: Fcoef,Fcoef2
+      character(len=100) :: filename
 
-      open(3,file="rfdata.in",status="old")
+      print*,"Please enter rfdata filename:"
+      read*,filename
+
+      !open(3,file="rfdata.in",status="old")
+      open(3,file=filename,status="old")
       n = 0
 10    continue
 !        read(3,*,end=100)tmp1,tmp2,tmp3,tmp4
@@ -37,11 +42,13 @@
 !        zdata(i) = zdata(i)/100
       enddo
 
+      !normalize
+      !----------------------
       do i = 1, n
         edata(i) = edata(i)/emax
-        write(44,*)zdata(i),edata(i)
+        !write(44,*)zdata(i),edata(i)
       enddo
-      close(44)
+      !close(44)
       
       zst = zdata(1)
 

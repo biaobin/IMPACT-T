@@ -12,15 +12,22 @@
 !                     generate the Fourier coefficients of shifted RF data. This
 !                     coefficients together with the original rf data Fourier 
 !                     coefficients will be used to model the fields in TWS.
+
       program rfcoef
       implicit double precision (a-h,o-z)
       integer, parameter :: Ndata = 50000
       integer, parameter :: Ncoef = 200
       double precision, dimension(Ndata) :: zdata,edata
       double precision, dimension(Ncoef) :: Fcoef,Fcoef2
+      character(len=100) :: filename
 
       emax = 0.0d0
-      open(3,file="rfdata.in",status="old")
+
+      print*,"Please give rfdata name:"
+      read*,filename
+
+      !open(3,file=rfdata.in,status="old")
+      open(3,file=filename,status="old")
       n = 0
 10    continue
 !        read(3,*,end=100)tmp1,tmp2,tmp3,tmp4
@@ -37,16 +44,18 @@
      
       do i = 1, n
         edata(i) = edata(i)/emax
-        write(44,*)zdata(i),edata(i)
+        !write(44,*)zdata(i),edata(i)
       enddo
-      close(44)
+      !close(44)
 
       zst = zdata(1)
 
       ndatareal = n
 
-      print*,"How many Fourier coeficients you want?"
-      read(*,*)ncoefreal
+      !print*,"How many Fourier coeficients you want?"
+      !read(*,*)ncoefreal
+      !biaobin, by default 40
+      ncoefreal = 40
 
       print*,"zdata1: ",zdata(1),zdata(ndatareal)
       zlen = zdata(ndatareal)-zdata(1)
@@ -91,19 +100,19 @@
         enddo
       enddo
 
-      open(7,file="rfcoef.out",status="unknown")
-      do j = 1, ncoefreal
-        write(7,*)j,Fcoef(j),Fcoef2(j)
-      enddo
-      close(7)
+      !open(7,file="rfcoef.out",status="unknown")
+      !do j = 1, ncoefreal
+      !  write(7,*)j,Fcoef(j),Fcoef2(j)
+      !enddo
+      !close(7)
 
-      open(8,file="rfdatax",status="unknown")
-      write(8,*)Fcoef(1)
-      do j = 2, ncoefreal
-        write(8,*)Fcoef(j)
-        write(8,*)Fcoef2(j)
-      enddo
-      close(8)
+      !open(8,file="rfdatax",status="unknown")
+      !write(8,*)Fcoef(1)
+      !do j = 2, ncoefreal
+      !  write(8,*)Fcoef(j)
+      !  write(8,*)Fcoef2(j)
+      !enddo
+      !close(8)
 
       open(8,file="rfdatax_solrf",status="unknown")
       write(8,*) 2*ncoefreal-1
@@ -166,46 +175,49 @@
       enddo
       close(8)
 
-      print*,"input # of data points:"
-      read(*,*)nout
+      !print*,"input # of data points:"
+      !read(*,*)nout
+      nout = 1000  !biaobin, set default value
+
       hz = (zdata(ndatareal)-zdata(1))/(nout-1)
       zmid = (zdata(ndatareal)+zdata(1))/2
       vtmp = 0.0
 
-      open(8,file="rfdatax2",status="unknown")
-
-      write(8,77)nout,zdata(1),zdata(ndatareal),vtmp
-77    format(I10,3(1x,e15.7))
-      do i = 1, nout
-        zz = (i-1)*hz+zdata(1) - zmid
-        tmpsum = 0.5*Fcoef(1)
-        tmpsump = 0.0
-        tmpsumpp = 0.0
-        tmpsump3 = 0.0
-        do j = 2,ncoefreal
-         tmpsum = tmpsum + Fcoef(j)*cos((j-1)*2*pi*zz/zlen) + &
-                  Fcoef2(j)*sin((j-1)*2*pi*zz/zlen)
-         tmpsump = tmpsump-(j-1)*2*pi*Fcoef(j)*sin((j-1)*2*pi*zz/zlen)/zlen +&
-                  (j-1)*2*pi*Fcoef2(j)*cos((j-1)*2*pi*zz/zlen)/zlen
-         tmpsumpp = tmpsumpp-((j-1)*2*pi/zlen)**2*&
-                    (Fcoef(j)*cos((j-1)*2*pi*zz/zlen) + &
-                     Fcoef2(j)*sin((j-1)*2*pi*zz/zlen))
-         tmpsump3 = tmpsump3+((j-1)*2*pi/zlen)**3*&
-                    (Fcoef(j)*sin((j-1)*2*pi*zz/zlen) - &
-                     Fcoef2(j)*cos((j-1)*2*pi*zz/zlen))
-        enddo
-        write(8,101)tmpsum,tmpsump,tmpsumpp,tmpsump3
-      enddo
-      close(8)
+!      open(8,file="rfdatax2",status="unknown")
+!
+!      write(8,77)nout,zdata(1),zdata(ndatareal),vtmp
+!77    format(I10,3(1x,e15.7))
+!      do i = 1, nout
+!        zz = (i-1)*hz+zdata(1) - zmid
+!        tmpsum = 0.5*Fcoef(1)
+!        tmpsump = 0.0
+!        tmpsumpp = 0.0
+!        tmpsump3 = 0.0
+!        do j = 2,ncoefreal
+!         tmpsum = tmpsum + Fcoef(j)*cos((j-1)*2*pi*zz/zlen) + &
+!                  Fcoef2(j)*sin((j-1)*2*pi*zz/zlen)
+!         tmpsump = tmpsump-(j-1)*2*pi*Fcoef(j)*sin((j-1)*2*pi*zz/zlen)/zlen +&
+!                  (j-1)*2*pi*Fcoef2(j)*cos((j-1)*2*pi*zz/zlen)/zlen
+!         tmpsumpp = tmpsumpp-((j-1)*2*pi/zlen)**2*&
+!                    (Fcoef(j)*cos((j-1)*2*pi*zz/zlen) + &
+!                     Fcoef2(j)*sin((j-1)*2*pi*zz/zlen))
+!         tmpsump3 = tmpsump3+((j-1)*2*pi/zlen)**3*&
+!                    (Fcoef(j)*sin((j-1)*2*pi*zz/zlen) - &
+!                     Fcoef2(j)*cos((j-1)*2*pi*zz/zlen))
+!        enddo
+!        write(8,101)tmpsum,tmpsump,tmpsumpp,tmpsump3
+!      enddo
+!      close(8)
 
 101   format(4(1x,e17.9))
 
 111   format(5(1x,e17.9))
 
-      dd = 0.0349753333333333
+      !dd = 0.0349753333333333
+      dd = 0.0
       print*,"input shift length:"
       read(*,*)dd
-      open(9,file="rfdata.tmp",status="unknown")
+      open(9,file="rfdata_shift.in",status="unknown")
       do i = 1, ndatareal
         zz = zdata(i) - zmid + dd
         tmpsum = 0.5*Fcoef(1)
