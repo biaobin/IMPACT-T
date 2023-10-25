@@ -1,6 +1,7 @@
 This documents describes the usage of the lattice parser, which transform lte.impt => ImpactT.in.
 
 The parser is developed by: Biaobin Li
+
 Email: biaobin@ustc.edu.cn
 
 
