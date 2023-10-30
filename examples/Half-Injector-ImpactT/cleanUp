@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm -f eng* ang* fort.* a ImpactT.in
+
+rm -f ImpactT?.in ImpactT??.in
+
+rm -f half-injector.* *.log
+
+rm -f 1T*out

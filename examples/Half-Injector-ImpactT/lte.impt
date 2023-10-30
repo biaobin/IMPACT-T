@@ -1,0 +1,182 @@
+&control
+!===================
+
+core_num_T=2
+core_num_L=2
+
+meshx=32
+meshy=32
+meshz=64
+
+dt=1e-12
+max_step=1e5
+
+image_sc=1
+image_stop_pos=15e-2
+
+xrad=1.5e-2
+yrad=1.5e-2
+
+perdlen=0.2
+
+nemission=1000
+temission=1e-9
+
+kinetic_energy=60
+
+freq_rf_scale=2856e6
+ini_t=0.0
+
+diag = 1
+nbunch=1
+
+&end
+
+&beam
+!===================
+mass=0.511e6
+charge=-1.0
+
+distribution_type=6
+Np=1e5
+
+total_charge=1e-9
+
+sigx=5.64e-3, sigpx=0
+sigy=5.64e-3, sigpy=0
+sigz=2.998e8*1e-9
+sigpz=0.0
+
+&end
+
+&lattice
+!===================
+
+dcgun: emfldcyl,zedge=0.0,L=6.5e-2,freq=0,phase=0,fileid=1, datafmt="poisson",scale=1.0
+
+sol1: sol, zedge=20e-2, L=40e-2,  scale=0.4856e-4, fileid=2
+sol2: sol, zedge=50e-2, L=150e-2, scale=1e-4,      fileid=3
+sol3: sol, zedge=240e-2,L=210e-2, scale=1e-4,      fileid=4
+
+!design phase=-90 => 93.46
+phipreb=93.46
+Emaxfile=6.6479
+Emaxpreb=0.19/0.150/Emaxfile
+preb: emfldcyl, zedge=45e-2, L=20e-2, freq=476e6, phase=phipreb, fileid=5, scale=Emaxpreb, datafmt="impt"
+
+!A1, buncher
+!using combined method
+!=====================
+phi=240
+
+fac=1/sin(2*pi/3)
+E0T=0.7843*0.9492
+E0cp1=0.3941
+E0cp2=0.3449
+
+ampcoup1=3.61e6/E0cp1
+ampcoup2=4.2e6/E0cp2
+
+amp1= 7.4376e6/E0T*fac
+amp2= 8.3459e6/E0T*fac
+amp3= 8.7292e6/E0T*fac
+amp4= 8.8756e6/E0T*fac
+amp5= 8.9722e6/E0T*fac
+amp6= 9.0e6/E0T*fac
+
+!cell length
+!-----------
+Lcoup1=3.30600e-2
+Lcoup2=5.24637e-2
+
+L1=1.10174*0.01
+L2=2.20348*0.01
+L3=2.79806*0.01
+L4=3.14782*0.01
+L5=3.32270*0.01
+L6=3.42763*0.01
+L7=3.49785*0.01                !num=30
+L8=1.74879*0.01              
+
+s0=96.694e-2
+s1=s0+Lcoup1
+s2=s1+L1
+s3=s2+L2
+s4=s3+L3
+s5=s4+L4
+s6=s5+L5
+s7=s6+L6
+s8=s7+L7*30
+s9=s8+L8
+s10=s9+Lcoup2
+
+!-----
+coup1: solrf, zedge=s0,   L=Lcoup1, Emax=ampcoup1, freq=2856e6, phase=phi, fileid=4, L_fourier_exp=2*Lcoup1, z1=-Lcoup1, z2=Lcoup1 
+
+!-----
+cell11:  solrf, zedge=s1, L=L1, Emax=amp1, freq=2856e6, phase=phi+30, fileid=51, L_fourier_exp=L1*6, z1=-L1, z2=L1                       
+cell12:  solrf, zedge=s1, L=L1, Emax=amp1, freq=2856e6, phase=phi+90, fileid=61, L_fourier_exp=L1*6, z1=-L1, z2=L1                 
+
+cell21:  solrf, zedge=s2, L=L2, Emax=amp1, freq=2856e6, phase=phi+30, fileid=52, L_fourier_exp=L2*3, z1=-L2, z2=L2                 
+cell22:  solrf, zedge=s2, L=L2, Emax=amp1, freq=2856e6, phase=phi+90, fileid=62, L_fourier_exp=L2*3, z1=-L2, z2=L2                 
+
+cell31:  solrf, zedge=s3, L=L3, Emax=amp2, freq=2856e6, phase=phi+30, fileid=53, L_fourier_exp=L3*3, z1=-2*L3, z2=L3               
+cell32:  solrf, zedge=s3, L=L3, Emax=amp2, freq=2856e6, phase=phi+90, fileid=63, L_fourier_exp=L3*3, z1=-2*L3, z2=L3               
+
+cav1: line=(cell11,cell12,cell21,cell22,cell31,cell32)
+
+!-----
+cell41:  solrf, zedge=s4, L=L4, Emax=amp3, freq=2856e6, phase=phi+30, fileid=54  ,L_fourier_exp=L4*3, z1=0, z2=L4                  
+cell42:  solrf, zedge=s4, L=L4, Emax=amp3, freq=2856e6, phase=phi+90, fileid=64  ,L_fourier_exp=L4*3, z1=0, z2=L4                  
+
+cell51:  solrf, zedge=s5, L=L5, Emax=amp4, freq=2856e6, phase=phi+30, fileid=55  ,L_fourier_exp=L5*3, z1=-L5, z2=L5                
+cell52:  solrf, zedge=s5, L=L5, Emax=amp4, freq=2856e6, phase=phi+90, fileid=65  ,L_fourier_exp=L5*3, z1=-L5, z2=L5                
+
+cell61:  solrf, zedge=s6, L=L6, Emax=amp5, freq=2856e6, phase=phi+30, fileid=56  ,L_fourier_exp=L6*3, z1=-2*L6, z2=L6              
+cell62:  solrf, zedge=s6, L=L6, Emax=amp5, freq=2856e6, phase=phi+90, fileid=66  ,L_fourier_exp=L6*3, z1=-2*L6, z2=L6              
+
+cav2: line=(cell41,cell42,cell51,cell52,cell61,cell62)
+
+!-----
+cell71:  solrf, zedge=s7, L=L7*30, Emax=amp6, freq=2856e6, phase=phi+30, fileid=5  ,L_fourier_exp=L7*3, z1=0, z2=30*L7             
+cell72:  solrf, zedge=s7, L=L7*30, Emax=amp6, freq=2856e6, phase=phi+90, fileid=6  ,L_fourier_exp=L7*3, z1=0, z2=30*L7             
+
+cell81:  solrf, zedge=s8, L=L8, Emax=amp6, freq=2856e6, phase=phi+30, fileid=57  ,L_fourier_exp=L8*6, z1=0, z2=L8                  
+cell82:  solrf, zedge=s8, L=L8, Emax=amp6, freq=2856e6, phase=phi+90, fileid=67  ,L_fourier_exp=L8*6, z1=0, z2=L8                  
+
+cav3: line=(cell71,cell72,cell81,cell82)
+
+!-----
+coup2: solrf,zedge=s9,L=Lcoup2,Emax=ampcoup2,freq=2856e6,phase=phi,fileid=7,L_fourier_exp=2*Lcoup2,z1=-Lcoup2,z2=Lcoup2            
+
+aper1A: RCOL, zedge=s0,  xmax=1.3e-2,ymax=1.3e-2
+aper2A: RCOL, zedge=s10, xmax=1.3e-2,ymax=1.3e-2
+
+lineA1: line=(coup1,cav1,cav2,cav3,coup2)
+
+!A2
+!=====================
+Lcell=3.49758e-2
+
+phiA2=85
+ampA2= 17.5e6/E0T*fac
+tmptws: tws, zedge=285.25e-2, L=Lcell*168, Emax=ampA2, freq=2856e6, phase=phiA2, fileid_1=14, Lcoup=5.2464e-2, Lcav=Lcell*3
+
+chdt: changedt, zedge=280e-2, dt=2e-12
+tws: line=(tmptws)
+
+w0: watch, zedge=30e-2, filename_id=90, slice_bin=64
+w1: watch, zedge=40e-2, filename_id=91, slice_bin=64
+w2: watch, zedge=45e-2, filename_id=92, slice_bin=64
+w3: watch, zedge=50e-2, filename_id=93, slice_bin=64
+w4: watch, zedge=55e-2, filename_id=94, slice_bin=64
+w5: watch, zedge=60e-2, filename_id=95, slice_bin=64
+w6: watch, zedge=65e-2, filename_id=96, slice_bin=64
+w7: watch, zedge=70e-2, filename_id=97, slice_bin=64
+
+ww: watch, zedge=9.0, filename_id=90, slice_bin=64,sample_freq=1
+
+line: line=(dcgun,sol1,preb,sol2,lineA1,sol3,tws,ww)
+
+&end
+

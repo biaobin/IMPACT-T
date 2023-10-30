@@ -1,0 +1,8 @@
+#!/bin/bash
+
+./cleanUp
+
+genimpacttin lte.impt line
+
+#ImpactT.exe
+mpirun -np 4 ImpactT.exe
