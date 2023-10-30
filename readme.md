@@ -1,99 +1,17 @@
-This documents describes the usage of the lattice parser, which transform lte.impt => ImpactT.in.
+This documents describes the usage of the lattice parser we developed, which transforms lte.impt => ImpactT.in.
 
 The parser is developed by: Biaobin Li
 
 Email: biaobin@ustc.edu.cn
 
 
-# 最近加的功能
 
-- 112 `EMfldCyl` element, one new field formats are added: static electric field (Poisson). The old field format is added back as `datafmt=imptold`.
+# Notes
+
+- For 112 `EMfldCyl` element, one new field formats are added: static electric field (Poisson). The old field format is added back as `datafmt=imptold`.
 - distribution 6, cylinder uniform, one could use `nbunch=10` to divide the bunch to 10 slices.
-
-
-
-# 前期准备
-
-## RFcoefext and RFcoeflcls
-
-RFcoefext 用于处理非对称场分布，如行波加速管出、入口的coupler段，代码先将场分布进行镜像对称 (偶延拓)，然后对扩展后的对称分布的场进行傅里叶级数分解，取的系数越多，对原场分布拟合的就越准确：
-
-```bash
-$RFcoefext
- Please enter rfdata filename:
-rfdata.in
- zhalf:    5.24636984
- How many Fourier coeficients you want?
-39
- The RF data number is:         2002   10.4927397       5.24636984       5.24374796E-03
- input # of data points:
-500
-```
-
-RFcoeflcls 则用于处理对称场分布，如$2\pi/3$ 模行波场 3个 cell 对应的场分布。
-
-
-
-## 行波场的描述方法
-
-Impact-T 对于行波场的处理，需要用户自己定义两个重叠的驻波场，从而形成行波场分布：
-$$
-E_{tr}(z,t) = \frac{1}{\sin(\beta_0 d)}[E_s(z)\cos(wt+\theta+\beta_0d-\pi/2)+E_s(z+d)\cos(wt+\theta+\pi/2)]
-$$
-对于 $2\pi/3$ 模行波场而言，$\beta_0d=2\pi/3$，所以处理步骤为：
-
-- 获得左移一个cell 距离$d$ 的驻波场分布 $E_s(z+d)$，此步骤对应于 `RFcoeflcls` 需定义`shift length`：
-
-	```bash
-	$RFcoeflcls
-	 Please give rfdata name:
-	rfdata.in
-	 zdata1:    5.2463999999999997E-002  0.15739000000000000
-	 The RF data number is:          201  0.10492600000000001       0.10492699999999999        5.2463000000000000E-004
-	 input shift length:
-	```
-
-- 在ImpactT.in 输入文件中，幅度值需乘以系数 $1/\sin(2\pi/3)$
-
-- 两行叠加的驻波场分布，相位分别增加 30deg 和 90 deg
-
-
-
-上面的幅值，如参照 Parmela 的输入文件设置，还需要考虑 $E_0T$ 带来的系数。
-
-
-
-##  扫相
-
-Impact-T 采用 $\cos()$ 函数习惯。扫相程序为 PhaseOpt.py 程序。
-
-
-
-## Parmela 和 Impact-T RF场转化关系
-
-Parmela uses $E_0$ or $E_0T$ to set the travelling or standing RF wave . However, Impact-T uses the $E_{max}$ to define the field. 
-$$
-E_0 = \frac{1}{L}\int |E_z(z)| dz, \\
-
-T=\frac{1}{E_0 L}\int E_z(z)[\cos(kz)+i\sin(kz)]dz
-$$
-$E_0$ 指的是平均场强，对于常用的 SLAC $2\pi/3$  模，其 3cell 的场分布如下图所示。$E_0$ 值可积分得到，$E_{max}=1$ 作归一化时，$E_0$值约为0.78。
-
-$T$ 实际上是 $T(k)$， 即基模($k=2\pi/3d$) 所占比例。由下图可见，基模 harm1 对应的幅值约为 0.744，故可得 $T=0.74/0.78\approx 0.95$.
-
-对于Parmela 和 Impact-T 的场分布而言，即会有 $E_0$ 和 $E_0T$ 的转化关系。对于驻波而言：
-$$
-E_{impt}=E_{parm}/E_0,
-$$
-对于行波而言：
-$$
-E_{impt}=E_{parm}/(E_0 T).
-$$
-
-
-![image-20230506151845731](pics/image-20230506151845731.png)
-
-
+- `Typora` is recommended to view the .md file for better experiences.
+- An example is added in `IMPACT-T/examples/Half-Injector-ImpactT` for illustration of the usage of the lattice parser we developed in `IMPACT-T/utilities/lattice_parser`. A report for the benchmark between `Parmela` is also uploaded.  For the new user who is interested in IMPACT-T, I think this document would help you a lot.
 
 
 
@@ -165,8 +83,6 @@ Code was changed to use perdlen to cutoff the long tail particles. Only one RF b
 +        !ptrange(5) = 0.0
 +        !ptrange(6) = zleng/Scxlt
 ```
-
-
 
 
 
@@ -636,19 +552,9 @@ write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
 
 ## fort.18
 
-当前版本，对于孔径的处理，仍然只是全局孔径的设置：
+Right now, only global aperture setting in the control section.
 
 <img src="pics/image-20231024102205713.png" alt="image-20231024102205713" style="zoom:67%;" />
-
-
-
-
-
-## fort.40 and fort.50.
-
-
-
-
 
 
 
@@ -662,10 +568,3 @@ changes:
 -          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur,epx(i)*scxlt,&
 +          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
 ```
-
-
-
-
-
-
-
