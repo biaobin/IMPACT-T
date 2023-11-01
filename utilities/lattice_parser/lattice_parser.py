@@ -1,3 +1,6 @@
+# Author: Biaobin Li
+# email: biaobin@ustc.edu.cn
+
 import sys
 import re
 from math import *
