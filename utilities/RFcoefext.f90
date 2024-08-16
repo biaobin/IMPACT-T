@@ -123,7 +123,7 @@
       enddo
       close(8)
 
-      open(8,file="rfdatax_solrf",status="unknown")
+      open(8,file="rfdatax_solrf_onlyEfield",status="unknown")
       write(8,*)ncoefreal*2-1
       write(8,*)-zhalf
       write(8,*) zhalf
@@ -141,6 +141,24 @@
 
       close(8)
 
+      open(8,file="rfdatax_solrf_onlyBfield",status="unknown")
+      !following lines for E field
+      write(8,*) 1.0
+      do j=1,4
+        write(8,*) 0.0
+      enddo
+
+      write(8,*)ncoefreal*2-1
+      write(8,*)-zhalf
+      write(8,*) zhalf
+      write(8,*) 2*zhalf
+      write(8,*)Fcoef(1)
+      do j = 2, ncoefreal
+        write(8,*)Fcoef(j)
+        write(8,*)Fcoef2(j)
+      enddo
+      close(8)
+
       open(8,file="rfdata.out",status="unknown")
       do i = 1, ndatareal
         zz = zdata(i) - zmid
@@ -156,7 +174,7 @@
                   (Fcoef(j)*cos((j-1)*2*pi*zz/zlen) + &
                    Fcoef2(j)*sin((j-1)*2*pi*zz/zlen))
         enddo
-        write(8,*)zdata(i),tmpsum,tmpsump,tmpsumpp
+        write(8,*)zdata(i)-zhalf,tmpsum,tmpsump,tmpsumpp
       enddo
       close(8)
 
