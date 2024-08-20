@@ -115,18 +115,18 @@
 !      enddo
 !      close(7)
 
-      open(8,file="rfdatax",status="unknown")
-      write(8,*)Fcoef(1)
-      do j = 2, ncoefreal
-        write(8,*)Fcoef(j)
-        write(8,*)Fcoef2(j)
-      enddo
-      close(8)
+!      open(8,file="rfdatax",status="unknown")
+!      write(8,*)Fcoef(1)
+!      do j = 2, ncoefreal
+!        write(8,*)Fcoef(j)
+!        write(8,*)Fcoef2(j)
+!      enddo
+!      close(8)
 
       open(8,file="rfdatax_solrf_onlyEfield",status="unknown")
       write(8,*)ncoefreal*2-1
-      write(8,*)-zhalf
-      write(8,*) zhalf
+      write(8,*)-zhalf+zst
+      write(8,*) zhalf+zst
       write(8,*) 2*zhalf
       write(8,*)Fcoef(1)
       do j = 2, ncoefreal
@@ -149,8 +149,8 @@
       enddo
 
       write(8,*)ncoefreal*2-1
-      write(8,*)-zhalf
-      write(8,*) zhalf
+      write(8,*)-zhalf+zst
+      write(8,*) zhalf+zst
       write(8,*) 2*zhalf
       write(8,*)Fcoef(1)
       do j = 2, ncoefreal
