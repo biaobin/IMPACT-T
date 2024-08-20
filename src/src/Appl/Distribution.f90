@@ -93,6 +93,8 @@
         else if(flagdist.eq.6) then
           !uniform cylinder in (x,y,z), px=py=0
           call cylinder_Dist(this,nparam,distparam,grid)
+        else if(flagdist.eq.7) then
+          call onlyref_Dist(this,nparam,distparam,grid)
         else if(flagdist.eq.16) then
           !read in an initial distribution with format from IMPACT-T
           call read_Dist(this,nparam,distparam,ib)
@@ -328,6 +330,62 @@
         t_kvdist = t_kvdist + elapsedtime_Timer(t0)
 
         end subroutine cylinder_Dist
+        
+        !bbl, 2024-08, only ref particle, for phase scan 
+        subroutine onlyref_Dist(this,nparam,distparam,grid)
+        implicit none
+        include 'mpif.h'
+        type (BeamBunch), intent(inout) :: this
+        integer, intent(in) :: nparam
+        double precision, dimension(nparam) :: distparam
+        type (Pgrid2d), intent(in) :: grid
+        double precision :: sigx,sigpx,muxpx,xscale,sigy,&
+        sigpy,muypy,yscale,sigz,sigpz,muzpz,zscale,pxscale,pyscale,pzscale
+        double precision :: xmu1,xmu2,xmu3,xmu4,xmu5,xmu6
+        double precision, dimension(6,1) :: a
+        double precision, dimension(2) :: x1, x2
+        double precision :: sig1,sig2,sig3,sig4,sig5,sig6,sq12,sq34,sq56
+        double precision :: r1, r2, r3
+        integer :: totnp,npy,npx,myid,myidy,myidx,comm2d, &
+                   commcol,commrow,ierr
+        integer :: avgpts,numpts0,i,ii,i0,j,jj
+        double precision :: t0,gamma,x11,twopi
+
+        call starttime_Timer(t0)
+        
+        xmu5 = distparam(20)
+        xmu6 = distparam(21)
+
+        call getsize_Pgrid2d(grid,totnp,npy,npx)
+        call getpost_Pgrid2d(grid,myid,myidy,myidx)
+        call getcomm_Pgrid2d(grid,comm2d,commcol,commrow)
+
+        if(this%Npt .lt. npx*npy) then
+          print*,"ERROR, particle number should be equal npx*npy"
+          stop
+        endif
+
+        avgpts = this%Npt/(npx*npy)
+        numpts0 = avgpts
+
+        ! initial allocate 'avgpts' particles on each processor.
+        allocate(this%Pts1(6,avgpts))
+        this%Pts1 = 0.0
+    
+        do ii = 1, avgpts
+          this%Pts1(1,ii) = 0.0d0
+          this%Pts1(2,ii) = 0.0d0
+          this%Pts1(3,ii) = 0.0d0
+          this%Pts1(4,ii) = 0.0d0
+          this%Pts1(5,ii) = xmu5
+          this%Pts1(6,ii) = xmu6
+        enddo
+
+        this%Nptlocal = numpts0
+
+        t_kvdist = t_kvdist + elapsedtime_Timer(t0)
+
+        end subroutine onlyref_Dist
 
         !--------------------------------------------------------------------------------------
         !> @brief

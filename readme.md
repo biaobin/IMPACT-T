@@ -158,11 +158,15 @@ $$
 
 
 
+### 7, reference particle 
 
+Allocate one ref particle for each processor. `dz` still works.
+
+ 
 
 # Lattice section
 
-Right now, only a few frequently used elements in `ImpactT.in` are added into the python parser.
+Right now, only a few frequently used elements in `ImpactT.in` are added into the python parser. 
 
 
 
@@ -568,3 +572,23 @@ changes:
 -          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur,epx(i)*scxlt,&
 +          write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
 ```
+
+
+
+## fort.40 & fort.50
+
+7th col added:
+
+| $x (m)$ | $\gamma\beta_x$ | $y (m)$ | $\gamma\beta_y$ | $z (m)$ | $\gamma\beta_x$ | $z (deg)$ |
+| ------- | --------------- | ------- | --------------- | ------- | --------------- | --------- |
+
+`Fort.40` is for the initial phase space, `fort.50` for the final phase space. Please NOTE, they are not the phase space at a certain time. All the particles are traced back `0.5dt` distance. It's a distribution seen by a PR target.
+
+If you want to see the distribution at a certain moment, please use `-2`  element instead:
+
+```bash
+ww:watch,zedge=9.0,filename_id=90,slice_bin=64,sample_freq=1
+line: line=(dcgun,sol1,preb,sol2,lineA1,sol3,tws,ww)
+```
+
+They all call for the `phase_Output()` function but `-2` element will not perform the trace back step. 
