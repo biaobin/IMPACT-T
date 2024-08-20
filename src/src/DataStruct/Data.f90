@@ -47,7 +47,7 @@
 !----------------------------------------------------------------------
 ! using the Fourier coefficients
         !number of Fourier expansion coefficients.
-        integer, parameter :: NcoefF = 401
+        integer, parameter :: NcoefF = 1201
         double precision,dimension(NcoefF) :: Fcoef
         !Fcoef(1): constant
         !Fcoef(2k): cosine term
@@ -106,7 +106,7 @@
           ! using the Fourier coefficients
           !integer, parameter :: NcoefFt = 401
           ! practical number of grid data on the axis or Fourier coefficients.
-          double precision,dimension(401) :: Fcoeft
+          double precision,dimension(1201) :: Fcoeft
           !store the discrete data of ez,ez',ez'',ez''' on axis. 
           !here, maximum data point is 5000 for E field or B field.
           double precision,dimension(4,10002) :: Fcoeftdata
@@ -720,6 +720,7 @@
 
         !readin the Fourier coefficients of the RF field from files 
         !"rfdatax or rfdataxx or rfdataxxx".
+        !2024-08,bbl,105 sofrf element goes here
         subroutine read1t_Data(this,ifile)
         implicit none
         include 'mpif.h'
