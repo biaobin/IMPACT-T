@@ -60,6 +60,10 @@
       enddo
       do i = 1, n
         zdata(i) = -(zdata(2*n+1-i)) + 2*zhalf
+        !odd extension for pitz-like gun-solenoid
+        !edata(i) = -edata(2*n+1-i)
+
+        !even extension, for gun RF field
         edata(i) = edata(2*n+1-i)
       enddo
       ndatareal = 2*n
