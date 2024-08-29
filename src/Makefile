@@ -8,8 +8,8 @@
 
 CC = gfortran
 LINK = gfortran
-FFLAGS = -O3
-#FFLAGS = -g
+#FFLAGS = -O3 -fallow-argument-mismatch
+FFLAGS = -g -fallow-argument-mismatch
 
 #**************************************************************************
 # List of .o files that EXENAME depends on.  Edit as appropriate for MP.
