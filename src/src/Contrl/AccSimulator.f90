@@ -1442,8 +1442,16 @@
           !get the global computational domain and center for all effective bunches/bins 
 !          print*,"brange: ",brange,Np
           call globalrange(brange,grange,gammazavg,zcent,Np,ibunch) 
-          if(grange(5).gt.0.0d0  .or. (flagcathode.eq.0) ) flagpos = 0
-          if(grange(5).gt.0.0d0) flagcathode = 0
+          if(grange(5).gt.0.0d0  .or. flagcathode.eq.0 ) then
+             flagpos = 0
+          else
+             flagpos = 1
+          endif
+          if(grange(5).gt.0.0d0 .or. Nemission.le.0) then
+             flagcathode = 0
+          else
+             flagcathode = 1
+          endif
 !          print*,"zcent: ",zcent
 
 !          print*,"gamz: ",gammaz(1)
@@ -2090,7 +2098,7 @@
  
           !rms statistics output for every 5 steps, enlarge it to speed up the
           !simulation
-          if(mod(i,40).eq.0) then
+          if(mod(i,5).eq.0) then
 
           if(Flagdiag.eq.1) then
             call diagnostic1avg_Output(t,Ebunch,Nbunch)
