@@ -43,10 +43,10 @@ program readfort10ij
             !exit the file when at the end
             if(stat/=0) exit
 
-            !conver to cm
-            x = x*100.0
-            y = y*100.0
-            z = z*100.0
+            !conver to mm
+            x = x*1000.0
+            y = y*1000.0
+            z = z*1000.0
             write(10,101)x,bgx,y,bgy,z,bgz
 
             cnt = cnt+1
