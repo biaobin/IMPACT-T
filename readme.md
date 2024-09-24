@@ -136,7 +136,7 @@ For ijk, like `distribution_type=112`, the `sigx,sigy` actually is beam radius `
 
 $\sigma_{i,j,k}$ are actually refers to:
 $$
- sigx \rightarrow r\\
+sigx \rightarrow r\\
  sigz \rightarrow L_{bunch}
 $$
 
@@ -155,6 +155,8 @@ $$
 sigx \rightarrow beam~~radius~(r)\\
 sigz\rightarrow bunch~~length~(L_{bunch})
 $$
+
+即，sigz 是整体束团长度。
 
 
 
@@ -192,7 +194,8 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | zedge          | m     | double     | 0.0     | global position                                              |
 | L              | m     | double     | 0.0     | length                                                                             |
 | grad           | T/m   | double     | 0.0     | quadrupole strength, $gradient=\frac{\partial B_y}{\partial x}$ |
-| fileid        |       | int/double | 1.0     | use minus x to refer rfdatax; when fileid=1.0, use Enge function for fringe field, fileid is changed to quad length in python scripts. |
+| fileid        | m | double | 0.0  | ==If <0, include fringe field, `abs(fileid)` actually is effective length of the quadrupole.== If =0, hard edge quad with constant `grad` is applied for `L` width. If >0, `radata<fileid>` `solrf` field type is read in to reconstruct  the gradient profile. **By default value**, hard edge model is applied.  ==Different from Ji's version.== |
+| radius | m | double | 17.5e-3 | aperture radius. If `fieldid>0`, `radius` will be used for edge field definition. |
 | Dx             | m     | double     | 0.0     | x misalignment error                                         |
 | Dy             | m     | double     | 0.0     | y misalignment error                                         |
 | rotate_x       | rad   | double     | 0.0     | rotation error in x direction                                |
@@ -201,11 +204,30 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | freq           | Hz    | double     | 0.0     | rf quadrupole frequency                                      |
 | phase          | deg   | double     | 0.0     | rf quadrupole phase                                          |
 
+- Ji use `fileid>0` to apply analytical fitting model. See Ji's manual for more details.
+
+- Ji considered the far-region (r>>0) by applying the first and second derivatives of the gradient profile along z:
+
+$$
+\begin{aligned}
+B_x & =B_g y-B_g^{\prime \prime} y^3 / 6 \\
+B_y & =B_g x-B_g^{\prime \prime} x y^2 / 2 \\
+B_z & =B_g^{\prime} x y
+\end{aligned}
+$$
+
+What I added is:
+
+- use the gradient profile's Fourier series to reconstruct the gradient along z. 
+- then, it's straightforward to get the first and second derivatives using the reconstructed gradient profile.
+- However, this method is not fast enough compared with interpolation method, also slower to analytical fitting equation.
+
+
 
 
 ### SOL
 
-3 element.
+Element 3.
 
 | Parameter Name | Units | Type   | Default | Description     |
 | -------------- | ----- | ------ | ------- | --------------- |
@@ -272,9 +294,33 @@ Notes:
 
 
 
+### DIPOLE
+
+Element 4.
+
+| Parameter Name | Units | Type   | Default | Description                                                  |
+| -------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
+| zedge          | m     | double | 0.0     | global position                                              |
+| L              | m     | double | 0.0     | Blength, i.e. arc length, including the fringe and dipole field region. |
+| Bx0            | T     | double | 0.0     | Bx field amplitude                                           |
+| By0            | T     | double | 0.0     | By field amplitude                                           |
+| fileid         |       | int    | None    | file ID to contain the geometry information of the bend      |
+| half_gap       | m     | double | 40e-3   | half of gap width                                            |
+| Dx             | m     | double | 0.0     | x misalignment error                                         |
+| Dy             | m     | double | 0.0     | y misalignment error                                         |
+| rotate_x       | rad   | double | 0.0     | rotation error in x direction                                |
+| rotate_y       | rad   | double | 0.0     | rotation error in y direction                                |
+| ratate_z       | rad   | double | 0.0     | rotation error in y direction                                |
+
+
+
+
+
+
+
 ### SOLRF
 
-105 element.
+element 105.
 
 | Parameter Name | Units | Type   | Default | Description                   |
 | -------------- | ----- | ------ | ------- | ----------------------------- |
@@ -301,7 +347,11 @@ The traveling wave structure is modeled by two standing wave, one should use `RF
 
 
 
-File format for `rfdatax`, unit is [m]:
+File format for `rfdatax`, unit is [m]。特别注意==z2-z1 could be N*Lfourier [m]==，此设置可基于一个周期cell场，拓展到整段linac：
+
+因为，求傅里叶系数时，就是做的周期延拓。因此场将根据[z1,z2]区间，周期展开。
+
+
 
 ```
 39        /# of fourier coef. of Ez on axis, ncoefreal=20
@@ -344,6 +394,45 @@ b2
 a19
 b19
 ```
+
+The Fourier series expansion is as following:
+$$
+s(x) \sim A_0+\sum_{n=1}^{\infty}\left(A_n \cos \left(\frac{2 \pi n x}{P}\right)+B_n \sin \left(\frac{2 \pi n x}{P}\right)\right)
+$$
+第一个系数为a0, 剩余的系数分别对应a1,b1,a2,b2。。。
+
+
+
+`RFcoefext.f90` 和 `Rfcoeflcls.f90` 都要求场文件首位值相等，首尾相等，直接copy右移，即可周期延拓。当首尾不等时，如gun的1.6cell 场，则需作镜像对称(偶延拓)。同理，对于pitz的gun-sol 场，实际上更适合作奇延拓，此时，只需修改代码为：
+
+```fortran
+ 55       zhalf = zdata(n)-zst
+ 56       print*,"zhalf: ",zhalf
+ 57       do i = n+1, 2*n
+ 58         zdata(i) = zdata(i-n)-zst + zhalf
+ 59         edata(i) = edata(i-n)
+ 60       enddo
+ 61       do i = 1, n
+ 62         zdata(i) = -(zdata(2*n+1-i)) + 2*zhalf
+ 63         !odd extension for pitz-like gun-solenoid
+ 64         edata(i) = -edata(2*n+1-i)
+ 65 
+ 66         !even extension, for gun RF field
+ 67         !edata(i) = edata(2*n+1-i)
+ 68       enddo
+```
+
+作奇延拓，可严格保证Bz过原点，即在cathod处Bz=0。Astra运行会提醒Bz@cathod不为零，可能就是因为代码不是用的奇延拓的方式？
+
+
+
+奇延拓时，所有an 系数为零。
+
+偶延拓时，所有bn 系数为零。
+
+
+
+如果知道是奇，还是偶延拓，可以加速重建场的过程。
 
 
 
