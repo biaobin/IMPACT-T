@@ -169,6 +169,7 @@ class impactt_parser(lattice_parser):
         self.lattice['QUAD']['L'] = 0.0
         self.lattice['QUAD']['GRAD'] = 0.0 
         self.lattice['QUAD']['FILEID'] = 0.0 
+        self.lattice['QUAD']['RADIUS'] = 17.5e-3 
         self.lattice['QUAD']['DX'] = 0.0
         self.lattice['QUAD']['DY'] = 0.0
         self.lattice['QUAD']['ROTATE_X'] = 0.0 #[rad]
@@ -176,6 +177,19 @@ class impactt_parser(lattice_parser):
         self.lattice['QUAD']['ROTATE_Z'] = 0.0
         self.lattice['QUAD']['FREQ'] = 0.0
         self.lattice['QUAD']['PHASE']= 0.0
+
+        # DIPOLE, element 4
+        self.lattice['DIPOLE']['ZEDGE'] = 0.0
+        self.lattice['DIPOLE']['L'] = 0.0
+        self.lattice['DIPOLE']['BX0'] = 0.0 
+        self.lattice['DIPOLE']['BY0'] = 0.0 
+        self.lattice['DIPOLE']['FILEID'] = None
+        self.lattice['DIPOLE']['HALF_GAP'] = 40e-3 
+        self.lattice['DIPOLE']['DX'] = 0.0
+        self.lattice['DIPOLE']['DY'] = 0.0
+        self.lattice['DIPOLE']['ROTATE_X'] = 0.0 #[rad]
+        self.lattice['DIPOLE']['ROTATE_Y'] = 0.0
+        self.lattice['DIPOLE']['ROTATE_Z'] = 0.0
 
         # Sol, 3 element
         self.lattice['SOL']['ZEDGE']=0.0
@@ -548,15 +562,12 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('1.0 / \n')
 
             elif elem['TYPE'] == 'QUAD':
-                if elem['FILEID']=='1.0':
-                    elem['FILEID']=str(float(elem['L']))
-                
                 lte_lines.append(elem['L'])
                 lte_lines.append('10 20 1')
                 lte_lines.append(elem['ZEDGE'])
                 lte_lines.append(elem['GRAD'])
                 lte_lines.append(elem['FILEID'])
-                lte_lines.append('1.0')
+                lte_lines.append(elem['RADIUS'])
                 lte_lines.append(elem['DX'])
                 lte_lines.append(elem['DY'])
                 lte_lines.append(elem['ROTATE_X'])
