@@ -373,9 +373,9 @@
         this%Pts1 = 0.0
     
         do ii = 1, avgpts
-          this%Pts1(1,ii) = 0.0d0
+          this%Pts1(1,ii) = 0.0d0  !1.0d-3/Scxlt  !1 mm
           this%Pts1(2,ii) = 0.0d0
-          this%Pts1(3,ii) = 0.0d0
+          this%Pts1(3,ii) = 0.0d0  !1.0d-3/Scxlt
           this%Pts1(4,ii) = 0.0d0
           this%Pts1(5,ii) = xmu5
           this%Pts1(6,ii) = xmu6
@@ -485,6 +485,20 @@
           call normVec(x1,intvsamp)
           call normVec(x2,intvsamp)
           call normVec(x3,intvsamp)
+
+         !cutoff at 2.108434sig for x&y
+         !-----------------------------
+          do while( sqrt(x1(1,1)**2+x2(1,1)**2) > 2.108434)
+            call normVec(x1,intvsamp)          
+            call normVec(x2,intvsamp)
+          end do
+
+          !cutoff at 3sig for z
+          !-----------------------------
+          do while( abs(x3(1,1)) > 3.0d0 )
+            call normVec(x3,intvsamp)
+          end do
+
           do k = 1, intvsamp
             !x-px:
 !            call normdv(x1)
