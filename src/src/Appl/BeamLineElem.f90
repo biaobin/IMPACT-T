@@ -837,6 +837,7 @@
 
         end subroutine setparam3_BeamLineElem
        
+        !bbl, 30.08.2024, this func seems to be abandoned 
         subroutine getfld_BeamLineElem(this,pos,extfld)
         implicit none
         type (BeamLineElem), intent(in) :: this
@@ -994,7 +995,8 @@
         endif
 
         end subroutine getaxfldE_BeamLineElem
-
+        
+        !bbl, return extfld may like (ex,ey,ez,bx,xy,bz)
         subroutine getfldt_BeamLineElem(this,pos,extfld,fldata)
         implicit none
         type (BeamLineElem), intent(in) :: this
@@ -1003,7 +1005,7 @@
         type (fielddata), intent(in) :: fldata
 
         if(associated(this%pquad)) then
-          call getfld_Quadrupole(pos,extfld,this%pquad)
+          call getfld_Quadrupole(pos,extfld,this%pquad,fldata)
         elseif(associated(this%pdrift)) then
           call getfld_DriftTube(pos,extfld,this%pdrift)
         elseif(associated(this%pccl)) then

@@ -205,11 +205,12 @@
         
         !get external field without displacement and rotation errors.
         !here, the skew quad can can be modeled with nonzero anglez
-        subroutine getfld_Quadrupole(pos,extfld,this)
+        subroutine getfld_Quadrupole(pos,extfld,this,fldata)
         implicit none
         include 'mpif.h'
         double precision, dimension(4), intent(in) :: pos
         type (Quadrupole), intent(in) :: this
+        type (fielddata), intent(in) :: fldata
         double precision, dimension(6), intent(out) :: extfld
         double precision:: zz,bgrad,zedge,bgradp,bgradpp,anglez
         real*8, dimension(2) :: tmp
@@ -218,14 +219,34 @@
 
         zedge = this%Param(1)
         zz=pos(3)-zedge
-        if(this%Param(3).gt.0.0) then
-          !call getfldfrg_Quadrupole(zz,this,bgrad)
+         
+        !print*,"fileid=",this%Param(3)
+
+        if(this%Param(3).lt.0.0) then
+          !print*,"analytical quad with fringe field considered."
+
           !call getfldfrgAna_Quadrupole(zz,this,bgrad)
           call getfldfrgAna2_Quadrupole(zz,this,bgrad,bgradp,bgradpp)
           !bgradp = 0.0
           !bgradpp = 0.0
+
+        else if(this%Param(3).gt.0.0) then
+          !print*,"reconstruct grad profile from readin fourier series." 
+          !call getfldfrg_Quadrupole(zz,this,bgrad)
+
+          !bbl, 30.08.2024, get bg,bgp,bgpp, from solrf type reconstructed field
+          call getfldfrg2_Quadrupole(pos,this,fldata,bgrad,bgradp,bgradpp)
+          
+          
+          !for debug
+          !open(2,file='bgrad.txt') 
+          !write(2,133) pos(3),bgrad,bgradp,bgradpp
+          !133 format(4(3x,e12.5))
         else
+          !print*,"constant K1 along s, hardedge quad."
           bgrad = this%Param(2)
+          bgradp = 0.0
+          bgradpp = 0.0
         endif
 
         !j.q. 08/27/08 added skew capability to quad.
@@ -236,20 +257,20 @@
         extfld(1) = 0.0
         extfld(2) = 0.0
         extfld(3) = 0.0
-        if(this%Param(3).gt.0.0) then
-          temp(1) = bgrad*tmp(2) - &
-                      bgradpp*(tmp(2)**3+3*tmp(1)**2*tmp(2))/12
-          temp(2) = bgrad*tmp(1) - &
-                      bgradpp*(tmp(1)**3+3*tmp(1)*tmp(2)**2)/12
-
-          temp(3) = bgradp*tmp(1)*tmp(2)
-        else
+        if(abs(this%Param(3)).lt.1e-6) then
           !extfld(4) = bgrad*pos(2)
           !extfld(5) = bgrad*pos(1)
           !extfld(6) = 0.0
           temp(1) = bgrad*tmp(2)
           temp(2) = bgrad*tmp(1)
           temp(3) = 0.0
+        else
+          temp(1) = bgrad*tmp(2) - &
+                      bgradpp*(tmp(2)**3+3*tmp(1)**2*tmp(2))/12
+          temp(2) = bgrad*tmp(1) - &
+                      bgradpp*(tmp(1)**3+3*tmp(1)*tmp(2)**2)/12
+
+          temp(3) = bgradp*tmp(1)*tmp(2)
         endif
 
         extfld(4) = temp(1)*cos(anglez) - temp(2)*sin(anglez)
@@ -295,6 +316,76 @@
 
         end subroutine getfldfrg_Quadrupole
 
+        !bbl, 30.08.2024, reconstruct quad grad profile using Fourier series
+        subroutine getfldfrg2_Quadrupole(pos,this,fldata,bgrad,bgradp,bgradpp)
+        implicit none
+        include 'mpif.h'
+        type (Quadrupole), intent(in) :: this
+        double precision, dimension(4), intent(in) :: pos
+        type (fielddata), intent(in) :: fldata
+        double precision, intent(out) :: bgrad
+        double precision, intent(out) :: bgradp,bgradpp
+ 
+        double precision :: zedge,theta0,ww,len,tt,xl,xlrep
+        double precision :: f1,clite,tmpsin,tmpcos,pi
+        double precision :: tmpex,tmpey,tmpez,tmpbx,tmpby,tmpbz
+        double precision:: zz,b0,zmid,rr,zstart1,zend1,zlength1,&
+                   zstart2,zend2,zlength2,zlen,f1p,r2,zlc,bgscale
+        integer :: i,ntmp,numpar1,numpar2
+
+        clite = 299792458.e0
+        pi = 2*asin(1.0)
+
+        zedge = this%Param(1)
+        bgscale = this%Param(2)
+        len = this%Length
+        zlc = pos(3)-zedge
+
+        !print*,"zedge: ",zedge,len,pos(3),bgscale
+
+        !skip the E-fiel
+        numpar1 = fldata%Fcoeft(1)+0.1 
+        !# of parameters for solenoid B fields.
+        numpar2 = fldata%Fcoeft(5+numpar1) + 0.1
+
+        !zstart2 can be negative
+        zstart2 = fldata%Fcoeft(6+numpar1) 
+        zend2 = fldata%Fcoeft(7+numpar1) 
+        zlength2 = fldata%Fcoeft(8+numpar1) 
+
+        if( (zlc.ge.zstart2) .and. (zlc.le.zend2)) then
+          zmid = zlength2/2
+          zz = pos(3) - zedge - zstart2 - zmid
+          zlen = zlength2
+          ntmp = numpar1+8
+          !find the gradient and its 1st,2nd,3rd derivatives
+          bgrad = fldata%Fcoeft(ntmp+1)/2
+          bgradp = 0.0
+          bgradpp = 0.0
+          do i = 2,(numpar2-1)/2+1
+            bgrad = bgrad + fldata%Fcoeft(2*i-2+ntmp)*&
+              cos((i-1)*2*pi*zz/zlen) + &
+              fldata%Fcoeft(2*i-1+ntmp)*sin((i-1)*2*pi*zz/zlen)
+            bgradp = bgradp + (i-1)*2*pi/zlen*&
+              (-fldata%Fcoeft(2*i-2+ntmp)*sin((i-1)*2*pi*zz/zlen)+&
+              fldata%Fcoeft(2*i-1+ntmp)*cos((i-1)*2*pi*zz/zlen))
+            bgradpp = bgradpp+((i-1)*2*pi/zlen)**2*&
+              (-fldata%Fcoeft(2*i-2+ntmp)*cos((i-1)*2*pi*zz/zlen)&
+              - fldata%Fcoeft(2*i-1+ntmp)*sin((i-1)*2*pi*zz/zlen))
+          enddo
+          bgrad   = bgscale*bgrad
+          bgradp  = 0.0  !bgscale*bgradp
+          bgradpp = 0.0  !bgscale*bgradpp
+   
+        else
+          bgrad   = 0.0
+          bgradp  = 0.0
+          bgradpp = 0.0
+        endif
+
+        !print*,"bgrad inside the func=",bgrad,bgradp,bgradpp
+        end subroutine getfldfrg2_Quadrupole
+
         subroutine getfldfrgAna_Quadrupole(zz,this,bgrad)
         implicit none
         include 'mpif.h'
@@ -325,7 +416,7 @@
         type (Quadrupole), intent(in) :: this
         double precision, intent(in) :: zz
         double precision, intent(out) :: bgrad
-        double precision :: bgradp,bgradpp
+        double precision, intent(out) :: bgradp,bgradpp
         double precision :: bb,dd,z10,z20,z3,z4,tmpz
         double precision :: c1,c2,s1,s2,s3,s4
         double precision :: tmp1
@@ -335,7 +426,7 @@
         bb = this%Param(2)
         dd = 2*this%Param(4)
         !coordinate 0 points for Enge function.
-        z10 = (this%Length - this%Param(3))/2 !for entrance
+        z10 = (this%Length - abs(this%Param(3)))/2 !for entrance
         z20 = this%Length - z10               !for exit
         !fringe field range inside coordinate 0 point.
         !this could be different for different Enge coefficients.
@@ -367,7 +458,7 @@
           bgradpp = 0.0
         endif
 
-        !write(1,*)zz,bgrad,bgradp,bgradpp
+        !print*,"bg inside func=",zz,bgrad,bgradp,bgradpp
  
         end subroutine getfldfrgAna2_Quadrupole
 
