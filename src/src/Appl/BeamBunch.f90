@@ -2232,6 +2232,11 @@
         do i = 1, this%Nptlocal
           this%Pts1(5,i) = this%Pts1(5,i) - zorgin/Scxlt 
         enddo
+        
+        if (this%refptcl(2)**2+this%refptcl(4)**2 > 1.0d-6) then
+            print*,"ERROR, this may not right to set vx=vy=0 for ref part."
+            stop
+        endif
 
         this%refptcl(1) = 0.0
         this%refptcl(2) = 0.0

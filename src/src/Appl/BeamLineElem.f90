@@ -837,50 +837,50 @@
 
         end subroutine setparam3_BeamLineElem
        
-        !bbl, 30.08.2024, this func seems to be abandoned 
-        subroutine getfld_BeamLineElem(this,pos,extfld)
-        implicit none
-        type (BeamLineElem), intent(in) :: this
-        double precision, dimension(4), intent(in) :: pos
-        double precision, dimension(6), intent(out) :: extfld
+        !!bbl, 30.08.2024, this func seems to be abandoned 
+        !subroutine getfld_BeamLineElem(this,pos,extfld)
+        !implicit none
+        !type (BeamLineElem), intent(in) :: this
+        !double precision, dimension(4), intent(in) :: pos
+        !double precision, dimension(6), intent(out) :: extfld
 
-        if(associated(this%pquad)) then
-          call getfld_Quadrupole(pos,extfld,this%pquad)
-        elseif(associated(this%pdrift)) then
-          call getfld_DriftTube(pos,extfld,this%pdrift)
-        elseif(associated(this%pccl)) then
-          call getfld_CCL(pos,extfld,this%pccl)
-        elseif(associated(this%pccdtl)) then
-          call getfld_CCDTL(pos,extfld,this%pccdtl)
-        elseif(associated(this%pdtl)) then
-          call getfld_DTL(pos,extfld,this%pdtl)
-        elseif(associated(this%psc)) then
-          call getfld_SC(pos,extfld,this%psc)
-        elseif(associated(this%pbpm)) then
-          !call getfld_BPM(pos,extfld,this%pbpm)
-          print*,"no field for BPM!!"
-          extfld = 0.0
-        elseif(associated(this%pcf)) then
-          call getfld_ConstFoc(pos,extfld,this%pcf)
-        elseif(associated(this%pslrf)) then
-          call getfld_SolRF(pos,extfld,this%pslrf)
-        elseif(associated(this%psl)) then
-          call getfld_Sol(pos,extfld,this%psl)
-        elseif(associated(this%pdipole)) then
-          call getfld_Dipole(pos,extfld,this%pdipole)
-        elseif(associated(this%pemfld)) then
-          call getfld_EMfld(pos,extfld,this%pemfld)
-        elseif(associated(this%pemfldana)) then
-          call getfld_EMfldAna(pos,extfld,this%pemfldana)
-        elseif(associated(this%pemfldcart)) then
-          call getfld_EMfldCart(pos,extfld,this%pemfldcart)
-        elseif(associated(this%pemfldcyl)) then
-          call getfld_EMfldCyl(pos,extfld,this%pemfldcyl)
-        elseif(associated(this%pmult)) then
-          call getfld_Multipole(pos,extfld,this%pmult)
-        endif
+        !if(associated(this%pquad)) then
+        !  call getfld_Quadrupole(pos,extfld,this%pquad)
+        !elseif(associated(this%pdrift)) then
+        !  call getfld_DriftTube(pos,extfld,this%pdrift)
+        !elseif(associated(this%pccl)) then
+        !  call getfld_CCL(pos,extfld,this%pccl)
+        !elseif(associated(this%pccdtl)) then
+        !  call getfld_CCDTL(pos,extfld,this%pccdtl)
+        !elseif(associated(this%pdtl)) then
+        !  call getfld_DTL(pos,extfld,this%pdtl)
+        !elseif(associated(this%psc)) then
+        !  call getfld_SC(pos,extfld,this%psc)
+        !elseif(associated(this%pbpm)) then
+        !  !call getfld_BPM(pos,extfld,this%pbpm)
+        !  print*,"no field for BPM!!"
+        !  extfld = 0.0
+        !elseif(associated(this%pcf)) then
+        !  call getfld_ConstFoc(pos,extfld,this%pcf)
+        !elseif(associated(this%pslrf)) then
+        !  call getfld_SolRF(pos,extfld,this%pslrf)
+        !elseif(associated(this%psl)) then
+        !  call getfld_Sol(pos,extfld,this%psl)
+        !elseif(associated(this%pdipole)) then
+        !  call getfld_Dipole(pos,extfld,this%pdipole)
+        !elseif(associated(this%pemfld)) then
+        !  call getfld_EMfld(pos,extfld,this%pemfld)
+        !elseif(associated(this%pemfldana)) then
+        !  call getfld_EMfldAna(pos,extfld,this%pemfldana)
+        !elseif(associated(this%pemfldcart)) then
+        !  call getfld_EMfldCart(pos,extfld,this%pemfldcart)
+        !elseif(associated(this%pemfldcyl)) then
+        !  call getfld_EMfldCyl(pos,extfld,this%pemfldcyl)
+        !elseif(associated(this%pmult)) then
+        !  call getfld_Multipole(pos,extfld,this%pmult)
+        !endif
 
-        end subroutine getfld_BeamLineElem
+        !end subroutine getfld_BeamLineElem
 
         !--------------------------------------------------------------------------------------
         !> @brief

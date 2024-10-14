@@ -117,7 +117,7 @@
         type (Multipole),target,dimension(Nquadmax) :: beamln15
         type (BeamLineElem),dimension(Nblemtmax)::Blnelem
         !longitudinal position of each element (min and max).
-        double precision, dimension(2,Nblemtmax)::zBlnelem
+        double precision, dimension(2,Nblemtmax)::zBlnelem,zBlnelem_bk
         !beam line element period.
         interface construct_AccSimulator
           module procedure init_AccSimulator
@@ -530,6 +530,11 @@
           zz = val0(i) + blength(i)
           zBlnelem(2,i) = zz
         enddo
+        
+        do i=1,Nblem 
+          zBlnelem_bk(1,i)=zBlnelem(1,i)
+          zBlnelem_bk(2,i)=zBlnelem(2,i)
+        enddo
 !-------------------------------------------------------------------
         call MPI_BARRIER(MPI_COMM_WORLD,ierr)
         if(myid.eq.0) print*,"pass setting up lattice..."
@@ -751,7 +756,9 @@
         double precision :: dtype1,da1,db1,deps1,dLx1,dnkx1,dnky1,hx,xmi,ymi
         double precision :: gamib,datafmt
         integer :: kkk
-
+        double precision :: dipole_exit_angle,bend_angle,k1,k2,k3,k4,b1,b2,b3,b4,exitz
+        double precision :: tmpbl,tmpdl,tmpz1,tmpz2
+        integer :: cntup
 
         twopi = 4*asin(1.0d0)
         !zadjmax = 0.15 !30% increase of z domain
@@ -910,6 +917,10 @@
             call getparam_BeamLineElem(Blnelem(i),12,datafmt)
             idrfile(2,i) = int(rfile + 0.1)
             idrfile(4,i) = int(datafmt+0.1)
+          !get external file for quad.
+          else if(bitype.eq.1) then
+            call getparam_BeamLineElem(Blnelem(i),3,rfile)
+            idrfile(2,i) = int(rfile + 0.1)
           !get external file for solenoid.
           else if(bitype.eq.3) then
             call getparam_BeamLineElem(Blnelem(i),3,rfile)
@@ -1168,14 +1179,18 @@
         !particles behind the cathode will use this beta for emission.
         !betazini = sqrt(1.0-1.0/(1.0+distparam(21)**2))
         betazini = sqrt(1.0d0-1.0d0/(1.0d0+Bkenergy/Bmass)**2)
+
         !output initial phase space distribution 
+        !initial dist: fort.40 and fort.60
+        !---------------------------------
         do ib = 1, Nbunch
-          call phase_Output(40+ib-1,Ebunch(ib),1)
+          call phase_Output(40+ib-1,Ebunch(ib),1) !change the sampFreq here
           qchg = Ebunch(ib)%Current/Scfreq
           gamib = -Ebunch(ib)%refptcl(6)
           call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
                    Nz,qchg,Ebunch(ib)%Mass,60+ib-1,gamib)
         enddo
+
         dzz = betazini*Clight*dtless*Dt
         zmin = 0.0d0
         call MPI_BARRIER(comm2d,ierr)
@@ -1184,6 +1199,8 @@
 ! start looping through ntstep time step.
         !iend is the time step number from last simulation (used in
         !restart function).
+        dipole_exit_angle = 0.0d0
+        bend_angle = 0.0d0
         do i = iend+1, ntstep
           if(myid.eq.0) then
             print*,"i,t,<z>: ",i,t,distance
@@ -1527,8 +1544,7 @@
           idbend = 0
           do ii = ibstart,ibend
             !for element type > 100 or solenoid
-            if((idrfile(1,ii).gt.100).or.(idrfile(1,ii).eq.3).or.&
-               (idrfile(1,ii).eq.4)) then 
+            if((idrfile(1,ii).gt.100).or.(idrfile(1,ii).eq.3).or.(idrfile(1,ii).eq.4) .or. idrfile(1,ii).eq.1) then 
               isw = 1
               !check whether the new element is in the old elements range,
               !which already been read in. 
@@ -1561,7 +1577,10 @@
               tmpfile(idrfile(3,ii)) = idrfile(2,ii)
 !              print*,"idrfile: ",ii,idrfile(2,ii),idrfile(3,ii),iifile,Maxiifile
               if(isw.eq.1) then !readin new data
-              if(idrfile(1,ii).eq.3) then !numerical data for solenoid.
+              
+              if(idrfile(1,ii).eq.1.or.idrfile(1,ii).eq.4) then !numerical data for quad and dipole
+                call read1t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
+              else if(idrfile(1,ii).eq.3) then !numerical data for solenoid.
                 call read2tsol_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
               else if(idrfile(1,ii).lt.110) then !Fcoef coefficient description field
                 call read1t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
@@ -1584,8 +1603,6 @@
                 else if(idrfile(2,ii).gt.0) then
                   call read4t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
                 endif
-              else if(idrfile(1,ii).eq.4) then
-                call read1t_Data(fldmp(idrfile(3,ii)),idrfile(2,ii))
               else
                 print*,"wrong element type to read in...."
                 stop
@@ -1991,8 +2008,7 @@
                  enddo
                 enddo
  
-                if(zmin.gt.dtwkstart(1).and.zmax.lt.dtwkend(1).and.&
-                 iwrite.eq.1)then
+                if(zmin.gt.dtwkstart(1).and.zmax.lt.dtwkend(1).and. iwrite.eq.1)then
                   do kz=1,Nzlocal
                     write(73,*)(kz-1)*hz,dexwake(Nx,Ny,kz),deywake(Nx,Ny&
                     ,kz),dezwake(Nx,Ny,kz),dbxwake(Nx,Ny,kz),&
@@ -2127,8 +2143,7 @@
                 pos(3)= zz
                 pos(4) = t
                 do ii = 1, Nblem
-                  if( (zz.ge.zBlnelem(1,ii)) .and. &
-                      (zz.le.zBlnelem(2,ii)) ) then
+                  if( (zz.ge.zBlnelem(1,ii)) .and. (zz.le.zBlnelem(2,ii)) ) then
                     call getparam_BeamLineElem(Blnelem(ii),blength,bnseg,&
                                   bmpstp,bitype)
                     call getparam_BeamLineElem(Blnelem(ii),12,rfile)
@@ -2160,15 +2175,44 @@
           dGspread = 1.0
 
           else !into bending magnet
+            !inner loop inside the dipole, so the following lines will not change the values every step
+            print*,"into bending magnet!,idbd=",idbd
+       
+                 
+            !Biaobin, 14/10/2024, Modifications, differ from Ji's version here
+            !The given k1-k4, b1-b4 are all in the same local Z-X frame, the given k is actually dk 
+            !-----------------------------------------
+            !we assume parallel edge, i.e. k1=k2=k3=k4
+            k1 = fldmp(idrfile(3,idbd))%Fcoeft(3)
+            k2 = fldmp(idrfile(3,idbd))%Fcoeft(5)
+            k3 = fldmp(idrfile(3,idbd))%Fcoeft(7)
+            k4 = fldmp(idrfile(3,idbd))%Fcoeft(9)
+
+            b1 = fldmp(idrfile(3,idbd))%Fcoeft(4)
+            b2 = fldmp(idrfile(3,idbd))%Fcoeft(6)
+            b3 = fldmp(idrfile(3,idbd))%Fcoeft(8)
+            b4 = fldmp(idrfile(3,idbd))%Fcoeft(10)
+
+            fldmp(idrfile(3,idbd))%Fcoeft(3) = k1+tan(dipole_exit_angle/180*Pi)
+            fldmp(idrfile(3,idbd))%Fcoeft(5) = k2+tan(dipole_exit_angle/180*Pi)
+            fldmp(idrfile(3,idbd))%Fcoeft(7) = k3+tan(dipole_exit_angle/180*Pi)
+            fldmp(idrfile(3,idbd))%Fcoeft(9) = k4+tan(dipole_exit_angle/180*Pi)
+
+            !we assume k1=k2=k3=k4 here
+            fldmp(idrfile(3,idbd))%Fcoeft(4) = 0.0d0
+            fldmp(idrfile(3,idbd))%Fcoeft(6) = b2/cos(atan(k1))
+            fldmp(idrfile(3,idbd))%Fcoeft(8) = b3/cos(atan(k1))
+            fldmp(idrfile(3,idbd))%Fcoeft(10)= b4/cos(atan(k1))
 
             zorgin = zBlnelem(1,idbd) 
-            zorgin2 = zBlnelem(2,idbd) 
+            zorgin2 = zBlnelem(2,idbd) !Blength=zorgin2-zorgin
+
             if(fldmp(idrfile(3,idbd))%Fcoeft(1) > 0) then
               flagcsr = 1
             else
               flagcsr = 0
             endif
-            gamin = fldmp(idrfile(3,idbd))%Fcoeft(2)
+            !gamin = fldmp(idrfile(3,idbd))%Fcoeft(2)   !bbl, comment it, use gam0 in the tracking instead.
            
             zz1 = fldmp(idrfile(3,idbd))%Fcoeft(21) !effective starting location of bend
             zz2 = fldmp(idrfile(3,idbd))%Fcoeft(22) !effective end location of bend
@@ -2180,7 +2224,7 @@
             else
               ibb = 1
             endif
-!            gamin = -Ebunch(ibb)%refptcl(6)
+            gamin = -Ebunch(ibb)%refptcl(6)
             vref = sqrt(1.d0-1.d0/gamin**2)
             !zz = Ebunch(ibb)%refptcl(5)*Scxlt - 0.5*vref*dtless*Scxlt
             call getparam_BeamLineElem(Blnelem(idbd),3,Bybend)
@@ -2213,6 +2257,8 @@
             allocate(bxg(Nxlocal,Nylocal,Nzlocal))
             allocate(byg(Nxlocal,Nylocal,Nzlocal))
             allocate(bzg(Nxlocal,Nylocal,Nzlocal))
+
+            cntup = 0
             do ii = 1, ntstep
 
               do ib = 1, Nbunch
@@ -2382,10 +2428,48 @@
               vref = sqrt((Ebunch(ibb)%refptcl(2)/gam)**2+(Ebunch(ibb)%refptcl(6)/gam)**2)
               zz = zz + vref*dtless*Scxlt
 
+              !get the Larc, when refpart exit b4
+              if(Ebunch(ibb)%refptcl(5)*Scxlt > fldmp(idrfile(3,idbd))%Fcoeft(10) .and. cntup.eq.0) then
+                exitz = Ebunch(ibb)%refptcl(5)*Scxlt
+                print*,"exit z, Larc=",exitz,zz
+
+                !get the exit angle
+                bend_angle = acos(Ebunch(ibb)%refptcl(6)/sqrt(Ebunch(ibb)%refptcl(6)**2+Ebunch(ibb)%refptcl(2)**2))
+                if(Bybend*Ebunch(ibb)%charge>0.0d0) then
+                  bend_angle = -1.0d0*abs(bend_angle) !bend angle of each dipole  
+                endif
+                dipole_exit_angle = dipole_exit_angle+bend_angle  !sum of every bend_angle
+
+                !print*,"exit line-4, bend angle, exit angle=",bend_angle/Pi*180,"deg",dipole_exit_angle/Pi*180,"deg"
+                open(222,file="dipole_exit_angle.txt")
+                !exit_z, exit_s, bend angle, sum(bend_angle)
+                write(222,*)exitz,zz,bend_angle/Pi*180,dipole_exit_angle/Pi*180
+                     
+                !now we can update next dipole's zedge: zedge(2)=zedge(1)+Larc+D/cos(theta) 
+                !here, we assume there are no other elems inside the Chicane
+                tmpbl = zBlnelem_bk(2,idbd+1)-zBlnelem_bk(1,idbd+1)
+                
+                zBlnelem(1,idbd+1)=zBlnelem(1,idbd)+zz+(zBlnelem_bk(1,idbd+1)-zBlnelem_bk(1,idbd)-exitz)/cos(dipole_exit_angle)
+                zBlnelem(2,idbd+1)=zBlnelem(1,idbd+1)+tmpbl
+
+                cntup = cntup+1
+              endif
+
               call diagnostic1avgB_Output(t,Ebunch,Nbunch)
               print*,"zz: ",zz,zorgin2
+               
+              !option-1
+              !exit the dipole loop when ref passed b4; Blength will not be used to exit the dipole
+              !if(Ebunch(ibb)%refptcl(5)*Scxlt > fldmp(idrfile(3,idbd))%Fcoeft(10)) then
+              !   exit
+              !endif
 
+              !option-2, to consider transient CSR effects
               if(zz.gt.(zorgin2-zorgin)) then
+                if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
+                  print*,"ERROR, Blength is not set long enough."
+                  stop
+                endif
                 exit
               endif
             enddo
@@ -2394,10 +2478,10 @@
             do ib =  1, Nbunch
               !call convExit_BeamBunch(Ebunch(ib))
               call convExit_BeamBunch(Ebunch(ib),zorgin2)
+
             enddo
           endif
-          if(distance.le.tphout(iout+1) .and. &
-            (distance+dzz).ge.tphout(iout+1)) then
+          if(distance.le.tphout(iout+1) .and. (distance+dzz).ge.tphout(iout+1)) then
 
             !convert mechanic momentum into mechanic momentum in solenoid
             if(Flagdiag.eq.105) then 
@@ -2464,8 +2548,7 @@
 
           endif
 
-          if(distance.le.tslout(islout+1) .and. &
-            (distance+dzz).ge.tslout(islout+1)) then
+          if(distance.le.tslout(islout+1) .and. (distance+dzz).ge.tslout(islout+1)) then
  
             islout = islout + 1
             do ib = 1, Nbunch
@@ -2549,14 +2632,17 @@
         !output six 2-D phase projections.
         !call phase2dold_Output(30,Ebunch,Np)
         !output all particles in 6d phase space at given location blnLength.
+        !output: fort.50 and fort.70
+        !---------------------------
         do ib = 1, Nbunch
           i = 50+ib-1 
-          call phase_Output(i,Ebunch(ib),1)
+          call phase_Output(i,Ebunch(ib),1)  !set default out SampFreq
           qchg = Ebunch(ib)%Current/Scfreq
           gamib = -Ebunch(ib)%refptcl(6)
           call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
                    Nz,qchg,Ebunch(ib)%Mass,70+ib-1,gamib)
         enddo
+
 !        call dens2d_Output(1,50,Ebunch(1),Np(1),0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,&
 !                           0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0)
 !        call phaserd2_Output(20,Ebunch,Np,0.0,0.0,0.0,0.0,0.0)
