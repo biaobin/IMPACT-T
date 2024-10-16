@@ -756,7 +756,7 @@
         double precision :: dtype1,da1,db1,deps1,dLx1,dnkx1,dnky1,hx,xmi,ymi
         double precision :: gamib,datafmt
         integer :: kkk
-        double precision :: dipole_exit_angle,bend_angle,k1,k2,k3,k4,b1,b2,b3,b4,exitz
+        double precision :: dipole_exit_angle,dipole_exit_s,bend_angle,k1,k2,k3,k4,b1,b2,b3,b4,exitz
         double precision :: tmpbl,tmpdl,tmpz1,tmpz2
         integer :: cntup
 
@@ -1200,6 +1200,7 @@
         !iend is the time step number from last simulation (used in
         !restart function).
         dipole_exit_angle = 0.0d0
+        dipole_exit_s=0.0d0
         bend_angle = 0.0d0
         do i = iend+1, ntstep
           if(myid.eq.0) then
@@ -2115,6 +2116,9 @@
           !rms statistics output for every 5 steps, enlarge it to speed up the
           !simulation
           if(mod(i,5).eq.0) then
+          
+          !Biaobin, 2024-10-16, rotate beam to global Z-X frame for rms output
+          !print*,"Non bend elem, dipole_exit_angle=",dipole_exit_angle,dipole_exit_s 
 
           if(Flagdiag.eq.1) then
             call diagnostic1avg_Output(t,Ebunch,Nbunch)
@@ -2431,45 +2435,61 @@
               !get the Larc, when refpart exit b4
               if(Ebunch(ibb)%refptcl(5)*Scxlt > fldmp(idrfile(3,idbd))%Fcoeft(10) .and. cntup.eq.0) then
                 exitz = Ebunch(ibb)%refptcl(5)*Scxlt
-                print*,"exit z, Larc=",exitz,zz
+                print*,"exit of b4: z,Larc=",exitz,zz
+                    
+                !now we can update next dipole's zedge: zedge(2)=zedge(1)+Larc+D/cos(theta)
+                !here, we assume there are no other elems inside the Chicane
+                tmpbl = zBlnelem_bk(2,idbd+1)-zBlnelem_bk(1,idbd+1)
+                zBlnelem(1,idbd+1)=zBlnelem(1,idbd)+zz+(zBlnelem_bk(1,idbd+1)-zBlnelem_bk(1,idbd)-exitz)/cos(dipole_exit_angle)
+                zBlnelem(2,idbd+1)=zBlnelem(1,idbd+1)+tmpbl
+
+                !!update current dipole's orgin and origin2 as s/distance
+                !No need, orgin2 is given by user, Blength is arc length, to consider transient CSR 
+                !zBlnelem(2,idbd)=zBlnelem(1,idbd)+zz
+                !orgin2 = zBlnelem(2,idbd)
+
+                cntup = cntup+1
+              endif
+               
+              !Biaobin, 2024-10-15, rotate to the Z-X frame of the first dipole
+              !if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
+              do ib = 1, Nbunch
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*dipole_exit_angle)
+              enddo
+              call diagnostic1avgB_Output(t,Ebunch,Nbunch,zBlnelem_bk(1,idbd))
+              
+              !rot back 
+              do ib=1, Nbunch
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,dipole_exit_angle)
+              enddo
+              !endif
+
+              print*,"local z inside dipole=",Ebunch(ibb)%refptcl(5)*Scxlt
+               
+              !to consider transient CSR effects
+              if(zz.gt.(zorgin2-zorgin)) then
+                if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
+                  print*,"ERROR, Blength is not set long enough."
+                  stop
+                !need to make sure no overlap of the two dipoles                
+                !this judgement is only true of the first dipole, but Blength is usually the same for all dipoles
+                elseif (Ebunch(ibb)%refptcl(5)*Scxlt >zBlnelem_bk(1,idbd+1)-zBlnelem_bk(1,idbd)) then
+                  print*,"Warning, Blength is too long, overlap with the second dipole. May have bug."
+                  stop
+                endif
 
                 !get the exit angle
                 bend_angle = acos(Ebunch(ibb)%refptcl(6)/sqrt(Ebunch(ibb)%refptcl(6)**2+Ebunch(ibb)%refptcl(2)**2))
                 if(Bybend*Ebunch(ibb)%charge>0.0d0) then
                   bend_angle = -1.0d0*abs(bend_angle) !bend angle of each dipole  
                 endif
-                dipole_exit_angle = dipole_exit_angle+bend_angle  !sum of every bend_angle
 
+                dipole_exit_angle = dipole_exit_angle+bend_angle  !sum of every bend_angle
                 !print*,"exit line-4, bend angle, exit angle=",bend_angle/Pi*180,"deg",dipole_exit_angle/Pi*180,"deg"
                 open(222,file="dipole_exit_angle.txt")
-                !exit_z, exit_s, bend angle, sum(bend_angle)
-                write(222,*)exitz,zz,bend_angle/Pi*180,dipole_exit_angle/Pi*180
-                     
-                !now we can update next dipole's zedge: zedge(2)=zedge(1)+Larc+D/cos(theta) 
-                !here, we assume there are no other elems inside the Chicane
-                tmpbl = zBlnelem_bk(2,idbd+1)-zBlnelem_bk(1,idbd+1)
-                
-                zBlnelem(1,idbd+1)=zBlnelem(1,idbd)+zz+(zBlnelem_bk(1,idbd+1)-zBlnelem_bk(1,idbd)-exitz)/cos(dipole_exit_angle)
-                zBlnelem(2,idbd+1)=zBlnelem(1,idbd+1)+tmpbl
+                !exit z of Blength, bend angle, sum(bend_angle)
+                write(222,*)Ebunch(ibb)%refptcl(5)*Scxlt ,bend_angle/Pi*180,dipole_exit_angle/Pi*180
 
-                cntup = cntup+1
-              endif
-
-              call diagnostic1avgB_Output(t,Ebunch,Nbunch)
-              print*,"zz: ",zz,zorgin2
-               
-              !option-1
-              !exit the dipole loop when ref passed b4; Blength will not be used to exit the dipole
-              !if(Ebunch(ibb)%refptcl(5)*Scxlt > fldmp(idrfile(3,idbd))%Fcoeft(10)) then
-              !   exit
-              !endif
-
-              !option-2, to consider transient CSR effects
-              if(zz.gt.(zorgin2-zorgin)) then
-                if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
-                  print*,"ERROR, Blength is not set long enough."
-                  stop
-                endif
                 exit
               endif
             enddo

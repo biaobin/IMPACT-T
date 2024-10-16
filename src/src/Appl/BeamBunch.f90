@@ -2292,6 +2292,48 @@
  
         end subroutine convExit_BeamBunch
 
+ 
+        subroutine rot_theta_BeamBunch(this,ptref,theta)
+        implicit none
+        include 'mpif.h'
+        type (BeamBunch), intent(inout) :: this
+        double precision, dimension(6) :: ptref
+        double precision, dimension(6) :: tmp
+        double precision  :: cs,ss,theta
+        integer :: i
+ 
+        cs = cos(theta)
+        ss = sin(theta)
+        do i = 1, this%Nptlocal
+          tmp(1) = this%Pts1(1,i)*cs -this%Pts1(5,i)*ss
+          tmp(2) = this%Pts1(2,i)*cs -this%Pts1(6,i)*ss
+          tmp(3) = this%Pts1(3,i)
+          tmp(4) = this%Pts1(4,i)
+          tmp(5) = this%Pts1(1,i)*ss +this%Pts1(5,i)*cs
+          tmp(6) = this%Pts1(2,i)*ss +this%Pts1(6,i)*cs
+          this%Pts1(1,i) = tmp(1)
+          this%Pts1(2,i) = tmp(2)
+          this%Pts1(3,i) = tmp(3)
+          this%Pts1(4,i) = tmp(4)
+          this%Pts1(5,i) = tmp(5)
+          this%Pts1(6,i) = tmp(6)
+        enddo
+
+        tmp(1) = this%refptcl(1)*cs -this%refptcl(5)*ss
+        tmp(2) = this%refptcl(2)*cs -this%refptcl(6)*ss
+        tmp(3) = this%refptcl(3)
+        tmp(4) = this%refptcl(4)
+        tmp(5) = this%refptcl(1)*ss +this%refptcl(5)*cs
+        tmp(6) = this%refptcl(2)*ss +this%refptcl(6)*cs
+        this%refptcl(1) = tmp(1)
+        this%refptcl(2) = tmp(2)
+        this%refptcl(3) = tmp(3)
+        this%refptcl(4) = tmp(4)
+        this%refptcl(5) = tmp(5)
+        this%refptcl(6) = tmp(6)
+
+        end subroutine rot_theta_BeamBunch
+
         !The Cartesian coordinate has been rotated following the exit direction 
         !of the reference particle. The exit angle of the reference particle
         !should correspond to the bend angle.

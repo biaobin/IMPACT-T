@@ -646,10 +646,10 @@
         !> calculate averaged <x^2>,<xp>,<px^2>,x emittance, <y^2>,<ypy>,
         !> <py^2> and y emittance, <z^2>,<zp>,<pz^2>,z emittance from
         !> multiple bunch/bin.
-        subroutine diagnostic1avgB_Output(z,this,Nbunch)
+        subroutine diagnostic1avgB_Output(z,this,Nbunch,zorgin)
         implicit none
         include 'mpif.h'
-        double precision, intent(in) :: z
+        double precision, intent(in) :: z,zorgin
         type (BeamBunch), dimension(:), intent(inout) :: this
         integer, intent(in) :: Nbunch
         integer :: innp,nptot
@@ -671,12 +671,13 @@
         integer :: i,my_rank,ierr,j
         double precision:: qmc,xl,xt
         double precision, dimension(6) :: localmax, glmax
-        double precision, dimension(29) :: tmplc,tmpgl
+        double precision, dimension(31) :: tmplc,tmpgl
         double precision :: t0,lcrmax,glrmax,z0gl,z0avg,testmax,pz0avg
         double precision :: gamlc,gam2lc,gam2avg,tmpgam,gamdel
         integer :: npctmin,npctmax,ib,innpmb,i1,i2
         real*8 :: gamavg,gamgl
-        real*8, dimension(3) :: tmp3lc,tmp3gl
+        real*8, dimension(4) :: tmp3lc,tmp3gl
+        real*8 :: x0avg,xi,deltai,gambet0,bet0,sig16,sig66
 
         call starttime_Timer(t0)
 
@@ -701,19 +702,23 @@
             tmp3lc(2) = tmp3lc(2) + this(ib)%Pts1(6,i)
             tmp3lc(3) = tmp3lc(3) + sqrt(1.0+this(ib)%Pts1(2,i)**2+&
                this(ib)%Pts1(4,i)**2+this(ib)%Pts1(6,i)**2)
+            tmp3lc(4) = tmp3lc(4) + this(ib)%Pts1(1,i)
           enddo
         enddo
 
-        call MPI_ALLREDUCE(tmp3lc,tmp3gl,3,MPI_DOUBLE_PRECISION,&
+        call MPI_ALLREDUCE(tmp3lc,tmp3gl,4,MPI_DOUBLE_PRECISION,&
                         MPI_SUM,MPI_COMM_WORLD,ierr)
 
         den1 = 1.0d0/nptot
         den2 = den1*den1
         z0avg = tmp3gl(1)/nptot
-        pz0avg = tmp3gl(2)/nptot
-        gamavg = tmp3gl(3)/nptot
-        !print*,"z0avg: ",z0avg,pz0avg,gamavg
+        pz0avg= tmp3gl(2)/nptot
+        gamavg= tmp3gl(3)/nptot
+        x0avg = tmp3gl(4)/nptot
+        gambet0 = sqrt(gamavg**2-1.0d0)
+        bet0 = gambet0/gamavg
 
+        write(222,*)z0avg*xl,x0avg*xl,pz0avg,gamavg
 
         x0lc = 0.0
         px0lc = 0.0
@@ -741,6 +746,10 @@
         z0lc4 = 0.0
         pz0lc3 = 0.0
         pz0lc4 = 0.0
+        
+        sig16 = 0.0
+        sig66 = 0.0
+
         ! for cache optimization.
         if(innp.ne.0) then
           do i = 1, 6
@@ -766,6 +775,13 @@
             gamlc = gamlc + tmpgam
             !gam2lc = gam2lc + tmpgam**2
             gam2lc = gam2lc + (tmpgam-gamavg)**2
+            
+            !Biaobin, 2024-10-15, for dispersion calculation 
+            xi = this(ib)%Pts1(1,i)*xl
+            deltai = (tmpgam-gamavg)/gambet0/bet0
+            sig16 = sig16 +(xi-x0avg)*deltai
+            sig66 = sig66 +deltai**2
+
             x0lc = x0lc + this(ib)%Pts1(1,i)
             sqsum1local = sqsum1local + this(ib)%Pts1(1,i)*this(ib)%Pts1(1,i)
             x0lc3 = x0lc3 + this(ib)%Pts1(1,i)*this(ib)%Pts1(1,i)*this(ib)%Pts1(1,i)
@@ -851,8 +867,11 @@
         tmplc(27) = pz0lc4
         tmplc(28) = gamlc
         tmplc(29) = gam2lc
+
+        tmplc(30) = sig16
+        tmplc(31) = sig66
         
-        call MPI_REDUCE(tmplc,tmpgl,29,MPI_DOUBLE_PRECISION,&
+        call MPI_REDUCE(tmplc,tmpgl,31,MPI_DOUBLE_PRECISION,&
                         MPI_SUM,0,MPI_COMM_WORLD,ierr)
         call MPI_REDUCE(localmax,glmax,6,MPI_DOUBLE_PRECISION,MPI_MAX,0,&
                         MPI_COMM_WORLD,ierr)
@@ -864,6 +883,9 @@
                         MPI_COMM_WORLD,ierr)
 
         if(my_rank.eq.0) then
+          sig16 = sig16*den1
+          sig66 = sig66*den1
+
           x0 = tmpgl(1)*den1
           px0 = tmpgl(2)*den1
           y0 = tmpgl(3)*den1
@@ -949,15 +971,15 @@
 !          write(24,100)z,x0*xl,xrms*xl,px0,pxrms,-xpx/epx,epx*xl
 !          write(25,100)z,y0*xl,yrms*xl,py0,pyrms,-ypy/epy,epy*xl
 !          write(26,100)z,z0*xl,zrms*xl,pz0,pzrms,-zpz/epz,epz*xl
-          write(34,102)z,z0avg*xl,x0*xl,xrms*xl,px0,pxrms,-xpx*xl,epx*xl
-          write(35,102)z,z0avg*xl,y0*xl,yrms*xl,py0,pyrms,-ypy*xl,epy*xl
-          write(36,100)z,z0avg*xl,zrms*xl,pz0,pzrms,-zpz*xl,epz*xl
+          write(34,102)z,zorgin+z0avg*xl,x0*xl,xrms*xl,px0,pxrms,-xpx*xl,epx*xl,sig16/sig66
+          write(35,102)z,zorgin+z0avg*xl,y0*xl,yrms*xl,py0,pyrms,-ypy*xl,epy*xl
+          write(36,100)z,zorgin+z0avg*xl,zrms*xl,pz0,pzrms,-zpz*xl,epz*xl
 
           write(37,102)z,z0avg*xl,glmax(1)*xl,glmax(2),glmax(3)*xl,&
                        glmax(4),glmax(5)*xl,glmax(6)
 !          write(38,100)z,z0avg*xl,gam,energy,bet,sqrt(glrmax)*xl,gamdel
           write(38,100)z,this(1)%refptcl(1)*xl,this(1)%refptcl(2),this(1)%refptcl(3)*xl,&
-                      this(1)%refptcl(4),this(1)%refptcl(5)*xl,this(1)%refptcl(6)
+                      this(1)%refptcl(4),zorgin+this(1)%refptcl(5)*xl,this(1)%refptcl(6)
 !          write(38,101)z,z0avg*xl,npctmin,npctmax,nptot
 !          write(29,102)z,z0avg*xl,x03*xl,px03,y03*xl,py03,z03*xl,&
 !                       pz03
@@ -975,7 +997,7 @@
 99      format(6(1x,e16.8))
 100      format(7(1x,e16.8))
 101     format(1x,e16.8,e16.8,3I10)
-102      format(8(1x,e16.8))
+102      format(9(1x,e16.8))
 
         t_diag = t_diag + elapsedtime_Timer(t0)
 
