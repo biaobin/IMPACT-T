@@ -2116,9 +2116,6 @@
           !rms statistics output for every 5 steps, enlarge it to speed up the
           !simulation
           if(mod(i,5).eq.0) then
-          
-          !Biaobin, 2024-10-16, rotate beam to global Z-X frame for rms output
-          !print*,"Non bend elem, dipole_exit_angle=",dipole_exit_angle,dipole_exit_s 
 
           if(Flagdiag.eq.1) then
             call diagnostic1avg_Output(t,Ebunch,Nbunch)
