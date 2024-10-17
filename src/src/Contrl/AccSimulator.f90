@@ -757,7 +757,7 @@
         double precision :: gamib,datafmt
         integer :: kkk
         double precision :: dipole_exit_angle,dipole_exit_s,bend_angle,k1,k2,k3,k4,b1,b2,b3,b4,exitz
-        double precision :: tmpbl,tmpdl,tmpz1,tmpz2
+        double precision :: tmpbl,tmpdl,tmpz1,tmpz2,tmpangle
         integer :: cntup
 
         twopi = 4*asin(1.0d0)
@@ -1202,6 +1202,7 @@
         dipole_exit_angle = 0.0d0
         dipole_exit_s=0.0d0
         bend_angle = 0.0d0
+        tmpangle = 0.0d0
         do i = iend+1, ntstep
           if(myid.eq.0) then
             print*,"i,t,<z>: ",i,t,distance
@@ -2450,14 +2451,17 @@
                
               !Biaobin, 2024-10-15, rotate to the Z-X frame of the first dipole
               !if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
+              tmpangle = acos( Ebunch(1)%refptcl(6)/sqrt(Ebunch(1)%refptcl(6)**2 + Ebunch(1)%refptcl(2)**2)) 
               do ib = 1, Nbunch
-                call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*dipole_exit_angle)
+                !call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*dipole_exit_angle)
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,tmpangle)
               enddo
               call diagnostic1avgB_Output(t,Ebunch,Nbunch,zBlnelem_bk(1,idbd))
               
               !rot back 
               do ib=1, Nbunch
-                call rot_theta_BeamBunch(Ebunch(ib),ptref,dipole_exit_angle)
+                !call rot_theta_BeamBunch(Ebunch(ib),ptref,dipole_exit_angle)
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*tmpangle)
               enddo
               !endif
 
