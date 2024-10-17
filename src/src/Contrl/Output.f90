@@ -671,13 +671,14 @@
         integer :: i,my_rank,ierr,j
         double precision:: qmc,xl,xt
         double precision, dimension(6) :: localmax, glmax
-        double precision, dimension(31) :: tmplc,tmpgl
+        double precision, dimension(32) :: tmplc,tmpgl
         double precision :: t0,lcrmax,glrmax,z0gl,z0avg,testmax,pz0avg
         double precision :: gamlc,gam2lc,gam2avg,tmpgam,gamdel
         integer :: npctmin,npctmax,ib,innpmb,i1,i2
         real*8 :: gamavg,gamgl
-        real*8, dimension(4) :: tmp3lc,tmp3gl
-        real*8 :: x0avg,xi,deltai,gambet0,bet0,sig16,sig66
+        real*8, dimension(5) :: tmp3lc,tmp3gl
+        real*8 :: x0avg,px0avg,xi,pxi,deltai,gambet0,bet0
+        real*8 :: sig16,sig26,sig66
 
         call starttime_Timer(t0)
 
@@ -703,10 +704,11 @@
             tmp3lc(3) = tmp3lc(3) + sqrt(1.0+this(ib)%Pts1(2,i)**2+&
                this(ib)%Pts1(4,i)**2+this(ib)%Pts1(6,i)**2)
             tmp3lc(4) = tmp3lc(4) + this(ib)%Pts1(1,i)
+            tmp3lc(5) = tmp3lc(5) + this(ib)%Pts1(2,i)
           enddo
         enddo
 
-        call MPI_ALLREDUCE(tmp3lc,tmp3gl,4,MPI_DOUBLE_PRECISION,&
+        call MPI_ALLREDUCE(tmp3lc,tmp3gl,5,MPI_DOUBLE_PRECISION,&
                         MPI_SUM,MPI_COMM_WORLD,ierr)
 
         den1 = 1.0d0/nptot
@@ -714,11 +716,13 @@
         z0avg = tmp3gl(1)/nptot
         pz0avg= tmp3gl(2)/nptot
         gamavg= tmp3gl(3)/nptot
+
         x0avg = tmp3gl(4)/nptot
+        px0avg = tmp3gl(5)/nptot
         gambet0 = sqrt(gamavg**2-1.0d0)
         bet0 = gambet0/gamavg
 
-        write(222,*)z0avg*xl,x0avg*xl,pz0avg,gamavg
+        !write(333,*)z0avg*xl,x0avg*xl,px0avg,pz0avg,gamavg
 
         x0lc = 0.0
         px0lc = 0.0
@@ -748,6 +752,7 @@
         pz0lc4 = 0.0
         
         sig16 = 0.0
+        sig26 = 0.0
         sig66 = 0.0
 
         ! for cache optimization.
@@ -778,8 +783,11 @@
             
             !Biaobin, 2024-10-15, for dispersion calculation 
             xi = this(ib)%Pts1(1,i)*xl
+            pxi= this(ib)%Pts1(2,i)/gambet0
             deltai = (tmpgam-gamavg)/gambet0/bet0
-            sig16 = sig16 +(xi-x0avg)*deltai
+
+            sig16 = sig16 +(xi-x0avg*xl)*deltai
+            sig26 = sig26 +(pxi-px0avg)*deltai
             sig66 = sig66 +deltai**2
 
             x0lc = x0lc + this(ib)%Pts1(1,i)
@@ -869,9 +877,10 @@
         tmplc(29) = gam2lc
 
         tmplc(30) = sig16
-        tmplc(31) = sig66
+        tmplc(31) = sig26
+        tmplc(32) = sig66
         
-        call MPI_REDUCE(tmplc,tmpgl,31,MPI_DOUBLE_PRECISION,&
+        call MPI_REDUCE(tmplc,tmpgl,32,MPI_DOUBLE_PRECISION,&
                         MPI_SUM,0,MPI_COMM_WORLD,ierr)
         call MPI_REDUCE(localmax,glmax,6,MPI_DOUBLE_PRECISION,MPI_MAX,0,&
                         MPI_COMM_WORLD,ierr)
@@ -883,8 +892,9 @@
                         MPI_COMM_WORLD,ierr)
 
         if(my_rank.eq.0) then
-          sig16 = sig16*den1
-          sig66 = sig66*den1
+          sig16 = tmpgl(30)*den1
+          sig26 = tmpgl(31)*den1
+          sig66 = tmpgl(32)*den1
 
           x0 = tmpgl(1)*den1
           px0 = tmpgl(2)*den1
@@ -967,11 +977,10 @@
           !gamdel = sqrt(abs(gam2avg - gam**2))
           gamdel = sqrt(gam2avg)
 
-
 !          write(24,100)z,x0*xl,xrms*xl,px0,pxrms,-xpx/epx,epx*xl
 !          write(25,100)z,y0*xl,yrms*xl,py0,pyrms,-ypy/epy,epy*xl
 !          write(26,100)z,z0*xl,zrms*xl,pz0,pzrms,-zpz/epz,epz*xl
-          write(34,102)z,zorgin+z0avg*xl,x0*xl,xrms*xl,px0,pxrms,-xpx*xl,epx*xl,sig16/sig66
+          write(34,102)z,zorgin+z0avg*xl,x0*xl,xrms*xl,px0,pxrms,-xpx*xl,epx*xl,sig16/sig66,sig26/sig66
           write(35,102)z,zorgin+z0avg*xl,y0*xl,yrms*xl,py0,pyrms,-ypy*xl,epy*xl
           write(36,100)z,zorgin+z0avg*xl,zrms*xl,pz0,pzrms,-zpz*xl,epz*xl
 
@@ -997,7 +1006,7 @@
 99      format(6(1x,e16.8))
 100      format(7(1x,e16.8))
 101     format(1x,e16.8,e16.8,3I10)
-102      format(9(1x,e16.8))
+102      format(10(1x,e16.8))
 
         t_diag = t_diag + elapsedtime_Timer(t0)
 
