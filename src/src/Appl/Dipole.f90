@@ -561,6 +561,11 @@
           extfld(4) = -this%Param(3)*(bbp*pos(2))*sin(alpha)
           extfld(5) = this%Param(3)*(bb-bbpp/2*pos(2)*pos(2))
           extfld(6) = this%Param(3)*(bbp*pos(2))*cos(alpha)
+
+          !extfld(4) = 0.0d0
+          !extfld(5) = this%Param(3)
+          !extfld(6) = 0.0d0
+
         else if((zz.gt.z2).and.(zz.lt.z3)) then
           !inside the constant field region
           extfld(5) = this%Param(3)
@@ -590,6 +595,10 @@
           extfld(4) = -this%Param(3)*(bbp*pos(2))*sin(alpha)
           extfld(5) = this%Param(3)*(bb-bbpp/2*pos(2)*pos(2))
           extfld(6) = this%Param(3)*(bbp*pos(2))*cos(alpha)
+
+          !extfld(4) = 0.0d0
+          !extfld(5) = this%Param(3)
+          !extfld(6) = 0.0d0
         endif
  
 !        print*,"dipole: ",pos,extfld(5)
