@@ -2319,18 +2319,18 @@
           this%Pts1(6,i) = tmp(6)
         enddo
 
-        !tmp(1) = this%refptcl(1)*cs -this%refptcl(5)*ss
-        !tmp(2) = this%refptcl(2)*cs -this%refptcl(6)*ss
-        !tmp(3) = this%refptcl(3)
-        !tmp(4) = this%refptcl(4)
-        !tmp(5) = this%refptcl(1)*ss +this%refptcl(5)*cs
-        !tmp(6) = this%refptcl(2)*ss +this%refptcl(6)*cs
-        !this%refptcl(1) = tmp(1)
-        !this%refptcl(2) = tmp(2)
-        !this%refptcl(3) = tmp(3)
-        !this%refptcl(4) = tmp(4)
-        !this%refptcl(5) = tmp(5)
-        !this%refptcl(6) = tmp(6)
+        tmp(1) = this%refptcl(1)*cs -this%refptcl(5)*ss
+        tmp(2) = this%refptcl(2)*cs -this%refptcl(6)*ss
+        tmp(3) = this%refptcl(3)
+        tmp(4) = this%refptcl(4)
+        tmp(5) = this%refptcl(1)*ss +this%refptcl(5)*cs
+        tmp(6) = this%refptcl(2)*ss +this%refptcl(6)*cs
+        this%refptcl(1) = tmp(1)
+        this%refptcl(2) = tmp(2)
+        this%refptcl(3) = tmp(3)
+        this%refptcl(4) = tmp(4)
+        this%refptcl(5) = tmp(5)
+        this%refptcl(6) = tmp(6)
 
         end subroutine rot_theta_BeamBunch
 

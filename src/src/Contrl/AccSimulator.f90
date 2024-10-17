@@ -2451,17 +2451,17 @@
                
               !Biaobin, 2024-10-15, rotate to the Z-X frame of the first dipole
               !if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
-              tmpangle = acos( Ebunch(1)%refptcl(6)/sqrt(Ebunch(1)%refptcl(6)**2 + Ebunch(1)%refptcl(2)**2)) 
+              !tmpangle = acos( Ebunch(1)%refptcl(6)/sqrt(Ebunch(1)%refptcl(6)**2 + Ebunch(1)%refptcl(2)**2)) 
               do ib = 1, Nbunch
-                !call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*dipole_exit_angle)
-                call rot_theta_BeamBunch(Ebunch(ib),ptref,tmpangle)
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*dipole_exit_angle)
+                !call rot_theta_BeamBunch(Ebunch(ib),ptref,tmpangle)
               enddo
               call diagnostic1avgB_Output(t,Ebunch,Nbunch,zBlnelem_bk(1,idbd))
               
               !rot back 
               do ib=1, Nbunch
-                !call rot_theta_BeamBunch(Ebunch(ib),ptref,dipole_exit_angle)
-                call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*tmpangle)
+                call rot_theta_BeamBunch(Ebunch(ib),ptref,dipole_exit_angle)
+                !call rot_theta_BeamBunch(Ebunch(ib),ptref,-1.0d0*tmpangle)
               enddo
               !endif
 
