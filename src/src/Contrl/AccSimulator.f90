@@ -2470,8 +2470,8 @@
               !to consider transient CSR effects
               if(zz.gt.(zorgin2-zorgin)) then
                 if(Ebunch(ibb)%refptcl(5)*Scxlt < fldmp(idrfile(3,idbd))%Fcoeft(10)) then
-                  print*,"ERROR, Blength is not set long enough."
-                  stop
+                  print*,"Warning ,Blength is not set long enough."
+                  !stop
                 !need to make sure no overlap of the two dipoles                
                 !this judgement is only true of the first dipole, but Blength is usually the same for all dipoles
                 !elseif (Ebunch(ibb)%refptcl(5)*Scxlt >zBlnelem_bk(1,idbd+1)-zBlnelem_bk(1,idbd)) then
