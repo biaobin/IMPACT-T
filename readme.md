@@ -15,6 +15,13 @@ Email: biaobin@ustc.edu.cn
 
 
 
+# Pay attention
+
+- ==The zedge will be updated for the element which is located directly after the dipole. Be careful, ONLY dipoles inside the Chicane.==
+- In dipole, now ref gam0 is used, gam0 in rfdataxxx is not used.
+
+
+
 # Control parameters
 
 All control parameters in `lte.impt` are listed:
@@ -200,7 +207,7 @@ Right now, only a few frequently used elements in `ImpactT.in` are added into th
 | Dy             | m     | double     | 0.0     | y misalignment error                                         |
 | rotate_x       | rad   | double     | 0.0     | rotation error in x direction                                |
 | rotate_y       | rad   | double     | 0.0     | rotation error in y direction                                |
-| ratate_z       | rad   | double     | 0.0     | rotation error in y direction                                |
+| ratate_z       | rad   | double     | 0.0     | rotation error in z direction                               |
 | freq           | Hz    | double     | 0.0     | rf quadrupole frequency                                      |
 | phase          | deg   | double     | 0.0     | rf quadrupole phase                                          |
 
@@ -221,6 +228,12 @@ What I added is:
 - use the gradient profile's Fourier series to reconstruct the gradient along z. 
 - then, it's straightforward to get the first and second derivatives using the reconstructed gradient profile.
 - However, this method is not fast enough compared with interpolation method, also slower to analytical fitting equation.
+
+
+
+
+
+
 
 
 
@@ -310,9 +323,127 @@ Element 4.
 | Dy             | m     | double | 0.0     | y misalignment error                                         |
 | rotate_x       | rad   | double | 0.0     | rotation error in x direction                                |
 | rotate_y       | rad   | double | 0.0     | rotation error in y direction                                |
-| ratate_z       | rad   | double | 0.0     | rotation error in y direction                                |
+| ratate_z       | rad   | double | 0.0     | rotation error in z direction                                |
 
 
+
+<img src="./pics/image-20240924153233770.png" alt="image-20240924153233770" style="zoom:80%;" />
+
+关于X-Z坐标轴：
+
+- X-Z 坐标的原点对应于 global 的zedge
+- Z轴方向为参考粒子进入zedge时的方向确定
+
+自此，X-Z坐标系唯一确定。
+
+
+
+关于L1-L4:
+
+- L1-L4 在X-Z坐标系下确立
+
+重建、拟合的1D场分布，为：
+
+- 边缘场，==垂直于L1==的路径沿线上的By分布。
+- ~~中间部分，参考粒子轨迹，圆弧沿线的分布~~。 中间部分，也是垂直于磁铁边缘沿线的分布。
+- 出口边缘场，==垂直于L3==的路径沿线上的分布。
+
+并非是严格的参考粒子“看到的”By场：
+
+<img src="./pics/image-20240924154703201.png" alt="image-20240924154703201" style="zoom:67%;" />
+
+
+
+边缘场部分，拟合的公式为：
+$$
+B_y(s)=\frac{B_0}{[1+\exp(c_0+c_1s+c_2s^2+c_3s^3+...)]}
+$$
+即拟合：
+$$
+\ln(\frac{B_0}{B_y(s)}-1)=c_0+c_1s+c_2s^2+c_3s^3+...
+$$
+
+==已知右侧边缘场分布==$f(s)$如下，宽度为L：
+
+<img src="./pics/image-20240924170857878.png" alt="image-20240924170857878" style="zoom:67%;" />
+
+左侧场如对称下，分布可由右侧给出：$f(L-s)$:
+
+<img src="./pics/image-20240924171046794.png" alt="image-20240924171046794" style="zoom:67%;" />
+
+同理，如对右侧边缘场拟合时，$f(\bar{s})$：
+$$
+\bar{s}=(s-dd2)/gap
+$$
+那么左侧边缘场为：
+$$
+\bar{s}=(-s+L-dd2)/gap=-(s-L+dd2)/gap
+$$
+即有：$dd1=L-dd2$.
+
+rfdataX文件中 $line11=2~dd1$ 和 $line12=2~dd2$，应满足上述关系。
+
+
+
+一般：
+
+- 取`dd1=0, dd2=L`。
+- 拟合系数取出右侧场进行拟合。
+
+
+
+接下来，还有 line 21 和 line 22关于 transient CSR effect 还不太明白，but:
+
+"Normally, these two numbers are the middle location of the fringe region. However, if transient effects at the exit are important, the total length of the bend may include a section of drift."
+
+
+
+#### Modifications
+
+- All the four dipoles' `k1-k4`, `Zedges` are defined in the same `Z-X Cartesian coordinate system` of the first dipole. 
+- For `b1-b4` , they are in the local Z-X frame of each dipole.
+
+So for the normal four dipole Chicane, it actually shares the same `rfdataxxx` file as:
+
+ ```bash
+   1    0.0000000e+00
+   2    3.1327119e+01
+   3    0.0000000e+00  !k1
+   4    0.0000000e+00  !b1
+   5    0.0000000e+00  !k2 
+   6    3.9800000e-01  !b2
+   7    0.0000000e+00  !k3
+   8    4.9800000e-01  !b3
+   9    0.0000000e+00  !k4
+  10    8.9600000e-01  !b4
+  11    7.9600000e-01
+  12    0.0000000e+00
+  13   -8.2280295e+00
+  14    2.9174480e+00
+  15    6.4235936e+00
+  16   -5.3138375e+00
+  17    1.7254389e+00
+  18   -2.5849603e-01
+  19    1.4586825e-02
+  20    3.9543003e-05
+  21    1.9900000e-01
+  22    6.9700000e-01
+ ```
+
+- Since the `zedges` are given in the same `Z-X` coordinate system, they will be automatically updated in the code. This is because `zedges` refers to the distance ref-part travels, not `z`.
+
+  - But this will also update the following element of the last dipole. Add one drift follows the last dipole.
+  - Inside the Chicane, only dipoles, do not add any other elements. Maybe no bug, maybe there will be. I didn't check yet.
+
+  examples see:`/afs/ifh.de/group/pitz/data/biaobin/sim1/2024/astra_demo/benchMark/05_addBend/02_EdgeEffectChicane_changeToDk1-4/02_lteimpt/edge_eff`
+
+- In dipole, now ref gam0 is used, gam0 in rfdataxxx is not used.
+
+- Pay attention and check whether the beam center is same as the ref particle's position. For example, see `fort.34/2:3` and `fort.38/6:2`. ==Right now, I used the beam center as $X_0$ to calculate the dispersion function.==
+
+
+
+ 
 
 
 
@@ -638,6 +769,7 @@ write(nfile,777)zz*scxlt,count(i),count(i)/(hz*scxlt)*sclcur*bet,epx(i)*scxlt,&
 | -------------- | ----- | ------ | ------- | --------------- |
 | zedge          | m     | double | 0.0     | global position |
 | dt             | s     | double | 1e-12   | time step size  |
+
 
 
 
