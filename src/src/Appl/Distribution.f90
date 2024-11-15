@@ -19,6 +19,7 @@
         use NumConstclass
         use PhysConstclass
         use BeamBunchclass
+        use MathModule
       contains
         
         !--------------------------------------------------------------------------------------
@@ -405,11 +406,14 @@
         double precision :: sq12,sq34,sq56
         double precision, allocatable, dimension(:,:) :: x1,x2,x3 
         integer :: totnp,npy,npx
-        integer :: avgpts,numpts
+        integer :: avgpts,numpts,ilow,ihigh
         integer :: myid,myidx,myidy,i,j,k,intvsamp
 !        integer seedarray(1)
         double precision :: t0,x11
-
+        real*8 :: twopi,kz,eta,lamda,Fxmax,Uj,bet0
+        integer,parameter :: Nbin=1e4
+        real*8 :: Fx(Nbin+1),x(Nbin+1)
+ 
         call starttime_Timer(t0)
 
         sigx = distparam(1)
@@ -518,6 +522,36 @@
             this%Pts1(6,i) = xmu6 + sig6*(-muzpz*x3(1,k)/sq56+x3(2,k))
           enddo
         enddo
+
+        !!Biaobin, 2024-11, add density modulation into the beam
+        !!------------------------------------------------------
+        !bet0 = sqrt(1.0d0-1.0d0/((1.0d0+0.511d6)/0.511d6)**2)   
+
+        !!print*,"sig5=",sig5*Scxlt
+        !eta=0.5d-4
+        !lamda = 200.0d-6*bet0/Scxlt !/(6.0d0*sig5) 
+        !!print*,"lamda=",lamda*Scxlt 
+
+        !lamda = lamda/(6.0d0*sig5) 
+        !twopi = 4.0d0*asin(1.0d0)
+
+        !ilow = myid*avgpts
+        !ihigh = (myid+1)*avgpts     
+ 
+        !kz=twopi/lamda
+        !!normalized CDF function
+        !Fxmax = 0.5d0+0.5d0*erf(3.0d0/sqrt(2.0d0))-eta/kz*sin(kz)
+        !do j=1,Nbin+1
+        !  x(j)  = (j-1)*1.0d0/Nbin
+        !  Fx(j) = 0.5d0+0.5d0*erf(6.0d0*(x(j)-0.5d0)/sqrt(2.0d0)) -eta/kz*sin(kz*x(j))
+        !  !normalize the CDF
+        !  Fx(j) = Fx(j)/Fxmax
+        !end do
+        !!inverse sampling and then Langerange interp
+        !do j = 1, avgpts
+        !  Uj=math%hamsl(1,j+ilow)
+        !  this%Pts1(5,j)=xmu5+3.0d0*sig5*(2.0d0*math%interp(x,Fx,Uj,Nbin+1)-1.0d0)  !/sq56
+        !enddo
           
         deallocate(x1)
         deallocate(x2)
