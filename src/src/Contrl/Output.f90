@@ -1399,7 +1399,7 @@
             write(nfile,101)this%Pts1(1,i)*Scxlt,this%Pts1(2,i),&
                             this%Pts1(3,i)*Scxlt,&
                             this%Pts1(4,i),this%Pts1(5,i)*Scxlt,&
-                            this%Pts1(6,i),this%Pts1(5,i)*Scxlt*fac
+                            this%Pts1(6,i) !,this%Pts1(5,i)*Scxlt*fac
           enddo
           do i = 1, np-1
             call MPI_RECV(recvbuf(1,1),nptlist(i),MPI_DOUBLE_PRECISION,&
@@ -1410,8 +1410,8 @@
 !                              recvbuf(4,j),recvbuf(5,j),recvbuf(6,j)
               write(nfile,101)recvbuf(1,j)*Scxlt,recvbuf(2,j),&
                               recvbuf(3,j)*Scxlt,&
-                              recvbuf(4,j),recvbuf(5,j)*Scxlt,recvbuf(6,j),&
-                              recvbuf(5,j)*Scxlt*fac
+                              recvbuf(4,j),recvbuf(5,j)*Scxlt,recvbuf(6,j)
+                              !recvbuf(5,j)*Scxlt*fac
             enddo
           enddo
           close(nfile)
