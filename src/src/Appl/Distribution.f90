@@ -99,6 +99,8 @@
         else if(flagdist.eq.16) then
           !read in an initial distribution with format from IMPACT-T
           call read_Dist(this,nparam,distparam,ib)
+        else if(flagdist.eq.23) then
+          call readAstra_Dist(this,nparam,distparam)
         else if(flagdist.eq.24) then
           call readParmela_Dist(this,nparam,distparam,geom,grid,Flagbc)
         else if(flagdist.eq.25) then
@@ -1120,6 +1122,80 @@
           enddo
  
         end subroutine read_Dist
+
+        subroutine readAstra_Dist(this,nparam,distparam)
+        implicit none
+        include 'mpif.h'
+        type (BeamBunch), intent(inout) :: this
+        integer, intent(in) :: nparam
+        double precision, dimension(nparam) :: distparam
+        integer :: i,j,jlow,jhigh,avgpts,myid,nproc,ierr,nptot,nleft
+        double precision, dimension(6) :: tmptcl
+        double precision :: sum1,sum2
+        character*12 name1
+        character*13 name2
+        character*14 name3
+        integer :: k,l
+        real*8 :: bet0,gam0
+ 
+        call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
+        call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierr)
+
+        open(unit=12,file='particle.ini',status='old')
+ 
+        sum1 = 0.0
+        sum2 = 0.0
+        read(12,*)nptot
+        avgpts = nptot/nproc
+        nleft = nptot - avgpts*nproc
+        if(myid.lt.nleft) then
+          avgpts = avgpts+1
+          jlow = myid*avgpts + 1
+          jhigh = (myid+1)*avgpts
+        else
+          jlow = myid*avgpts + 1 + nleft
+          jhigh = (myid+1)*avgpts + nleft
+        endif
+        allocate(this%Pts1(6,avgpts))
+        this%Pts1 = 0.0
+        !jlow = myid*avgpts + 1
+        !jhigh = (myid+1)*avgpts
+        print*,"avgpts, jlow, and jhigh: ",avgpts,jlow,jhigh
+        do j = 1, nptot
+          read(12,*)tmptcl(1:6)
+          sum1 = sum1 + tmptcl(1)
+          sum2 = sum2 + tmptcl(2)
+          if( (j.ge.jlow).and.(j.le.jhigh) ) then
+            i = j - jlow + 1
+            !this%Pts1(1:6,i) = tmptcl(1:6)
+            this%Pts1(2,i) = tmptcl(4)/this%mass           
+            this%Pts1(4,i) = tmptcl(5)/this%mass            
+            this%Pts1(6,i) = tmptcl(6)/this%mass            
+            gam0 = sqrt(1.0d0+this%Pts1(2,i)**2 +this%Pts1(4,i)**2 +this%Pts1(6,i)**2)
+            bet0 = sqrt(1.0d0-1.0d0/gam0**2)
+           
+            this%Pts1(1,i) = tmptcl(1)            
+            this%Pts1(3,i) = tmptcl(2)            
+            this%Pts1(5,i) = -bet0*Clight*tmptcl(7)*1.0d-9   !offset should be defined in lte.impt         
+          endif
+        enddo
+        print*,"sumx1,sumy1: ",sum1/nptot,sum2/nptot
+ 
+        close(12)
+ 
+        this%Nptlocal = avgpts
+        !change length to the dimensionless unit
+        do i = 1, avgpts
+          this%Pts1(1,i) = this%Pts1(1,i)/Scxlt + distparam(6)
+          this%Pts1(2,i) = this%Pts1(2,i) + distparam(7)
+          this%Pts1(3,i) = this%Pts1(3,i)/Scxlt + distparam(13)
+          this%Pts1(4,i) = this%Pts1(4,i) + distparam(14)
+          this%Pts1(5,i) = this%Pts1(5,i)/Scxlt + distparam(20)
+          this%Pts1(6,i) = this%Pts1(6,i)  + distparam(21)
+        enddo
+ 
+        end subroutine readAstra_Dist
+
 
         subroutine readParmela_Dist(this,nparam,distparam,geom,grid,Flagbc)
         implicit none
