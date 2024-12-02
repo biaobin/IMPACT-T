@@ -1358,7 +1358,7 @@
         integer :: samplePeriod
         integer :: np,my_rank,ierr
         integer status(MPI_STATUS_SIZE)
-        integer :: i,j,sixnpt,mnpt
+        integer :: i,j,sixnpt,mnpt,totalnp
         integer, allocatable, dimension(:) :: nptlist
         double precision, allocatable,dimension(:,:) :: recvbuf
         double precision :: gam,bet,gambet,twopi,fac
@@ -1378,6 +1378,8 @@
         call MPI_COMM_SIZE(MPI_COMM_WORLD,np,ierr)
         call MPI_ALLREDUCE(this%Nptlocal,mnpt,1,MPI_INTEGER,MPI_MAX,&
                         MPI_COMM_WORLD,ierr)
+        call MPI_ALLREDUCE(this%Nptlocal,totalnp,1,MPI_INTEGER,MPI_SUM,&
+                        MPI_COMM_WORLD,ierr)
 
         allocate(nptlist(0:np-1))
         nptlist = 0
@@ -1393,6 +1395,10 @@
         !z [m]:   this%Pts1(5,i)*Scxlt
         if(my_rank.eq.0) then
           open(nfile,status='unknown')
+          if (nfile.eq.50) then
+            print*,"total np=",totalnp
+            write(nfile,*)totalnp,0,0
+          endif
           do i = 1, this%Nptlocal,samplePeriod
 !            write(nfile,100)this%Pts1(1,i),this%Pts1(2,i),this%Pts1(3,i),&
 !                            this%Pts1(4,i),this%Pts1(5,i),this%Pts1(6,i)
