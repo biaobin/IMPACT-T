@@ -1130,7 +1130,7 @@
         integer, intent(in) :: nparam
         double precision, dimension(nparam) :: distparam
         integer :: i,j,jlow,jhigh,avgpts,myid,nproc,ierr,nptot,nleft
-        double precision, dimension(6) :: tmptcl
+        double precision, dimension(7) :: tmptcl
         double precision :: sum1,sum2
         character*12 name1
         character*13 name2
@@ -1141,11 +1141,16 @@
         call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
         call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierr)
 
-        open(unit=12,file='particle.ini',status='old')
- 
+        gam0 = sqrt(1.0d0+distparam(21)**2)
+        bet0 = sqrt(1.0d0-1.0d0/gam0**2)
+         
+        !only for dist. from generator.exe, i.e. dist behind the gun.
+        open(unit=12,file='astra.ini',status='old')
+        
         sum1 = 0.0
         sum2 = 0.0
         read(12,*)nptot
+
         avgpts = nptot/nproc
         nleft = nptot - avgpts*nproc
         if(myid.lt.nleft) then
@@ -1162,17 +1167,17 @@
         !jhigh = (myid+1)*avgpts
         print*,"avgpts, jlow, and jhigh: ",avgpts,jlow,jhigh
         do j = 1, nptot
-          read(12,*)tmptcl(1:6)
+          read(12,*)tmptcl(1:7)
           sum1 = sum1 + tmptcl(1)
           sum2 = sum2 + tmptcl(2)
           if( (j.ge.jlow).and.(j.le.jhigh) ) then
             i = j - jlow + 1
             !this%Pts1(1:6,i) = tmptcl(1:6)
-            this%Pts1(2,i) = tmptcl(4)/this%mass           
-            this%Pts1(4,i) = tmptcl(5)/this%mass            
-            this%Pts1(6,i) = tmptcl(6)/this%mass            
-            gam0 = sqrt(1.0d0+this%Pts1(2,i)**2 +this%Pts1(4,i)**2 +this%Pts1(6,i)**2)
-            bet0 = sqrt(1.0d0-1.0d0/gam0**2)
+            this%Pts1(2,i) = 0.0d0 !tmptcl(4)/this%mass           
+            this%Pts1(4,i) = 0.0d0 !tmptcl(5)/this%mass            
+            this%Pts1(6,i) = 0.0d0 !tmptcl(6)/this%mass            
+            !gam0 = sqrt(1.0d0+this%Pts1(2,i)**2 +this%Pts1(4,i)**2 +this%Pts1(6,i)**2)
+            !bet0 = sqrt(1.0d0-1.0d0/gam0**2)
            
             this%Pts1(1,i) = tmptcl(1)            
             this%Pts1(3,i) = tmptcl(2)            
@@ -1187,11 +1192,11 @@
         !change length to the dimensionless unit
         do i = 1, avgpts
           this%Pts1(1,i) = this%Pts1(1,i)/Scxlt + distparam(6)
-          this%Pts1(2,i) = this%Pts1(2,i) + distparam(7)
+          this%Pts1(2,i) = 0.0                  !this%Pts1(2,i) + distparam(7)
           this%Pts1(3,i) = this%Pts1(3,i)/Scxlt + distparam(13)
-          this%Pts1(4,i) = this%Pts1(4,i) + distparam(14)
+          this%Pts1(4,i) = 0.0                  !this%Pts1(4,i) + distparam(14)
           this%Pts1(5,i) = this%Pts1(5,i)/Scxlt + distparam(20)
-          this%Pts1(6,i) = this%Pts1(6,i)  + distparam(21)
+          this%Pts1(6,i) = distparam(21)        !this%Pts1(6,i)  + distparam(21)
         enddo
  
         end subroutine readAstra_Dist
