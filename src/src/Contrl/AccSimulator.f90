@@ -1184,7 +1184,7 @@
         !initial dist: fort.40 and fort.60
         !---------------------------------
         do ib = 1, Nbunch
-          call phase_Output(40+ib-1,Ebunch(ib),1) !change the sampFreq here
+          call phase_Output(40+ib-1,Ebunch(ib),1000) !change the sampFreq here
           qchg = Ebunch(ib)%Current/Scfreq
           gamib = -Ebunch(ib)%refptcl(6)
           call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
