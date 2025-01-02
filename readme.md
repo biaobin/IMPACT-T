@@ -97,35 +97,38 @@ Code was changed to use perdlen to cutoff the long tail particles. Only one RF b
 
 All beam section parameters in `lte.impt` are listed:
 
-| Parameter Name    | Units | Type   | Default | Description                                                  |
-| ----------------- | ----- | ------ | ------- | ------------------------------------------------------------ |
-| mass              | eV    | double | 0.511e6 | mass of the particle.                                        |
-| charge            |       | double | -1.0    | -1 for electron.                                             |
-| distribution_type |       | int    | 2       | 6D gaussian distribution. See more options in Ji’s manual.   |
-| Np                |       | int    | 1e3     | particle number.                                             |
-| total_charge      | C     | double | 1e-9    | charge of the beam.                                          |
-|                   |       |        |         |                                                              |
-| emit_x            | m rad | double | 0.0     | emitance.                                                    |
-| emit_nx           | m rad | double | 0.0     | normalized emittance.                                        |
-| beta_x            | m     | double | 1.0     | twiss para.                                                  |
-| alpha_x           |       | double | 0.0     | twiss para.                                                  |
-| sigx              | m     | double | 0.0     | rms bunch size.                                              |
-| sigpx             |       | double | 0.0     | rms value of $\gamma\beta_x/\gamma_0\beta_0$                 |
-| dx                | m     | double | 0.0     | offset for x                                                 |
-| emit_y            | m rad | double | 0.0     | emittance.                                                   |
-| emit_ny           | m rad | double | 0.0     | normalized emittance.                                        |
-| beta_y            | m     | double | 1.0     | twiss para.                                                  |
-| alpha_y           |       | double | 0.0     | twiss para.                                                  |
-| sigy              | m     | double | 0.0     | rms bunch size.                                              |
-| sigpy             |       | double | 0.0     | rms value of $\gamma\beta_y/\gamma_0\beta_0$                 |
-| dy                | m     | double | 0.0     | offset for y                                                 |
-| emit_z            | m rad | double | 0.0     | emittance.                                                   |
-| emit_nz           | m rad | double | 0.0     | normalized emittance.                                        |
-| beta_z            | m     | double | 1.0     | twiss para.                                                  |
-| alpha_z           |       | double | 0.0     | twiss para.                                                  |
-| sigz              | m     | double | 0.0     | rms bunch length. $z=ct$, the actual value in `ImpactT.in` is $\beta_0 ct$, this is done in the python level. |
-| sigpz             | eV    | double | 0.0     | rms value of $\gamma\beta_z/\gamma_0\beta_0$                 |
-| dz                | m     | double | 0.0     | offset for z, $dz=cdt$. Value is transformed in the python level to $dz=\beta_0cdt$. |
+| Parameter Name    | Units | Type   | Default  | Description                                                  |
+| ----------------- | ----- | ------ | -------- | ------------------------------------------------------------ |
+| mass              | eV    | double | 0.511e6  | mass of the particle.                                        |
+| charge            |       | double | -1.0     | -1 for electron.                                             |
+| distribution_type |       | int    | 2        | 6D gaussian distribution. See more options in Ji’s manual.   |
+| Np                |       | int    | 1e3      | particle number.                                             |
+| total_charge      | C     | double | 1e-9     | charge of the beam.                                          |
+|                   |       |        |          |                                                              |
+| emit_x            | m rad | double | 0.0      | emitance.                                                    |
+| emit_nx           | m rad | double | 0.0      | normalized emittance.                                        |
+| beta_x            | m     | double | 1.0      | twiss para.                                                  |
+| alpha_x           |       | double | 0.0      | twiss para.                                                  |
+| sigx              | m     | double | 0.0      | rms bunch size.                                              |
+| sigpx             |       | double | 0.0      | rms value of $\gamma\beta_x/\gamma_0\beta_0$                 |
+| dx                | m     | double | 0.0      | offset for x                                                 |
+| emit_y            | m rad | double | 0.0      | emittance.                                                   |
+| emit_ny           | m rad | double | 0.0      | normalized emittance.                                        |
+| beta_y            | m     | double | 1.0      | twiss para.                                                  |
+| alpha_y           |       | double | 0.0      | twiss para.                                                  |
+| sigy              | m     | double | 0.0      | rms bunch size.                                              |
+| sigpy             |       | double | 0.0      | rms value of $\gamma\beta_y/\gamma_0\beta_0$                 |
+| dy                | m     | double | 0.0      | offset for y                                                 |
+| emit_z            | m rad | double | 0.0      | emittance.                                                   |
+| emit_nz           | m rad | double | 0.0      | normalized emittance.                                        |
+| beta_z            | m     | double | 1.0      | twiss para.                                                  |
+| alpha_z           |       | double | 0.0      | twiss para.                                                  |
+| sigz              | m     | double | 0.0      | rms bunch length. $z=ct$, the actual value in `ImpactT.in` is $\beta_0 ct$, this is done in the python level. |
+| sigpz             | eV    | double | 0.0      | rms value of $\gamma\beta_z/\gamma_0\beta_0$                 |
+| dz                | m     | double | 0.0      | offset for z, $dz=cdt$. Value is transformed in the python level to $dz=\beta_0cdt$. |
+| c_sig_x           |       | double | 2.108434 | cut off the x gaussian distribution at `c_sig_x sigma`       |
+| c_sig_y           |       | double | 2.108434 | cut off the y gaussian distribution at `c_sig_y sigma`       |
+| c_sig_z           |       | double | 3.0      | cut off the z gaussian distribution at `c_sig_z sigma`       |
 
 Users could either use twiss parameters to define initial beam distribution, or use rms values. For $\sigma_{ij}\neq0$ cases, please use twiss-para. 
 
@@ -171,7 +174,53 @@ $$
 
 Allocate one ref particle for each processor. `dz` still works.
 
- 
+
+
+### read in Astra particle.ini
+
+For Astra generator.exe generated distribution, define as:
+
+```
+distribution_type=23
+```
+
+Remember to define offset as 3sigz for shift the beam from 0 to -3sig (behind the cathod.)
+
+
+
+ ### gauss3
+
+dist type=2.
+
+`c_sig_x, c_sig_y, c_sig_z` are added in the ImpactT.in file.
+
+default value is:
+
+```
+c_sig_x=2.108434
+c_sig_y=2.108434
+c_sig_z=3.0
+```
+
+source code:
+
+```fortran
+         !cutoff for x&y, z
+         !-----------------------------
+          do while( x1(1,1)**2/c_sig_x**2+x2(1,1)**2/c_sig_y**2 > 1.0d0)
+            call normVec(x1,intvsamp)     
+            call normVec(x2,intvsamp)
+          end do
+          do while( abs(x3(1,1)) > c_sig_z )
+            call normVec(x3,intvsamp)
+          end do
+```
+
+
+
+
+
+
 
 # Lattice section
 
@@ -798,7 +847,7 @@ changes:
 
 ## fort.40 & fort.50
 
-7th col added:
+7th col added: (commented now)
 
 | $x (m)$ | $\gamma\beta_x$ | $y (m)$ | $\gamma\beta_y$ | $z (m)$ | $\gamma\beta_x$ | $z (deg)$ |
 | ------- | --------------- | ------- | --------------- | ------- | --------------- | --------- |
@@ -813,3 +862,14 @@ line: line=(dcgun,sol1,preb,sol2,lineA1,sol3,tws,ww)
 ```
 
 They all call for the `phase_Output()` function but `-2` element will not perform the trace back step. 
+
+
+
+For fort.50, `Np 0 0` is added in the first line, for convenience of IMPACT-Z tracking.
+
+
+
+
+
+
+

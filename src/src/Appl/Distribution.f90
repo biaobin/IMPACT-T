@@ -415,6 +415,7 @@
         real*8 :: twopi,kz,eta,lamda,Fxmax,Uj,bet0
         integer,parameter :: Nbin=1e4
         real*8 :: Fx(Nbin+1),x(Nbin+1)
+        real*8 :: c_sig_x,c_sig_y,c_sig_z
  
         call starttime_Timer(t0)
 
@@ -439,6 +440,12 @@
         pzscale = distparam(19)
         xmu5 = distparam(20)
         xmu6 = distparam(21)
+
+        c_sig_x = distparam(22)
+        c_sig_y = distparam(23)
+        c_sig_z = distparam(24)
+
+        print*,"cut for x,y,z=",distparam(22:24)
 
         call getsize_Pgrid2d(grid,totnp,npy,npx)
 
@@ -492,16 +499,13 @@
           call normVec(x2,intvsamp)
           call normVec(x3,intvsamp)
 
-         !cutoff at 2.108434sig for x&y
+         !cutoff for x&y, z
          !-----------------------------
-          do while( sqrt(x1(1,1)**2+x2(1,1)**2) > 2.108434)
+          do while( x1(1,1)**2/c_sig_x**2+x2(1,1)**2/c_sig_y**2 > 1.0d0)
             call normVec(x1,intvsamp)          
             call normVec(x2,intvsamp)
           end do
-
-          !cutoff at 3sig for z
-          !-----------------------------
-          do while( abs(x3(1,1)) > 3.0d0 )
+          do while( abs(x3(1,1)) > c_sig_z )
             call normVec(x3,intvsamp)
           end do
 

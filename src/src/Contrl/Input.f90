@@ -137,7 +137,7 @@
           else
             backspace(13,err=789)
             read(13,*)distparam(1),distparam(2),distparam(3),distparam(4),&
-                    distparam(5),distparam(6),distparam(7)
+                    distparam(5),distparam(6),distparam(7),distparam(22)
             ii = ii+1
           endif
 90        continue
@@ -148,7 +148,7 @@
           else
             backspace(13,err=789)
             read(13,*)distparam(8),distparam(9),distparam(10),&
-                    distparam(11),distparam(12),distparam(13),distparam(14)
+                    distparam(11),distparam(12),distparam(13),distparam(14),distparam(23)
             ii = ii+1
           endif
 101       continue
@@ -159,7 +159,7 @@
           else
             backspace(13,err=789)
             read(13,*)distparam(15),distparam(16),&
-                    distparam(17),distparam(18),distparam(19),distparam(20),distparam(21)
+                    distparam(17),distparam(18),distparam(19),distparam(20),distparam(21),distparam(24)
             ii = ii+1
           endif
 102       continue

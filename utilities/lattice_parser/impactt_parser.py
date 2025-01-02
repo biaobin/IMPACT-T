@@ -155,6 +155,10 @@ class impactt_parser(lattice_parser):
         self.beam['DY']= 0.0
         self.beam['DZ']= 0.0
 
+        self.beam['C_SIG_X']= 2.108434
+        self.beam['C_SIG_Y']= 2.108434
+        self.beam['C_SIG_Z']= 3.0
+
         # turn all para values to str data type
         for key in self.beam:
             self.beam[key] = str(self.beam[key])
@@ -499,14 +503,19 @@ class impactt_parser(lattice_parser):
         control_lines.append( str(sigxxp) )
         control_lines.append( '1.0 1.0' )
         control_lines.append(self.beam['DX'])
-        control_lines.append( '0.0 \n' )
+        control_lines.append( '0.0' )
+        control_lines.append(self.beam['C_SIG_X'])
+        control_lines.append('\n')
 
         control_lines.append( self.beam['SIGY'] )
         control_lines.append( str(sigPy) )
         control_lines.append( str(sigyyp) )
         control_lines.append( '1.0 1.0' )
         control_lines.append(self.beam['DY'])
-        control_lines.append( '0.0 \n' )
+        control_lines.append( '0.0' )
+        control_lines.append(self.beam['C_SIG_Y'])
+        control_lines.append('\n')
+
 
         zscale =1.0
         if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
@@ -525,6 +534,7 @@ class impactt_parser(lattice_parser):
         control_lines.append( '1.0' )
         control_lines.append(self.beam['DZ'])
         control_lines.append( xmu6 )
+        control_lines.append(self.beam['C_SIG_Z'])
         control_lines.append(' \n')
 
         # line-9
@@ -588,6 +598,21 @@ class impactt_parser(lattice_parser):
                 lte_lines.append(elem['FILEID'])
                 lte_lines.append('1.0')
                 lte_lines.append('0 0 0 0 0 / \n')
+
+            elif elem['TYPE'] == 'DIPOLE':
+                lte_lines.append(elem['L'])
+                lte_lines.append('10 20 4')
+                lte_lines.append(elem['ZEDGE'])
+                lte_lines.append(elem['BX0'])
+                lte_lines.append(elem['BY0'])
+                lte_lines.append(elem['FILEID'])
+                lte_lines.append(elem['HALF_GAP'])
+                lte_lines.append(elem['DX'])
+                lte_lines.append(elem['DY'])
+                lte_lines.append(elem['ROTATE_X'])
+                lte_lines.append(elem['ROTATE_Y'])
+                lte_lines.append(elem['ROTATE_Z'])
+                lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'SOLRF':
                 if elem['FILEID']=='None':

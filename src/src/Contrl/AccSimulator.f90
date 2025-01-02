@@ -68,7 +68,7 @@
                                      Perdlen,dt,xrad,yrad
 
         !conts. in init. dist.
-        integer, parameter :: Ndistparam = 21
+        integer, parameter :: Ndistparam = 24
         double precision, dimension(Ndistparam) :: distparam
 
         !2d logical processor array.
