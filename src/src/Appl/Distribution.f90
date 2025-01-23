@@ -408,7 +408,7 @@
         double precision :: sq12,sq34,sq56
         double precision, allocatable, dimension(:,:) :: x1,x2,x3 
         integer :: totnp,npy,npx
-        integer :: avgpts,numpts,ilow,ihigh
+        integer :: avgpts,avgpts1,avgpts2,numpts,ilow,ihigh
         integer :: myid,myidx,myidy,i,j,k,intvsamp
 !        integer seedarray(1)
         double precision :: t0,x11
@@ -416,6 +416,15 @@
         integer,parameter :: Nbin=1e4
         real*8 :: Fx(Nbin+1),x(Nbin+1)
         real*8 :: c_sig_x,c_sig_y,c_sig_z
+
+        integer :: np1,np2
+        real*8 :: q1,q2,sigz2,offset
+
+        
+        q1=1.0d-9
+        q2=1d-9
+        np1=nint(q1/(q1+q2)*this%Npt)
+        np2=nint(q2/(q1+q2)*this%Npt)
  
         call starttime_Timer(t0)
 
@@ -456,13 +465,77 @@
         call random_number(x11)
         print*,myid,x11
 
-        avgpts = this%Npt/(npx*npy)
+        print*,"Npt=",this%Npt,"npx,npy=",npx,npy
 
-        if(mod(avgpts,10).ne.0) then
-!          print*,"The number of particles has to be an integer multiple of 10Nprocs"
-!          stop
+        avgpts = this%Npt/(npx*npy)
+        ! initial allocate 'avgpts1' particles on each processor.
+        if(flagalloc.eq.1) then
+          this%Pts1 = 0.0
+        else
+          allocate(this%Pts1(6,avgpts))
+          this%Pts1 = 0.0
         endif
-        
+ 
+        !first bunch
+        !==========================
+        avgpts1 = np1/(npx*npy)
+        avgpts2 = avgpts-avgpts1
+
+        print*,"avg1,avg2=",avgpts1,avgpts2
+
+        sig1 = sigx*xscale
+        sig2 = sigpx*pxscale
+        sig3 = sigy*yscale
+        sig4 = sigpy*pyscale
+        sig5 = sigz*zscale
+        sig6 = sigpz*pzscale
+
+        sq12=sqrt(1.-muxpx*muxpx)
+        sq34=sqrt(1.-muypy*muypy)
+        sq56=sqrt(1.-muzpz*muzpz)
+       
+        intvsamp = 1
+        allocate(x1(2,intvsamp))
+        allocate(x2(2,intvsamp))
+        allocate(x3(2,intvsamp))
+
+        do j = 1, avgpts1/intvsamp
+          call normVec(x1,intvsamp)
+          call normVec(x2,intvsamp)
+          call normVec(x3,intvsamp)
+
+         !cutoff for x&y, z
+         !-----------------------------
+          do while( x1(1,1)**2/c_sig_x**2+x2(1,1)**2/c_sig_y**2 > 1.0d0)
+            call normVec(x1,intvsamp)          
+            call normVec(x2,intvsamp)
+          end do
+          do while( abs(x3(1,1)) > c_sig_z )
+            call normVec(x3,intvsamp)
+          end do
+
+          do k = 1, intvsamp
+            !x-px:
+!            call normdv(x1)
+!           Correct Gaussian distribution.
+            i = (j-1)*intvsamp + k
+            this%Pts1(1,i) = xmu1 + sig1*x1(1,k)/sq12
+            this%Pts1(2,i) = xmu2 + sig2*(-muxpx*x1(1,k)/sq12+x1(2,k))
+            !y-py
+!            call normdv(x1)
+!           Correct Gaussian distribution.
+            this%Pts1(3,i) = xmu3 + sig3*x2(1,k)/sq34
+            this%Pts1(4,i) = xmu4 + sig4*(-muypy*x2(1,k)/sq34+x2(2,k))
+            !z-pz
+!            call normdv(x1)
+!           Correct Gaussian distribution.
+            this%Pts1(5,i) = xmu5 + sig5*x3(1,k)/sq56
+            this%Pts1(6,i) = xmu6 + sig6*(-muzpz*x3(1,k)/sq56+x3(2,k))
+          enddo
+        enddo
+         
+        !second bunch
+        !==========================
         sig1 = sigx*xscale
         sig2 = sigpx*pxscale
         sig3 = sigy*yscale
@@ -474,27 +547,10 @@
         sq34=sqrt(1.-muypy*muypy)
         sq56=sqrt(1.-muzpz*muzpz)
 
-        ! initial allocate 'avgpts' particles on each processor.
-        if(flagalloc.eq.1) then
-          this%Pts1 = 0.0
-        else
-          allocate(this%Pts1(6,avgpts))
-          this%Pts1 = 0.0
-        endif
-
-!        allocate(x1(2,avgpts))
-!        allocate(x2(2,avgpts))
-!        allocate(x3(2,avgpts))
-!        call normVec(x1,avgpts)
-!        call normVec(x2,avgpts)
-!        call normVec(x3,avgpts)
+        xmu5 = xmu5 -3*sig5
         
         intvsamp = 1
-        allocate(x1(2,intvsamp))
-        allocate(x2(2,intvsamp))
-        allocate(x3(2,intvsamp))
-
-        do j = 1, avgpts/intvsamp
+        do j = avgpts1+1, avgpts/intvsamp
           call normVec(x1,intvsamp)
           call normVec(x2,intvsamp)
           call normVec(x3,intvsamp)
@@ -529,36 +585,6 @@
           enddo
         enddo
 
-        !!Biaobin, 2024-11, add density modulation into the beam
-        !!------------------------------------------------------
-        !bet0 = sqrt(1.0d0-1.0d0/((1.0d0+0.511d6)/0.511d6)**2)   
-
-        !!print*,"sig5=",sig5*Scxlt
-        !eta=0.5d-4
-        !lamda = 200.0d-6*bet0/Scxlt !/(6.0d0*sig5) 
-        !!print*,"lamda=",lamda*Scxlt 
-
-        !lamda = lamda/(6.0d0*sig5) 
-        !twopi = 4.0d0*asin(1.0d0)
-
-        !ilow = myid*avgpts
-        !ihigh = (myid+1)*avgpts     
- 
-        !kz=twopi/lamda
-        !!normalized CDF function
-        !Fxmax = 0.5d0+0.5d0*erf(3.0d0/sqrt(2.0d0))-eta/kz*sin(kz)
-        !do j=1,Nbin+1
-        !  x(j)  = (j-1)*1.0d0/Nbin
-        !  Fx(j) = 0.5d0+0.5d0*erf(6.0d0*(x(j)-0.5d0)/sqrt(2.0d0)) -eta/kz*sin(kz*x(j))
-        !  !normalize the CDF
-        !  Fx(j) = Fx(j)/Fxmax
-        !end do
-        !!inverse sampling and then Langerange interp
-        !do j = 1, avgpts
-        !  Uj=math%hamsl(1,j+ilow)
-        !  this%Pts1(5,j)=xmu5+3.0d0*sig5*(2.0d0*math%interp(x,Fx,Uj,Nbin+1)-1.0d0)  !/sq56
-        !enddo
-          
         deallocate(x1)
         deallocate(x2)
         deallocate(x3)
