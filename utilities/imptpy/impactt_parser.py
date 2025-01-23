@@ -7,8 +7,8 @@ from collections import defaultdict
 from copy import deepcopy
 from math import sqrt, pi
 import math
-import const
-from lattice_parser import lattice_parser
+from imptpy import const
+from imptpy.lattice_parser import lattice_parser
 from shutil import copyfile
 
 nest_dict = lambda: defaultdict(nest_dict) # to define a['key1']['key2'] = value
@@ -29,17 +29,26 @@ class impactt_parser(lattice_parser):
         
         self.control = {}
         self.beam = {}
-        self.lattice = nest_dict()
+        self.lat = nest_dict()
         
         # initiate with default values
         self.__default_control()
         self.__default_beam()
-        self.__default_lattice()
+        self.__default_lat()
         
         # update with read in *.impz file
         self.control = self.update_control()
         self.beam    = self.update_beam()
-        self.lattice = self.update_trackline()
+        self.trackline, self.usedline = self.update_trackline() #self.trackline: [dict.elem1,dict.elem2,...] in list form
+                                                                #self.usedline = [elem1Name, elem2Name, ...] in list form
+
+        #update self.lattice
+        #self.lattice["HIGH3_Q1"] => HIGH3_Q1 element
+        #self.lattice["usedline"] => [elem1_name,elem2_name,...]
+        self.lattice = nest_dict()
+        for elem in self.trackline:
+            self.lattice[elem["NAME"]] = elem
+        self.lattice["usedline"] = self.usedline
 
         # some parameters of the beam
         self.Scxl = None
@@ -49,11 +58,16 @@ class impactt_parser(lattice_parser):
         self.mass = None
         self.update_paras()
         
-    def write_impacttin(self):
+    def write_impacttin(self, path="./"):
         '''
         generate ImpactT.in file.
         '''
         lattice_file = self.impacttin_lattice()
+
+        if path.endswith("/"):
+            fileh = path
+        else:
+            fileh = path+"/" 
         
         nbunch = int(float(self.control['NBUNCH'])) 
         
@@ -73,9 +87,9 @@ class impactt_parser(lattice_parser):
     
                 control_file = self.impacttin_control()
                 if j==0:
-                    name='ImpactT.in'
+                    name=fileh+'ImpactT.in'
                 else:
-                    name='ImpactT'+str(j+1)+'.in'
+                    name=fileh+'ImpactT'+str(j+1)+'.in'
     
                 with open(name,'w') as f:
                     f.write(control_file)
@@ -84,7 +98,7 @@ class impactt_parser(lattice_parser):
         else:
             control_file = self.impacttin_control()
             
-            with open("ImpactT.in",'w') as f:
+            with open(fileh+"ImpactT.in",'w') as f:
                 f.write(control_file)
                 f.write(lattice_file)
             f.close()    
@@ -163,119 +177,119 @@ class impactt_parser(lattice_parser):
         for key in self.beam:
             self.beam[key] = str(self.beam[key])
 
-    def __default_lattice(self):
+    def __default_lat(self):
         # drift, 0 element
-        self.lattice['DRIFT']['ZEDGE'] = 0.0
-        self.lattice['DRIFT']['L'] = 0.0
+        self.lat['DRIFT']['ZEDGE'] = 0.0
+        self.lat['DRIFT']['L'] = 0.0
 
         # quad, 1 element
-        self.lattice['QUAD']['ZEDGE'] = 0.0
-        self.lattice['QUAD']['L'] = 0.0
-        self.lattice['QUAD']['GRAD'] = 0.0 
-        self.lattice['QUAD']['FILEID'] = 0.0 
-        self.lattice['QUAD']['RADIUS'] = 17.5e-3 
-        self.lattice['QUAD']['DX'] = 0.0
-        self.lattice['QUAD']['DY'] = 0.0
-        self.lattice['QUAD']['ROTATE_X'] = 0.0 #[rad]
-        self.lattice['QUAD']['ROTATE_Y'] = 0.0
-        self.lattice['QUAD']['ROTATE_Z'] = 0.0
-        self.lattice['QUAD']['FREQ'] = 0.0
-        self.lattice['QUAD']['PHASE']= 0.0
+        self.lat['QUAD']['ZEDGE'] = 0.0
+        self.lat['QUAD']['L'] = 0.0
+        self.lat['QUAD']['GRAD'] = 0.0 
+        self.lat['QUAD']['FILEID'] = 0.0 
+        self.lat['QUAD']['RADIUS'] = 17.5e-3 
+        self.lat['QUAD']['DX'] = 0.0
+        self.lat['QUAD']['DY'] = 0.0
+        self.lat['QUAD']['ROTATE_X'] = 0.0 #[rad]
+        self.lat['QUAD']['ROTATE_Y'] = 0.0
+        self.lat['QUAD']['ROTATE_Z'] = 0.0
+        self.lat['QUAD']['FREQ'] = 0.0
+        self.lat['QUAD']['PHASE']= 0.0
 
         # DIPOLE, element 4
-        self.lattice['DIPOLE']['ZEDGE'] = 0.0
-        self.lattice['DIPOLE']['L'] = 0.0
-        self.lattice['DIPOLE']['BX0'] = 0.0 
-        self.lattice['DIPOLE']['BY0'] = 0.0 
-        self.lattice['DIPOLE']['FILEID'] = None
-        self.lattice['DIPOLE']['HALF_GAP'] = 40e-3 
-        self.lattice['DIPOLE']['DX'] = 0.0
-        self.lattice['DIPOLE']['DY'] = 0.0
-        self.lattice['DIPOLE']['ROTATE_X'] = 0.0 #[rad]
-        self.lattice['DIPOLE']['ROTATE_Y'] = 0.0
-        self.lattice['DIPOLE']['ROTATE_Z'] = 0.0
+        self.lat['DIPOLE']['ZEDGE'] = 0.0
+        self.lat['DIPOLE']['L'] = 0.0
+        self.lat['DIPOLE']['BX0'] = 0.0 
+        self.lat['DIPOLE']['BY0'] = 0.0 
+        self.lat['DIPOLE']['FILEID'] = None
+        self.lat['DIPOLE']['HALF_GAP'] = 40e-3 
+        self.lat['DIPOLE']['DX'] = 0.0
+        self.lat['DIPOLE']['DY'] = 0.0
+        self.lat['DIPOLE']['ROTATE_X'] = 0.0 #[rad]
+        self.lat['DIPOLE']['ROTATE_Y'] = 0.0
+        self.lat['DIPOLE']['ROTATE_Z'] = 0.0
 
         # Sol, 3 element
-        self.lattice['SOL']['ZEDGE']=0.0
-        self.lattice['SOL']['L']=0.0
-        self.lattice['SOL']['FILEID']= None
-        self.lattice['SOL']['SCALE']= 1.0
+        self.lat['SOL']['ZEDGE']=0.0
+        self.lat['SOL']['L']=0.0
+        self.lat['SOL']['FILEID']= None
+        self.lat['SOL']['SCALE']= 1.0
 
         # SolRF, 105 element
-        self.lattice['SOLRF']['ZEDGE'] = 0.0
-        self.lattice['SOLRF']['L']     = 0.0
-        self.lattice['SOLRF']['EMAX'] = 1.0
-        self.lattice['SOLRF']['FREQ']  = 2856e6
-        self.lattice['SOLRF']['PHASE'] = 0.0
-        self.lattice['SOLRF']['RADIUS'] = 1.0
-        self.lattice['SOLRF']['DX'] = 0.0
-        self.lattice['SOLRF']['DY'] = 0.0
-        self.lattice['SOLRF']['ROTATE_X'] = 0.0 #[rad]
-        self.lattice['SOLRF']['ROTATE_Y'] = 0.0
-        self.lattice['SOLRF']['ROTATE_Z'] = 0.0
-        self.lattice['SOLRF']['SCALEB']   = 0.0
-        self.lattice['SOLRF']['FILEID'] = None
-        self.lattice['SOLRF']['Z1'] = None
-        self.lattice['SOLRF']['Z2'] = None
-        self.lattice['SOLRF']['L_FOURIER_EXP'] = None
+        self.lat['SOLRF']['ZEDGE'] = 0.0
+        self.lat['SOLRF']['L']     = 0.0
+        self.lat['SOLRF']['EMAX'] = 1.0
+        self.lat['SOLRF']['FREQ']  = 2856e6
+        self.lat['SOLRF']['PHASE'] = 0.0
+        self.lat['SOLRF']['RADIUS'] = 1.0
+        self.lat['SOLRF']['DX'] = 0.0
+        self.lat['SOLRF']['DY'] = 0.0
+        self.lat['SOLRF']['ROTATE_X'] = 0.0 #[rad]
+        self.lat['SOLRF']['ROTATE_Y'] = 0.0
+        self.lat['SOLRF']['ROTATE_Z'] = 0.0
+        self.lat['SOLRF']['SCALEB']   = 0.0
+        self.lat['SOLRF']['FILEID'] = None
+        self.lat['SOLRF']['Z1'] = None
+        self.lat['SOLRF']['Z2'] = None
+        self.lat['SOLRF']['L_FOURIER_EXP'] = None
         
         # TWS
-        self.lattice['TWS']['ZEDGE']=0.0
-        self.lattice['TWS']['L']=0.0
-        self.lattice['TWS']['CAV_MODE']=2*pi/3
-        self.lattice['TWS']['LCOUP']=0.052464
-        self.lattice['TWS']['LCAV']=0.104926
-        self.lattice['TWS']['EMAX']=0.0
-        self.lattice['TWS']['FREQ']=2856E6
-        self.lattice['TWS']['PHASE']=0.0
-        self.lattice['TWS']['FILEID_1']=None
-        self.lattice['TWS']['FILEID_2']=None
-        self.lattice['TWS']['FILEID_3']=None
-        self.lattice['TWS']['FILEID_4']=None
-        self.lattice['TWS']['DX'] = 0.0
-        self.lattice['TWS']['DY'] = 0.0
-        self.lattice['TWS']['ROTATE_X'] = 0.0 #[rad]
-        self.lattice['TWS']['ROTATE_Y'] = 0.0
-        self.lattice['TWS']['ROTATE_Z'] = 0.0
-        self.lattice['TWS']['SCALEB']   = 0.0
+        self.lat['TWS']['ZEDGE']=0.0
+        self.lat['TWS']['L']=0.0
+        self.lat['TWS']['CAV_MODE']=2*pi/3
+        self.lat['TWS']['LCOUP']=0.052464
+        self.lat['TWS']['LCAV']=0.104926
+        self.lat['TWS']['EMAX']=0.0
+        self.lat['TWS']['FREQ']=2856E6
+        self.lat['TWS']['PHASE']=0.0
+        self.lat['TWS']['FILEID_1']=None
+        self.lat['TWS']['FILEID_2']=None
+        self.lat['TWS']['FILEID_3']=None
+        self.lat['TWS']['FILEID_4']=None
+        self.lat['TWS']['DX'] = 0.0
+        self.lat['TWS']['DY'] = 0.0
+        self.lat['TWS']['ROTATE_X'] = 0.0 #[rad]
+        self.lat['TWS']['ROTATE_Y'] = 0.0
+        self.lat['TWS']['ROTATE_Z'] = 0.0
+        self.lat['TWS']['SCALEB']   = 0.0
         
         # 112, EMfldCy1
-        self.lattice['EMFLDCYL']['ZEDGE'] = 0.0
-        self.lattice['EMFLDCYL']['SCALE'] = 1.0
-        self.lattice['EMFLDCYL']['L'] = 0.0
-        self.lattice['EMFLDCYL']['FREQ'] = 2856e6
-        self.lattice['EMFLDCYL']['PHASE'] = 0.0
-        self.lattice['EMFLDCYL']['FILEID'] = None
-        self.lattice['EMFLDCYL']['DATAFMT'] = "IMPT"
+        self.lat['EMFLDCYL']['ZEDGE'] = 0.0
+        self.lat['EMFLDCYL']['SCALE'] = 1.0
+        self.lat['EMFLDCYL']['L'] = 0.0
+        self.lat['EMFLDCYL']['FREQ'] = 2856e6
+        self.lat['EMFLDCYL']['PHASE'] = 0.0
+        self.lat['EMFLDCYL']['FILEID'] = None
+        self.lat['EMFLDCYL']['DATAFMT'] = "IMPT"
 
         # -2 element
-        self.lattice['WATCH']['ZEDGE'] = 0.0
-        self.lattice['WATCH']['FILENAME_ID'] = 80
-        self.lattice['WATCH']['SAMPLE_FREQ'] = 1
-        self.lattice['WATCH']['SLICE_BIN'] = 128
+        self.lat['WATCH']['ZEDGE'] = 0.0
+        self.lat['WATCH']['FILENAME_ID'] = 80
+        self.lat['WATCH']['SAMPLE_FREQ'] = 1
+        self.lat['WATCH']['SLICE_BIN'] = 128
 
         # -11 element
-        self.lattice['RCOL']['ZEDGE'] = 0.0
-        self.lattice['RCOL']['XMAX'] = 1.0
-        self.lattice['RCOL']['YMAX'] = 1.0
-        self.lattice['RCOL']['XMIN'] = None
-        self.lattice['RCOL']['YMIN'] = None
+        self.lat['RCOL']['ZEDGE'] = 0.0
+        self.lat['RCOL']['XMAX'] = 1.0
+        self.lat['RCOL']['YMAX'] = 1.0
+        self.lat['RCOL']['XMIN'] = None
+        self.lat['RCOL']['YMIN'] = None
         
         # -7 element
-        self.lattice['MERGEBIN']['ZEDGE'] = 0.0
+        self.lat['MERGEBIN']['ZEDGE'] = 0.0
 
         # -4 element
-        self.lattice['CHANGEDT']['ZEDGE'] = 0.0
-        self.lattice['CHANGEDT']['DT'] = 1e-12
+        self.lat['CHANGEDT']['ZEDGE'] = 0.0
+        self.lat['CHANGEDT']['DT'] = 1e-12
 
         # -5 element
-        self.lattice['SC2DTO3D']['ZEDGE'] = 0.0
+        self.lat['SC2DTO3D']['ZEDGE'] = 0.0
 
 
         #turn all lattice elem values to string data type
-        for elem in self.lattice.keys():
-            for key in self.lattice[elem].keys():
-                self.lattice[elem][key] = str(self.lattice[elem][key])
+        for elem in self.lat.keys():
+            for key in self.lat[elem].keys():
+                self.lat[elem][key] = str(self.lat[elem][key])
 
     # update the default control, beam, lattice with read-in lte.impz
     #==============================================================================    
@@ -315,20 +329,20 @@ class impactt_parser(lattice_parser):
         '''
         update the default track_line lattice para values with lte.impz
         '''
-        trackline = self.get_lattice_section() # get the tracking line
+        trackline, usedline = self.get_lattice_section() # get the tracking line
         
         j = 0
         for elem in trackline:
-            # check if the element type is in self.lattice.keys, i.e. whether in
+            # check if the element type is in self.lat.keys, i.e. whether in
             # dict_keys(['DRIFT', 'QUAD', 'BEND', 'RFCW', 'WATCH'])          
                          
             # update the not-yet-setting lattice element parameters with the default 
             # values.
-            if elem['TYPE'] in self.lattice.keys():
-                tmp = deepcopy(self.lattice[elem['TYPE']])
+            if elem['TYPE'] in self.lat.keys():
+                tmp = deepcopy(self.lat[elem['TYPE']])
                 
-                #NAME and TYPR for element in lte.impz are not in the self.lattice[elem['TYPE']].keys()
-                table =  list(self.lattice[elem['TYPE']].keys())
+                #NAME and TYPR for element in lte.impz are not in the self.lat[elem['TYPE']].keys()
+                table =  list(self.lat[elem['TYPE']].keys())
                 table.append('NAME')
                 table.append('TYPE')
                 for elem_para in elem.keys():
@@ -345,7 +359,7 @@ class impactt_parser(lattice_parser):
                 print("Unknown element type in lattice section:",elem['TYPE'])
                 sys.exit()       
         # turn all elem value to string data type    
-        return trackline
+        return trackline, usedline
 
     def update_paras(self):  
         Scxl = const.c_light/(2*math.pi*float(self.control['FREQ_RF_SCALE'])) 
@@ -367,6 +381,10 @@ class impactt_parser(lattice_parser):
         '''
         ImpactZ.in's control section
         '''
+        #in case values not turned into str
+        for key in self.control.keys():
+            self.control[key] = str(self.control[key])
+
         # control section
         #----------------
         control_lines =[]
@@ -564,7 +582,12 @@ class impactt_parser(lattice_parser):
         #lte_lines.append('! lattice lines \n')
         #lte_lines.append('!=================== \n')        
         
-        for elem in self.lattice:
+        for elemName in self.lattice["usedline"]:
+            elem = self.lattice[elemName]
+            #in case values not turned into str
+            for key in elem.keys():
+                elem[key] = str(elem[key])
+
             if elem['TYPE'] == 'DRIFT':
                 lte_lines.append( elem['L'] )
                 lte_lines.append( '1 1 0' )
@@ -968,8 +991,8 @@ class impactt_parser(lattice_parser):
         lattice = lines[j1+1:j2]  # ignored 1st and last element, i.e. &lattice and &end
         
         # get the tracked line
-        trackline = self.get_trackline(lattice)
-        return trackline
+        trackline, usedline = self.get_trackline(lattice)
+        return trackline, usedline
                
     def _get_index(self, pattern1, pattern2, lines):
         '''

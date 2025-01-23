@@ -40,7 +40,7 @@ class lattice_parser:
         for item in usedline:
             trackline.append( lattice[item] )
             
-        return trackline
+        return trackline,usedline
     
     # sub-funcs
     #======================================================================
@@ -367,4 +367,4 @@ if __name__=='__main__':
 
     lte = lattice_parser(file_name,line_name)
     lines = lte.get_brieflines()
-    trackline = lte.get_trackline(lines)
+    trackline,usedline = lte.get_trackline(lines)
