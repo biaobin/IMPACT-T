@@ -149,6 +149,13 @@ class impactt_parser(lattice_parser):
         self.beam['SIGPY'] = 0.0    #sig_gambety/gambet0 [rad]
         self.beam['SIGPZ'] = 0.0    
         
+        self.beam['XSCALE']  = 1     
+        self.beam['YSCALE']  = 1     
+        self.beam['ZSCALE']  = 1     
+        self.beam['PXSCALE'] = 1     
+        self.beam['PYSCALE'] = 1     
+        self.beam['PZSCALE'] = 1     
+
         # for twiss parameters settings
         self.beam['EMIT_X'] = 0.0
         self.beam['EMIT_NX'] = 0.0   
@@ -519,7 +526,8 @@ class impactt_parser(lattice_parser):
         control_lines.append( self.beam['SIGX'] )
         control_lines.append( str(sigPx) )
         control_lines.append( str(sigxxp) )
-        control_lines.append( '1.0 1.0' )
+        control_lines.append( self.beam["XSCALE"] )
+        control_lines.append( self.beam["PXSCALE"] )
         control_lines.append(self.beam['DX'])
         control_lines.append( '0.0' )
         control_lines.append(self.beam['C_SIG_X'])
@@ -528,16 +536,17 @@ class impactt_parser(lattice_parser):
         control_lines.append( self.beam['SIGY'] )
         control_lines.append( str(sigPy) )
         control_lines.append( str(sigyyp) )
-        control_lines.append( '1.0 1.0' )
+        control_lines.append( self.beam["YSCALE"] )
+        control_lines.append( self.beam["PYSCALE"] )
         control_lines.append(self.beam['DY'])
         control_lines.append( '0.0' )
         control_lines.append(self.beam['C_SIG_Y'])
         control_lines.append('\n')
 
 
-        zscale =1.0
-        if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
-            zscale=1e-9
+        #zscale =1.0
+        #if float(self.beam['DISTRIBUTION_TYPE']) >= 100:
+        #    zscale=1e-9
         
         if self.beam['DISTRIBUTION_TYPE']=='16':
             xmu6 = '0.0'  #xmu6 is used for setting beam energy,
@@ -548,8 +557,8 @@ class impactt_parser(lattice_parser):
         control_lines.append( self.beam['SIGZ']    )
         control_lines.append( str(sigPz) ) 
         control_lines.append( str(sigzzp)  )  
-        control_lines.append( str(zscale)  )  
-        control_lines.append( '1.0' )
+        control_lines.append( self.beam["ZSCALE"] )
+        control_lines.append( self.beam["PZSCALE"] )
         control_lines.append(self.beam['DZ'])
         control_lines.append( xmu6 )
         control_lines.append(self.beam['C_SIG_Z'])
