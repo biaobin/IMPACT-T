@@ -635,7 +635,7 @@
         endif
 
 99      format(6(1x,e16.8))
-100      format(7(1x,e18.10))
+100      format(7(1x,e18.8E3))
 101     format(1x,e16.8,e16.8,3I10)
 102      format(8(1x,e16.8))
 
