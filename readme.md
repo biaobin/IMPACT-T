@@ -218,7 +218,54 @@ source code:
 
 
 
+### ijk distribution
 
+For transverse gaussian, longitudinal flattop => 221
+
+- sigz => zflat
+- zscale => zrise/2
+
+
+
+- xscale => cutx
+- yscale => cuty
+
+
+
+So for PITZ, if BSA=3.5mm:
+
+- transverse gaussian, sigx=sigy=1.36mm, cutx=3.5/2/1.36=1.286765
+- longitudinal flattop, zflat=22ps, zrise= ?
+
+```bash
+&beam
+!===================
+mass=0.511e6
+charge=-1.0
+
+distribution_type=221
+Np=1e4
+total_charge=2e-9
+
+sigx=1.36e-3, sigpx=0
+sigy=1.36e-3, sigpy=0
+!they are actually cutx, cuty
+xscale=1.286765
+yscale=1.286765
+
+sigz=2.998e8*22e-12
+!zrise=2*zscale
+zscale=2e-12*2.998e8
+sigpz=0.0
+
+dz=0.0
+
+&end
+```
+
+<img src="./pics/image-20250207112258796.png" alt="image-20250207112258796" style="zoom:50%;" />
+
+<img src="./pics/image-20250207112326975.png" alt="image-20250207112326975" style="zoom: 50%;" />
 
 
 
