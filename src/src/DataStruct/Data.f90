@@ -12,7 +12,7 @@
 !----------------------------------------------------------------
       module Dataclass
         use NumConstclass
-        use mpistub
+        !use mpistub
 !        save
 !-----------------------------------------------------------------------
 ! using the x-y-z field data (Ex,Ey,Ez,Bx,By,Bz) directly.

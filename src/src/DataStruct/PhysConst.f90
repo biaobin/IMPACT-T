@@ -13,7 +13,7 @@
 ! Comments:
 !----------------------------------------------------------------
       module PhysConstclass
-        use mpistub
+        !use mpistub
         implicit none
       
         !physical parameters and constants ---------------------
