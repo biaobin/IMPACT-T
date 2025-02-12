@@ -391,6 +391,8 @@ class impactt_parser(lattice_parser):
         #in case values not turned into str
         for key in self.control.keys():
             self.control[key] = str(self.control[key])
+        for key in self.beam.keys():
+            self.beam[key] = str(self.beam[key])
 
         # control section
         #----------------
