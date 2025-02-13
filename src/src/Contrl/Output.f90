@@ -2346,8 +2346,9 @@
                   epy(i)*scxlt,gam(i)*pmass,gam2uncor2(i)*pmass
         enddo
       endif
-
+      close(nfile)
       call flush(nfile)
+
 
 777   format(7(1x,e15.7))
 
