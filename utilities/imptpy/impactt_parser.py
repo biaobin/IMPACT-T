@@ -517,6 +517,10 @@ class impactt_parser(lattice_parser):
         self.beam['SIGZ'] = str(bet0*sigz) 
         self.beam['DZ'] = str(bet0*dz)
 
+        if float(self.beam["DISTRIBUTION_TYPE"]) > 100:
+            #for 221 dist type, zscale is half RS width
+            self.beam["ZSCALE"] =str( float(self.beam["ZSCALE"])*bet0 )
+
         # change to IMPACT-T coordinates definition
         #sigX    = float(self.beam['SIGX'])/Scxl  
         #sigY    = float(self.beam['SIGY'])/Scxl  
