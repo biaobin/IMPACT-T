@@ -102,6 +102,47 @@ class impactt_parser(lattice_parser):
                 f.write(control_file)
                 f.write(lattice_file)
             f.close()    
+
+    def back2lte(self, fname="lte2.impt",path="./"):
+        #dump back to lte2.impt
+        if path.endswith("/"):
+            fname = path+fname
+        else:
+            fname = path+"/"+fname 
+ 
+        #control section
+        lines ="&control \n"
+        lines +="!=============\n"
+        for key in self.control.keys():
+            lines += f"{key}={self.control[key]} \n"
+        lines +="&end \n\n"
+        
+        #beam section
+        lines +="&beam \n"
+        lines +="!=============\n"
+        for key in self.beam.keys():
+            lines += f"{key}={self.beam[key]} \n"
+        lines +="&end \n\n"
+        
+        #lattice section
+        lines +="&lattice \n"
+        lines +="!=============\n"
+        for elem in self.trackline:
+            lines += f"{elem['NAME']}: {elem['TYPE']}"
+            for key in elem.keys():
+                lines += f",{key}={elem[key]}"
+            
+            lines += "\n\n"
+        
+        #used line
+        usedline = ",".join(self.lattice["usedline"])
+        lines += f"line: line=({usedline}) \n\n"
+        
+        lines +="&end"    
+        
+        # back into lte2.impt
+        with open(fname,"w",encoding="utf-8") as f:
+            f.write(lines.lower())    
             
     # default control, beam, lattice dicts
     #==============================================================================
