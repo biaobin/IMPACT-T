@@ -130,7 +130,10 @@ class impactt_parser(lattice_parser):
         for elem in self.trackline:
             lines += f"{elem['NAME']}: {elem['TYPE']}"
             for key in elem.keys():
-                lines += f",{key}={elem[key]}"
+                if key in ["NAME","TYPE"]:
+                    pass
+                else:
+                    lines += f",{key}={elem[key]}"
             
             lines += "\n\n"
         
