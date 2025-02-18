@@ -105,6 +105,7 @@ class impactt_parser(lattice_parser):
 
     def back2lte(self, fname="lte2.impt",path="./"):
         #dump back to lte2.impt
+        print("Attention: lte.back2lte() must be called before lte.write_impacttin(), since write process will update some parameter settings.")
         if path.endswith("/"):
             fname = path+fname
         else:
