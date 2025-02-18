@@ -111,21 +111,21 @@ class impactt_parser(lattice_parser):
             fname = path+"/"+fname 
  
         #control section
-        lines ="&control \n"
+        lines ="&control\n"
         lines +="!=============\n"
         for key in self.control.keys():
             lines += f"{key}={self.control[key]} \n"
-        lines +="&end \n\n"
+        lines +="&end\n\n"
         
         #beam section
-        lines +="&beam \n"
+        lines +="&beam\n"
         lines +="!=============\n"
         for key in self.beam.keys():
-            lines += f"{key}={self.beam[key]} \n"
-        lines +="&end \n\n"
+            lines += f"{key}={self.beam[key]}\n"
+        lines +="&end\n\n"
         
         #lattice section
-        lines +="&lattice \n"
+        lines +="&lattice\n"
         lines +="!=============\n"
         for elem in self.trackline:
             lines += f"{elem['NAME']}: {elem['TYPE']}"
@@ -139,7 +139,7 @@ class impactt_parser(lattice_parser):
         
         #used line
         usedline = ",".join(self.lattice["usedline"])
-        lines += f"line: line=({usedline}) \n\n"
+        lines += f"line: line=({usedline})\n\n"
         
         lines +="&end"    
         
@@ -1042,8 +1042,8 @@ class impactt_parser(lattice_parser):
         lines = self.lines
         
         # get lattice section
-        pattern1 = re.compile(r'^&lattice$',re.I)  #not case sensitive
-        pattern2 = re.compile(r'^&end$',re.I)
+        pattern1 = re.compile(r'^&lattice',re.I)  #not case sensitive
+        pattern2 = re.compile(r'^&end',re.I)
         
         j1,j2 = self._get_index(pattern1, pattern2, lines)
         
