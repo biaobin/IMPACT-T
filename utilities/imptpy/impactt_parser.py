@@ -435,9 +435,9 @@ class impactt_parser(lattice_parser):
         '''
         #in case values not turned into str
         for key in self.control.keys():
-            self.control[key] = str(self.control[key])
+            self.control[key] = str(self.control[key]).upper()
         for key in self.beam.keys():
-            self.beam[key] = str(self.beam[key])
+            self.beam[key] = str(self.beam[key]).upper()
 
         # control section
         #----------------
@@ -646,7 +646,7 @@ class impactt_parser(lattice_parser):
             elem = self.lattice[elemName]
             #in case values not turned into str
             for key in elem.keys():
-                elem[key] = str(elem[key])
+                elem[key] = str(elem[key]).upper()
 
             if elem['TYPE'] == 'DRIFT':
                 lte_lines.append( elem['L'] )
