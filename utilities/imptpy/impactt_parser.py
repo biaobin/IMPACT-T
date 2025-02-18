@@ -51,11 +51,11 @@ class impactt_parser(lattice_parser):
         self.lattice["usedline"] = self.usedline
 
         # some parameters of the beam
-        self.Scxl = None
-        self.gam0 = None
-        self.gambet0 = None
-        self.bet0 = None
-        self.mass = None
+        self.Scxl ="NONE"
+        self.gam0 ="NONE"
+        self.gambet0 ="NONE"
+        self.bet0 ="NONE"
+        self.mass ="NONE"
         self.update_paras()
         
     def write_impacttin(self, path="./"):
@@ -170,7 +170,7 @@ class impactt_parser(lattice_parser):
         self.control['NEMISSION'] = -1
         self.control['TEMISSION'] = 0.0
         self.control['KINETIC_ENERGY'] = 0  # kinetic energy W, E=W+E0
-        self.control['BKENERGY'] = None     
+        self.control['BKENERGY'] ="NONE"    
         self.control['FREQ_RF_SCALE'] = 2.856e9
         self.control['INI_T'] = 0.0
 
@@ -252,7 +252,7 @@ class impactt_parser(lattice_parser):
         self.lat['DIPOLE']['L'] = 0.0
         self.lat['DIPOLE']['BX0'] = 0.0 
         self.lat['DIPOLE']['BY0'] = 0.0 
-        self.lat['DIPOLE']['FILEID'] = None
+        self.lat['DIPOLE']['FILEID'] ="NONE"
         self.lat['DIPOLE']['HALF_GAP'] = 40e-3 
         self.lat['DIPOLE']['DX'] = 0.0
         self.lat['DIPOLE']['DY'] = 0.0
@@ -263,7 +263,7 @@ class impactt_parser(lattice_parser):
         # Sol, 3 element
         self.lat['SOL']['ZEDGE']=0.0
         self.lat['SOL']['L']=0.0
-        self.lat['SOL']['FILEID']= None
+        self.lat['SOL']['FILEID']="NONE"
         self.lat['SOL']['SCALE']= 1.0
 
         # SolRF, 105 element
@@ -279,10 +279,10 @@ class impactt_parser(lattice_parser):
         self.lat['SOLRF']['ROTATE_Y'] = 0.0
         self.lat['SOLRF']['ROTATE_Z'] = 0.0
         self.lat['SOLRF']['SCALEB']   = 0.0
-        self.lat['SOLRF']['FILEID'] = None
-        self.lat['SOLRF']['Z1'] = None
-        self.lat['SOLRF']['Z2'] = None
-        self.lat['SOLRF']['L_FOURIER_EXP'] = None
+        self.lat['SOLRF']['FILEID'] ="NONE"
+        self.lat['SOLRF']['Z1'] ="NONE"
+        self.lat['SOLRF']['Z2'] ="NONE"
+        self.lat['SOLRF']['L_FOURIER_EXP'] ="NONE"
         
         # TWS
         self.lat['TWS']['ZEDGE']=0.0
@@ -293,10 +293,10 @@ class impactt_parser(lattice_parser):
         self.lat['TWS']['EMAX']=0.0
         self.lat['TWS']['FREQ']=2856E6
         self.lat['TWS']['PHASE']=0.0
-        self.lat['TWS']['FILEID_1']=None
-        self.lat['TWS']['FILEID_2']=None
-        self.lat['TWS']['FILEID_3']=None
-        self.lat['TWS']['FILEID_4']=None
+        self.lat['TWS']['FILEID_1']="NONE"
+        self.lat['TWS']['FILEID_2']="NONE"
+        self.lat['TWS']['FILEID_3']="NONE"
+        self.lat['TWS']['FILEID_4']="NONE"
         self.lat['TWS']['DX'] = 0.0
         self.lat['TWS']['DY'] = 0.0
         self.lat['TWS']['ROTATE_X'] = 0.0 #[rad]
@@ -310,7 +310,7 @@ class impactt_parser(lattice_parser):
         self.lat['EMFLDCYL']['L'] = 0.0
         self.lat['EMFLDCYL']['FREQ'] = 2856e6
         self.lat['EMFLDCYL']['PHASE'] = 0.0
-        self.lat['EMFLDCYL']['FILEID'] = None
+        self.lat['EMFLDCYL']['FILEID'] ="NONE"
         self.lat['EMFLDCYL']['DATAFMT'] = "IMPT"
 
         # -2 element
@@ -323,8 +323,8 @@ class impactt_parser(lattice_parser):
         self.lat['RCOL']['ZEDGE'] = 0.0
         self.lat['RCOL']['XMAX'] = 1.0
         self.lat['RCOL']['YMAX'] = 1.0
-        self.lat['RCOL']['XMIN'] = None
-        self.lat['RCOL']['YMIN'] = None
+        self.lat['RCOL']['XMIN'] ="NONE"
+        self.lat['RCOL']['YMIN'] ="NONE"
         
         # -7 element
         self.lat['MERGEBIN']['ZEDGE'] = 0.0
@@ -618,7 +618,7 @@ class impactt_parser(lattice_parser):
         current = float(self.beam['TOTAL_CHARGE'])*float(self.control['FREQ_RF_SCALE'])
         current = abs(current)
 
-        if self.control['BKENERGY']=='None':
+        if self.control['BKENERGY']=="NONE":
             self.control['BKENERGY']=self.control['KINETIC_ENERGY']
 
         control_lines.append(str(current))
@@ -670,7 +670,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'SOL':
-                if elem['FILEID']=='None':
+                if elem['FILEID']=="NONE":
                     print("ERROR: please give the SOL field ID.")
                     sys.exit()
                 lte_lines.append(elem['L'])
@@ -697,7 +697,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'SOLRF':
-                if elem['FILEID']=='None':
+                if elem['FILEID']=="NONE":
                     print("ERROR: please give the SOLRF field ID.")
                     sys.exit()
                 self.update_rfdatax(elem) 
@@ -730,7 +730,7 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'EMFLDCYL':
-                if elem['FILEID']=='None':
+                if elem['FILEID']=="NONE":
                     print("ERROR: please give the EMFLDCYL field ID.")
                     sys.exit()
 
@@ -758,16 +758,16 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('/ \n')
 
             elif elem['TYPE'] == 'TWS':
-                if elem['FILEID_1']=='None':
+                if elem['FILEID_1']=="NONE":
                     print("ERROR: please give the TWS field ID.")
                     sys.exit()
 
                 x=int(float(elem['FILEID_1']))
-                if elem['FILEID_2']=='None':
+                if elem['FILEID_2']=="NONE":
                     elem['FILEID_2'] = str(x+1)
-                if elem['FILEID_3']=='None':
+                if elem['FILEID_3']=="NONE":
                     elem['FILEID_3'] = str(x+2)
-                if elem['FILEID_4']=='None':
+                if elem['FILEID_4']=="NONE":
                     elem['FILEID_4'] = str(x+3)
 
                 amp=float(elem['EMAX'])
@@ -899,9 +899,9 @@ class impactt_parser(lattice_parser):
                 lte_lines.append('/ \n')
 
             elif elem['TYPE']=='RCOL':
-                if elem['XMIN']=='None':
+                if elem['XMIN']=="NONE":
                     elem['XMIN']=''.join(['-',elem['XMAX']])
-                if elem['YMIN']=='None':
+                if elem['YMIN']=="NONE":
                     elem['YMIN']=''.join(['-',elem['YMAX']])                
 
                 lte_lines.append('0 1 1 -11')
@@ -1089,14 +1089,14 @@ class impactt_parser(lattice_parser):
         f=open('rfdata'+elem['FILEID'],'r')
         lines=f.readlines()
         f.close()
-        if elem['Z1'] != 'None':
+        if elem['Z1'] != "NONE":
             lines[1] = elem['Z1'] + '\n'
-        if elem['Z2'] != 'None':
+        if elem['Z2'] != "NONE":
             lines[2] = elem['Z2'] + '\n'
-        if elem['L_FOURIER_EXP'] != 'None':
+        if elem['L_FOURIER_EXP'] != "NONE":
             lines[3] = elem['L_FOURIER_EXP'] + '\n'
             
-        if elem['Z1'] !='None' or elem['Z2'] !='None' or elem['L_FOURIER_EXP'] !='None':
+        if elem['Z1'] !="NONE" or elem['Z2'] !="NONE" or elem['L_FOURIER_EXP'] !="NONE":
             #copyfile('rfdata'+elem['FILEID'],'rfdata'+elem['FILEID']+'.bk')
             
             f=open('rfdata'+elem['FILEID'],'w')
