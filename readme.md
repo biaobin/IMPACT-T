@@ -50,7 +50,7 @@ All control parameters in `lte.impt` are listed:
 | Nemission      |       | int    | -1      | the number of numerical emission steps.  `Nemission=-1` no cathode model.`Nemission=400` means it will take 400 steps for emission process, and the emission time step is `Temission/Nemission`. |
 | Temission      | s     | double | 0.0     | Laser pulse emission time. `Temission=1e-9` means laser pulse is 1ns. |
 | kinetic_energy | eV    | double | 0       | The real kinetic energy of the beam.                         |
-| Bkenergy       | eV    | double | None    | If None, `kinetic_energy` values will be set in the python level. Particles behind the cathod will use this beta for emission. ==Question==: Under what situation would this value differs with `kinetic_energy`? |
+| Bkenergy       | eV    | double | None    | If None, `kinetic_energy` values will be set in the python level. Particles behind the cathod will use this beta for emission. ==Question==: Under what situation would this value differs with `kinetic_energy`? Ji set this value to 1eV in his examples. |
 | freq_rf_scale  | Hz    | double | 2856e6  | scale frequency $f_{scal}$,  $Scxl=c/(2\pi f_{scal}) $.      |
 | ini_t          | s     | double | 0.0     | initial reference time.                                      |
 
@@ -916,7 +916,30 @@ For fort.50, `Np 0 0` is added in the first line, for convenience of IMPACT-Z tr
 
 
 
+# others
+
+## `ini_t`
+
+If phase scan is done with zero charge and one reference particle locating at the s=0 position. For a flattop bunch with 22ps flattop+4ps*2 ramping section, we want to locate the beam center at the crest accelerating phase. 
+
+First step, we scanned the gun with 0 charge, and find the on crest phase as:
+
+![image-20250207140337056](./pics/image-20250207140337056.png)
 
 
 
+Now, for a flattop beam, we don’t want to locate the first particle at phi=134.31deg, what we want to do is to put the beam center at phi=134.31. 
 
+1). we shift the phase of the gun as `4ps+22/2ps=15ps` => `dphi=-7.02 deg`
+$$
+dphi=2*pi*1.3e9*15e-12/pi*180=7.02~\rm{deg}
+$$
+![image-20250217103140652](./pics/image-20250217103140652-1739785360947-2.png)
+
+2). Or we just shift the `ini_t=-15ps`:
+
+![image-20250217102714712](./pics/image-20250217102714712.png)
+
+3). If we still set `ini_t=0, phigun=134.31`, the first particle at the head section will see the on-crest phase:
+
+![image-20250217102038318](./pics/image-20250217102038318.png)
