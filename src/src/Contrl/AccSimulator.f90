@@ -2040,18 +2040,18 @@
               else
 
                 !output for phase evo movie
-                if(mod(i,40).eq.0) then
-                  !change 1 to sample_freq if you want less part. out
-                  call phase_Output(1000+kkk,Ebunch(ib),10)
+                !if(mod(i,20).eq.0) then
+                !  !change 1 to sample_freq if you want less part. out
+                !  call phase_Output(1000+kkk,Ebunch(ib),20)
 
-                  qchg = Ebunch(ib)%Current/Scfreq
-                  gamib = -Ebunch(ib)%refptcl(6)
-                  Np(ib) = Ebunch(ib)%Npt
-                  call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
-                           Nz,qchg,Ebunch(ib)%Mass,11000+kkk,gamib)
+                !  qchg = Ebunch(ib)%Current/Scfreq
+                !  gamib = -Ebunch(ib)%refptcl(6)
+                !  Np(ib) = Ebunch(ib)%Npt
+                !  call sliceprocdep_Output(Ebunch(ib)%Pts1,Nplocal(ib),Np(ib),&
+                !           Nz,qchg,Ebunch(ib)%Mass,11000+kkk,gamib)
 
-                  kkk = kkk+1
-                endif
+                !  kkk = kkk+1
+                !endif
 
                 !Boris's 2nd order integrator
                 call kick2t_BeamBunch(Nplocal(ib),Nxlocal,Nylocal,Nzlocal,&
