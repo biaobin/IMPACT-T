@@ -181,6 +181,7 @@ class lattice_parser:
             elif re.match(r'(\s*\w+\s*):(\s*[a-zA-Z]+\s*)', line):
                 # print(line)
                 line_type = 'ELEMENT'
+                
             else:
                 print('Unrecognized MATH_EXPR, ELEMENT, LINE name: ',line)
                 sys.exit()
@@ -188,7 +189,7 @@ class lattice_parser:
             if line_type == 'MATH_EXPR':
                 # use exec to run the expression
                 line = line.replace(' ','')
-                exec(line.lower())   #use lower() in case pi is used.
+                exec(line.lower(),globals())   #use lower() in case pi is used.
             
             elif line_type == 'MATH_EXPR_RPN_STO':
                 #like: % 1 2 / sto Lq
@@ -214,7 +215,7 @@ class lattice_parser:
                 # ---------------------------------
                 
                 #finally, Lq=0.5                   
-                exec("%s=%s" %(stack[-1],stack[0]))
+                exec("%s=%s" %(stack[-1],stack[0]),globals())
                 
             elif line_type == 'ELEMENT': 
                 # handle with element line    
