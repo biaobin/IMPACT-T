@@ -1396,8 +1396,9 @@
         if(my_rank.eq.0) then
           open(nfile,status='unknown')
           if (nfile.eq.50) then
-            print*,"total np=",totalnp
-            write(nfile,*)totalnp,0,0
+            !print*,"total np=",totalnp
+            !print*,"charge=",this%current/Scfreq
+            write(nfile,*)totalnp, this%current/Scfreq*this%Charge, 0
           endif
           do i = 1, this%Nptlocal,samplePeriod
 !            write(nfile,100)this%Pts1(1,i),this%Pts1(2,i),this%Pts1(3,i),&
