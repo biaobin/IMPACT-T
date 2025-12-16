@@ -896,7 +896,7 @@ changes:
 
 7th col added: (commented now)
 
-| $x (m)$ | $\gamma\beta_x$ | $y (m)$ | $\gamma\beta_y$ | $z (m)$ | $\gamma\beta_x$ | $z (deg)$ |
+| $x (m)$ | $\gamma\beta_x$ | $y (m)$ | $\gamma\beta_y$ | $z (m)$ | $\gamma\beta_z$ | $z (deg)$ |
 | ------- | --------------- | ------- | --------------- | ------- | --------------- | --------- |
 
 `Fort.40` is for the initial phase space, `fort.50` for the final phase space. Please NOTE, they are not the phase space at a certain time. All the particles are traced back `0.5dt` distance. It's a distribution seen by a PR target.
