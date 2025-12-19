@@ -16,7 +16,7 @@
 !           "ImpactT.in".
 !----------------------------------------------------------------
       module Inputclass
-        use mpistub
+        !use mpistub
         interface in_Input
           module procedure in1_Input, in2_Input, in3_Input
         end interface

@@ -13,7 +13,7 @@
 ! Comments:
 !----------------------------------------------------------------
       module Timerclass
-        use mpistub
+        !use mpistub
         double precision :: t_integ
         double precision :: t_map1
         double precision :: t_map2
